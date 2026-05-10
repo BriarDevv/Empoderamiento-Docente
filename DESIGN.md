@@ -169,23 +169,53 @@ Reservar para una palabra por titular, no abusar.
 
 ## 8. Mapeo a Tailwind
 
-Cuando se inicialice el proyecto, los tokens van a `tailwind.config` (v3) o al
-bloque `@theme` de `globals.css` (v4). Snippet de referencia para v4:
+Implementado en `src/app/globals.css` con bloque `@theme` de Tailwind v4.
+Cualquier cambio en los tokens visuales se aplica acá y se propaga
+automáticamente a las clases utilitarias.
 
 ```css
 @theme {
-  --color-azul-principal: #1F2A44;
-  --color-azul-medio: #4A6FA5;
-  --color-azul-claro: #A9C5E8;
-  --color-verde-concepto: #3E7C6D;
-  --color-naranja-accion: #E07A2F;
-  --color-gris-fondo: #F2F4F7;
-  --color-gris-texto: #6B7280;
+  /* paleta */
+  --color-azul-principal: #1f2a44;
+  --color-azul-medio: #4a6fa5;
+  --color-azul-claro: #a9c5e8;
+  --color-verde-concepto: #3e7c6d;
+  --color-naranja-accion: #e07a2f;
+  --color-gris-fondo: #f2f4f7;
+  --color-gris-texto: #6b7280;
 
-  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* tipografías expuestas por next/font/google en src/app/layout.tsx */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  /* escala fluida mobile → desktop (con line-height pareada) */
+  --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);
+  --text-display--line-height: 1.05;
+  --text-h1: clamp(2rem, 0.75rem + 4vw, 3rem);
+  --text-h1--line-height: 1.1;
+  --text-h2: clamp(1.5rem, 0.75rem + 2vw, 2.25rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.25rem, 0.875rem + 1vw, 1.5rem);
+  --text-h3--line-height: 1.25;
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
 }
 ```
+
+Clases utilitarias generadas automáticamente:
+
+- **Paleta:** `bg-azul-principal`, `text-naranja-accion`, `border-verde-concepto`,
+  `bg-gris-fondo/40` (con opacidad), etc.
+- **Tipografía:** `font-sans` (Inter, default del cuerpo), `font-display` (Manrope,
+  para títulos).
+- **Escala:** `text-display`, `text-h1`, `text-h2`, `text-h3`, `text-body`,
+  `text-small` (cada una ya incluye su line-height).
+
+Las fuentes se cargan con `next/font/google` en `src/app/layout.tsx`, que
+las inyecta como CSS vars (`--font-inter`, `--font-manrope`) que luego
+consume el `@theme`.
 
 ---
 

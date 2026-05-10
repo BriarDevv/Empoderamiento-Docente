@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* === Paleta cromática (manual de marca ED) === */
+  --color-azul-principal: #1f2a44;
+  --color-azul-medio: #4a6fa5;
+  --color-azul-claro: #a9c5e8;
+  --color-verde-concepto: #3e7c6d;
+  --color-naranja-accion: #e07a2f;
+  --color-gris-fondo: #f2f4f7;
+  --color-gris-texto: #6b7280;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* === Tipografías (variables expuestas por next/font en layout.tsx) === */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* === Escala tipográfica fluida (mobile → desktop) === */
+  --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);
+  --text-display--line-height: 1.05;
+  --text-h1: clamp(2rem, 0.75rem + 4vw, 3rem);
+  --text-h1--line-height: 1.1;
+  --text-h2: clamp(1.5rem, 0.75rem + 2vw, 2.25rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.25rem, 0.875rem + 1vw, 1.5rem);
+  --text-h3--line-height: 1.25;
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-gris-fondo);
+  color: var(--color-azul-principal);
+  font-family: var(--font-sans);
 }
