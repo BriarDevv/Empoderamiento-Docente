@@ -358,7 +358,7 @@ Antes de pedir merge a `main`:
 - [x] Tooling: Prettier + `prettier-plugin-tailwindcss`
 - [x] `pnpm-workspace.yaml` con `allowBuilds` aprobando sharp y unrs-resolver
 - [x] `git init` + remote `origin` (`BriarDevv/Empoderamiento-Docente`)
-- [ ] Primer commit + push inicial
+- [x] Primer commit + push inicial (4 commits atómicos en `main`)
 - [ ] Mapear tokens de `DESIGN.md` al Tailwind v4 (`globals.css` con `@theme`)
 - [ ] Cargar fuentes Manrope + Inter (`next/font/google`)
 - [ ] Crear `src/config/site.ts` con datos institucionales

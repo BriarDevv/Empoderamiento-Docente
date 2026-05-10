@@ -136,11 +136,14 @@ Si sos una IA trabajando en este repo:
 
 - [x] Manual de marca recibido y procesado → `DESIGN.md`
 - [x] Documentación AI-friendly inicial (`AGENTS.md`, `CLAUDE.md`, `docs/`)
-- [ ] Inicializar Next.js + TS + Tailwind
-- [ ] `git init` + primer commit
-- [ ] Mapear tokens de `DESIGN.md` al config
-- [ ] Cargar fuentes Manrope + Inter
-- [ ] Conectar MongoDB
+- [x] Scaffold Next.js 16 (App Router + Turbopack) + TS strict + Tailwind v4 + ESLint 9
+- [x] Stack adicional: GSAP, Lenis, MongoDB driver oficial, Zod
+- [x] Tooling: Prettier + `prettier-plugin-tailwindcss`
+- [x] `git init` + remote + primer push (4 commits atómicos en `main`)
+- [ ] Mapear tokens de `DESIGN.md` al Tailwind v4 (`@theme` en `globals.css`)
+- [ ] Cargar fuentes Manrope + Inter (`next/font/google`)
+- [ ] Crear `src/config/site.ts` con datos institucionales
+- [ ] Conectar MongoDB (Atlas vs local — pendiente)
 - [ ] Sitemap definitivo
 - [ ] CI/CD
 
