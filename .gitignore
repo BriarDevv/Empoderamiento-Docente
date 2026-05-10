@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code (per-developer local state)
+.claude/settings.local.json
+
+# oh-my-claudecode (per-developer local state — orchestrator, memory cache, hud)
+.omc/
