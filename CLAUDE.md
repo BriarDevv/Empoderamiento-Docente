@@ -59,14 +59,21 @@ documentar cuándo invocar cada uno.
 ## Quirks específicos de Claude
 
 - **Idioma por defecto con el usuario:** español.
-- **OS:** Windows. Shell por defecto **PowerShell** (sintaxis: `$null`, no
-  `/dev/null`; `$env:VAR`, no `$VAR`; backtick para line continuation).
-  Bash disponible vía la herramienta `Bash` para scripts POSIX.
-- **Path style:** rutas absolutas Windows (`C:\Users\USER\Desktop\...`)
-  para tools que las requieren.
-- **Memoria persistente** activa en
-  `C:\Users\USER\.claude\projects\C--Users-USER-Desktop-Empoderamiento-Docente\memory\`.
-  Leer `MEMORY.md` al iniciar para recuperar contexto previo entre sesiones.
+- **OS:** depende del developer (Windows / macOS / Linux). En Windows el
+  shell por defecto es **PowerShell** (sintaxis: `$null` no `/dev/null`;
+  `$env:VAR` no `$VAR`; backtick para line continuation). Bash está
+  disponible vía la herramienta `Bash` para scripts POSIX multiplataforma.
+- **Path style:** rutas absolutas adaptadas al OS de cada uno (no
+  hardcodear rutas específicas de una máquina en código ni en docs).
+- **Memoria persistente de Claude Code** (local por developer, **no se
+  commitea**). Vive en:
+  - macOS / Linux: `~/.claude/projects/<encoded-repo-path>/memory/`
+  - Windows: `%USERPROFILE%\.claude\projects\<encoded-repo-path>\memory\`
+
+  Donde `<encoded-repo-path>` es el path absoluto del repo en esa máquina
+  con `:` y separadores reemplazados por `--`. Cada developer construye
+  y mantiene la suya. Al iniciar sesión, leer `MEMORY.md` (en esa ruta)
+  para recuperar contexto previo entre sesiones.
 - **Ultrareview** disponible vía `/ultrareview` cuando haya PR para
   revisión multi-agente.
 
