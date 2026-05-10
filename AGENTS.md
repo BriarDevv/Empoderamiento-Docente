@@ -12,7 +12,7 @@
 - **Qué es:** sitio web institucional de **Empoderamiento Docente (ED)**.
 - **Stack:** Next.js (App Router) + TypeScript strict + Tailwind + GSAP +
   Lenis + MongoDB.
-- **Lanzamiento:** **febrero 2026**.
+- **Lanzamiento:** **junio 2026** (estimado).
 - **Reglas duras** (no negociables):
   1. **Lenguaje inclusivo siempre** (`las y los`), nunca "alumnos" → siempre "estudiantes".
   2. **Tokens, no hardcodes.** Colores y tipos viven en `DESIGN.md`.
@@ -57,10 +57,12 @@
 ## 1. System Purpose
 
 Construir el sitio web institucional de **Empoderamiento Docente (ED)**,
-organización dirigida por Daniela Reyes-Gasperini que trabaja desarrollo
-profesional docente en Chile, México y Argentina.
+organización dirigida por **Daniela Reyes-Gasperini** que trabaja desarrollo
+profesional docente en Chile, México y Argentina. El sitio también destaca
+el trabajo y la trayectoria de **Raquel Ayala** (rol exacto y vínculo con
+ED a definir con el cliente).
 
-**Lanzamiento:** febrero 2026.
+**Lanzamiento:** junio 2026 (estimado).
 **Metas medibles:**
 1. Posicionamiento institucional en buscadores y redes.
 2. Captación de docentes vía CTA de envío de CV.

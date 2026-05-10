@@ -62,6 +62,12 @@ las matemáticas como objeto científico.
 ### Daniela Reyes-Gasperini
 Fundadora y directora de ED. Doctora en Matemática Educativa.
 
+### Raquel Ayala
+Otra figura cuya trayectoria y trabajo el sitio destaca junto al de Daniela.
+**Rol exacto y vínculo con ED pendientes de definir con el cliente.** Antes
+de redactar copy que la mencione, consultar con el usuario el formato
+adecuado (co-fundadora / asociada / autora invitada / colega referente / etc.).
+
 ### Profesionales de la educación
 Forma preferida de referirse a las y los docentes. Subraya su carácter
 profesional, no de mera ejecución.

@@ -15,8 +15,10 @@
 
 ## ¿Qué es esto?
 
-Sitio web institucional dirigido por **Daniela Reyes-Gasperini**. Su lanzamiento
-está previsto para **febrero 2026** y debe cumplir tres metas:
+Sitio web institucional para **Empoderamiento Docente (ED)**, dirigido por
+**Daniela Reyes-Gasperini**, que también destaca el trabajo de **Raquel
+Ayala** (rol exacto a confirmar con el cliente). Su lanzamiento está
+previsto para **junio 2026** y debe cumplir tres metas:
 
 1. **Posicionamiento institucional** de ED.
 2. **Captación de docentes** vía CTA de envío de CV.
