@@ -359,9 +359,11 @@ Antes de pedir merge a `main`:
 - [x] `pnpm-workspace.yaml` con `allowBuilds` aprobando sharp y unrs-resolver
 - [x] `git init` + remote `origin` (`BriarDevv/Empoderamiento-Docente`)
 - [x] Primer commit + push inicial (4 commits atómicos en `main`)
-- [ ] Mapear tokens de `DESIGN.md` al Tailwind v4 (`globals.css` con `@theme`)
-- [ ] Cargar fuentes Manrope + Inter (`next/font/google`)
+- [x] Mapear tokens de `DESIGN.md` al Tailwind v4 (`globals.css` con `@theme`)
+- [x] Cargar fuentes Manrope + Inter (`next/font/google`)
+- [x] Configurar metadata base + `lang="es"` en root layout
 - [ ] Crear `src/config/site.ts` con datos institucionales
 - [ ] Conectar MongoDB (Atlas vs local — pendiente decisión)
+- [ ] Reemplazar placeholder de `src/app/page.tsx` por home real
 - [ ] Sitemap definitivo
 - [ ] CI/CD

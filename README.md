@@ -140,10 +140,12 @@ Si sos una IA trabajando en este repo:
 - [x] Stack adicional: GSAP, Lenis, MongoDB driver oficial, Zod
 - [x] Tooling: Prettier + `prettier-plugin-tailwindcss`
 - [x] `git init` + remote + primer push (4 commits atómicos en `main`)
-- [ ] Mapear tokens de `DESIGN.md` al Tailwind v4 (`@theme` en `globals.css`)
-- [ ] Cargar fuentes Manrope + Inter (`next/font/google`)
+- [x] Mapear tokens de `DESIGN.md` al Tailwind v4 (`@theme` en `globals.css`)
+- [x] Cargar fuentes Manrope + Inter (`next/font/google`)
+- [x] Configurar metadata base + `lang="es"` en root layout
 - [ ] Crear `src/config/site.ts` con datos institucionales
 - [ ] Conectar MongoDB (Atlas vs local — pendiente)
+- [ ] Reemplazar placeholder de `src/app/page.tsx` por home real
 - [ ] Sitemap definitivo
 - [ ] CI/CD
 
