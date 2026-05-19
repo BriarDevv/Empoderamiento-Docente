@@ -1,3 +1,9 @@
+# Documentación a mano — Markdown lo gestiona el autor, no Prettier.
+*.md
+*.mdx
+docs/**
+
+# Build artifacts
 node_modules
 .next
 out
@@ -5,9 +11,15 @@ build
 dist
 coverage
 public
+
+# Lockfiles
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# Generados / minificados
 *.min.js
 *.min.css
+
+# Entorno
 .env*
