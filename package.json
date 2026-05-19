@@ -13,7 +13,20 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "doctor": "bash scripts/ed-doctor.sh",
+    "check": "pnpm lint && pnpm typecheck && pnpm format:check",
+    "check:all": "pnpm check && pnpm doctor",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,jsonc,css,html,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "gsap": "^3.15.0",
