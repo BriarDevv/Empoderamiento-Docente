@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Preguntas sobre el dominio educativo
+    url: https://github.com/BriarDevv/Empoderamiento-Docente/discussions
+    about: Para preguntas conceptuales (pedagogía, copy, glosario, marca) abrí una discusión en vez de un issue.
+  - name: Reporte de seguridad
+    url: https://github.com/BriarDevv/Empoderamiento-Docente/security/advisories/new
+    about: Vulnerabilidades o exposición de datos van por canal privado (Private Vulnerability Reporting), no por issue público.
