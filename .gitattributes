@@ -1,0 +1,43 @@
+# Forzar LF en todo texto, independientemente del OS del developer.
+# Evita problemas Windows ↔ Linux/macOS cuando Prettier o ESLint los
+# reescriben con un EOL diferente.
+
+* text=auto eol=lf
+
+# Texto explícito por tipo (defensa redundante si alguien fuerza otra cosa).
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.json      text eol=lf
+*.jsonc     text eol=lf
+*.md        text eol=lf
+*.mdx       text eol=lf
+*.css       text eol=lf
+*.html      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.sh        text eol=lf
+*.svg       text eol=lf
+
+# Binarios — el repo no los procesa como texto.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.avif      binary
+*.ico       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+*.pdf       binary
+*.zip       binary
+*.mp4       binary
+*.webm      binary
+
+# Lockfiles — no mostrar diff por defecto (regenerarlos, no editarlos a mano).
+pnpm-lock.yaml      -diff
+package-lock.json   -diff
+yarn.lock           -diff
