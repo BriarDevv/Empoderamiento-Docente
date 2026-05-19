@@ -194,9 +194,31 @@ Ninguna IA ejecuta sin confirmación explícita del usuario:
 - `git commit`, `git push`, `git reset --hard`, force-push.
 - Crear/cerrar PRs o issues.
 - Agregar dependencias (`npm install`, `pnpm add`).
-- Modificar `AGENTS.md`, `CLAUDE.md`, `DESIGN.md`.
+- Modificar `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`,
+  `DESIGN.md`.
 - Ejecutar migraciones de DB en cualquier ambiente.
 - Cualquier acción visible fuera del repo local.
+
+### 5.7. Estrategia de merge a `main`
+
+- **`main` solo se actualiza vía PR mergeado en GitHub.** Push directo
+  a `main` está prohibido salvo emergencia documentada por escrito
+  (incident, prod caída). Aún en ese caso, abrir el PR del fix después
+  de estabilizar para que el cambio quede revisado.
+- **Estrategia:** *Rebase and merge*. Mantiene el grafo lineal y
+  preserva los commits atómicos que pide §9. Merge commit y squash
+  están deshabilitados a nivel repo.
+- **Branch protection** (configurada en GitHub):
+  - `required_linear_history: true`.
+  - `allow_force_pushes: false`.
+  - `allow_deletions: false`.
+  - `required_conversation_resolution: true` (resolver review comments
+    antes de mergear).
+  - `required_approving_review_count: 0` — el gate de review es
+    *cultural* (CODEOWNERS + convención), no técnico. Subir a 1+
+    cuando el equipo crezca.
+- **CI debe estar verde** antes de pedir review (`pnpm doctor`,
+  `pnpm check`, `pnpm build`).
 
 ---
 
