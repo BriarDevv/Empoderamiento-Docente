@@ -1,0 +1,37 @@
+name: Deploy Web (placeholder)
+
+# Placeholder de deploy. La integración de Vercel maneja el deploy real al
+# pushear / mergear PRs (no requiere workflow). Este archivo existe como
+# slot para hooks custom post-deploy futuros:
+#
+#   - Notificación a Slack / Discord / mail cuando hay release.
+#   - Smoke test contra la URL de prod (curl + assert).
+#   - Disparo de revalidación de cache de páginas estáticas.
+#
+# Trigger manual (workflow_dispatch) hasta que sepamos exactamente qué
+# hooks queremos enganchar y cuándo. Cuando lo definamos:
+#   - Cambiar trigger a deployment_status: completed con state == success.
+#   - Sumar jobs concretos.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Entorno objetivo (preview | production)"
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+
+jobs:
+  placeholder:
+    name: Placeholder (sin acción real)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reportar trigger
+        run: |
+          echo "Trigger: ${{ github.event_name }}"
+          echo "Target: ${{ inputs.target }}"
+          echo "El deploy real lo maneja la integración de Vercel."
+          echo "Cuando definamos los hooks post-deploy, reemplazar este job."
