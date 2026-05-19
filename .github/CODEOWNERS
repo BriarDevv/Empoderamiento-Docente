@@ -1,0 +1,42 @@
+# CODEOWNERS — review automático por path
+#
+# Cuando un PR toca alguno de los paths listados, GitHub asigna como
+# reviewers a los handles definidos. Documentación:
+# https://docs.github.com/en/repositories/managing-your-repositories-settings-and-security/customizing-your-repository/about-code-owners
+#
+# Mantener sincronizado con:
+# https://github.com/BriarDevv/Empoderamiento-Docente/settings/access
+#
+# TODO: sumar al resto del equipo cuando estén dados de alta como
+# colaboradores en GitHub (hoy solo @BriarDevv está agregado).
+
+# Default — cualquier archivo del repo
+*                               @BriarDevv
+
+# Meta-docs (cambios acá afectan a las IAs y al flujo del equipo)
+/AGENTS.md                      @BriarDevv
+/CLAUDE.md                      @BriarDevv
+/CODEX.md                       @BriarDevv
+/GEMINI.md                      @BriarDevv
+/DESIGN.md                      @BriarDevv
+/README.md                      @BriarDevv
+
+# Convenciones de equipo
+/docs/COMMITS.md                @BriarDevv
+/docs/GLOSSARY.md               @BriarDevv
+/docs/AI_GUIDELINES.md          @BriarDevv
+
+# Configuración crítica del build y del runtime
+/package.json                   @BriarDevv
+/pnpm-lock.yaml                 @BriarDevv
+/pnpm-workspace.yaml            @BriarDevv
+/tsconfig.json                  @BriarDevv
+/next.config.ts                 @BriarDevv
+/eslint.config.mjs              @BriarDevv
+/postcss.config.mjs             @BriarDevv
+
+# Infra del repo
+/.github/                       @BriarDevv
+/.editorconfig                  @BriarDevv
+/.gitattributes                 @BriarDevv
+/.gitignore                     @BriarDevv
