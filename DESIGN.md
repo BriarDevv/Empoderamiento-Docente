@@ -4,9 +4,9 @@ Sistema de diseño para el sitio web institucional. Fuente: Manual de marca ED.
 Este documento es la **fuente única de verdad** para tokens visuales: colores,
 tipografías, jerarquía, espaciado e iconografía.
 
-> Logo y reglas de aplicación de marca (cards, RRSS, papelería) **se definirán
-> aparte** y pueden diferir del manual original. Este archivo cubre lo que el
-> sitio web necesita.
+> Cubre lo que el sitio web necesita. Aplicaciones específicas de la marca
+> (papelería, RRSS, merch) están detalladas en el Manual de marca ED y pueden
+> tener variantes que este doc no replica.
 
 ---
 
@@ -110,22 +110,51 @@ Tailwind v4 para el rango fluido. Valores en rem, base 16px.
   el manual de marca, MIT, tree-shakeable). Si un ícono no existe en Lucide,
   vectorizar manualmente respetando el estilo.
 
-Conceptos recurrentes en la marca (del manual): bombilla (ideas), libro
-(formación), personas (comunidad), diana con flecha (objetivos), gráfico
-(crecimiento). Mapearlos cuando aplique.
+### Set canónico
+
+Cinco íconos forman el set de referencia del manual. Mapeo recomendado:
+
+| Ícono              | Concepto    | Lucide         | Uso típico                              |
+| ------------------ | ----------- | -------------- | --------------------------------------- |
+| Bombilla           | Ideas       | `lightbulb`    | Reflexiones, blog, contenido editorial  |
+| Libro abierto      | Formación   | `book-open`    | Cursos, talleres, material didáctico    |
+| Dos personas       | Comunidad   | `users`        | Comunidad, testimonios, eventos         |
+| Diana con flecha   | Objetivos   | `target`       | Propósito, misión, metas                |
+| Gráfico ascendente | Crecimiento | `trending-up`  | Transformación, resultados, impacto     |
+
+Estos cinco cubren los pilares semánticos de ED. Otros íconos de Lucide se
+pueden usar para UI accesoria (chevrons, close, search, etc.) sin pasar por
+esta tabla.
 
 ---
 
 ## 6. Patrón gráfico
 
-La marca tiene un **patrón de puntos** (grid de dots grises) que aparece
-combinado con formas circulares planas. Para web:
+El sistema gráfico de la marca combina **dos elementos** que se usan juntos o
+por separado como fondo decorativo:
 
-- Implementar como SVG inline o `background-image` con `radial-gradient`.
-- Usar como fondo decorativo en hero, separadores y portadas de sección, sin
-  saturar.
-- Color de los puntos: `gris-texto` al 30–40% de opacidad sobre fondo claro,
+1. **Grid de puntos** — matriz regular de dots, separación uniforme.
+2. **Formas planas** — círculos y semicírculos sólidos como acento visual,
+   parcialmente superpuestos al grid o emergiendo de los bordes de la pieza.
+
+### Reglas de uso
+
+- **Puntos:** color `gris-texto` al 30–40% de opacidad sobre fondo claro;
   blanco al 10–15% sobre fondo azul.
+- **Forma plana verde** (`verde-concepto`) → acento conceptual. Acompaña
+  títulos o íconos que refuerzan el contenido editorial.
+- **Forma plana azul** (`azul-medio` o `azul-claro`) → acento institucional.
+  Acompaña bloques de identidad: headers, footers, separadores.
+- Una sola forma plana por bloque visual. Nunca verde + naranja juntos en la
+  misma composición (ver §1).
+
+### Implementación
+
+- Puntos: SVG inline o `background-image` con `radial-gradient`.
+- Formas: SVG inline (mejor control responsive) o `<div>` con `border-radius:
+  50%` y `clip-path` / `overflow: hidden` del contenedor para semicírculos.
+- Usar como fondo decorativo en hero, separadores y portadas de sección.
+  Evitar saturar: máximo un patrón cada 2–3 secciones.
 
 ---
 
@@ -230,3 +259,52 @@ consume el `@theme`.
 - **Movimiento contenido (GSAP + Lenis).** Animaciones suaves, transiciones
   largas (400–800ms), easing tipo `power2.out`. Nada de bounces ni efectos
   llamativos. La animación acompaña la lectura, no la interrumpe.
+
+---
+
+## 10. Logo
+
+El logo combina **wordmark "ED"** (E arriba, D abajo) con un **isotipo de
+faro** dentro de un recuadro vertical, más la tagline "EMPODERAMIENTO
+DOCENTE". El faro es la metáfora central de marca (guía, orientación,
+referencia).
+
+### Variantes oficiales
+
+| Variante     | Cuándo usar                                                 |
+| ------------ | ----------------------------------------------------------- |
+| **Completo** | Header del sitio, footer, presentaciones, papelería formal. |
+| **Isotipo**  | Favicon, avatar RRSS, espacios reducidos, watermarks.       |
+| **Negativo** | Sobre fondos oscuros (azul principal). Todo en blanco.      |
+
+### Colores
+
+- **Sobre claro:** ED + faro + "EMPODERAMIENTO" en `azul-principal`; "DOCENTE"
+  en `azul-medio`.
+- **Sobre azul:** ED + faro + "EMPODERAMIENTO" en blanco; "DOCENTE" en
+  `azul-claro`.
+- **Monocromo:** solo si el medio lo exige (impresión a 1 tinta). Default es
+  la versión a color.
+
+### Reglas de uso
+
+- **Margen de seguridad:** mínimo equivalente a la altura de la "E" del
+  wordmark en todos los lados.
+- **Tamaño mínimo (web):** 24px de alto para el isotipo; 120px de ancho para
+  el logo completo. Por debajo de eso, usar solo isotipo.
+- **No deformar, no rotar, no cambiar colores fuera de la paleta, no agregar
+  efectos** (sombra, glow, gradientes).
+- **No colocar sobre fondos de bajo contraste** (gris medio, foto saturada
+  sin tratar). Si va sobre foto, usar overlay azul oscuro con 60%+ opacidad.
+
+### Archivos
+
+Los SVG oficiales se guardan en `public/brand/`:
+
+- `logo-completo.svg` — versión sobre claro, con tagline.
+- `logo-completo-negativo.svg` — versión sobre azul, con tagline.
+- `isotipo.svg` — ED + faro, sin tagline.
+- `isotipo-negativo.svg` — isotipo sobre azul oscuro.
+
+Hasta tenerlos en el repo, usar placeholder textual o el favicon de Next.js.
+**Nunca** generar ni redibujar el logo con IA o trazado manual.
