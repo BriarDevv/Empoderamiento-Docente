@@ -46,3 +46,6 @@ next-env.d.ts
 
 # oh-my-claudecode (per-developer local state — orchestrator, memory cache, hud)
 .omc/
+
+# superpowers (per-developer local state — brainstorm visual companion content)
+.superpowers/
