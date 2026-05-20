@@ -3,7 +3,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Highlight } from "@/components/ui/Highlight";
 import { ButtonPrimary } from "@/components/ui/ButtonPrimary";
 import { ButtonSecondary } from "@/components/ui/ButtonSecondary";
-import { LogoED } from "@/components/brand/LogoED";
+import { LogotipoEDInline } from "@/components/brand/LogotipoEDInline";
 
 const flujo = [
   "Investigamos",
@@ -44,9 +44,9 @@ export function Hero() {
         className="absolute top-28 left-6 z-0 hidden h-40 w-40 bg-[radial-gradient(circle,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:14px_14px] md:block"
       />
 
-      <div className="relative z-10 mx-auto grid min-h-[88vh] max-w-screen-xl gap-12 px-5 pt-24 pb-32 md:grid-cols-12 md:items-center md:gap-8 md:px-10 md:pt-28 md:pb-40">
-        {/* Lado copy (7/12) */}
-        <div className="md:col-span-7" data-anim="hero-copy">
+      <div className="relative z-10 mx-auto grid min-h-[72vh] max-w-screen-xl gap-12 px-5 pt-16 pb-20 md:grid-cols-2 md:items-center md:gap-12 md:px-10 md:pt-20 md:pb-24">
+        {/* Pilar copy — ocupa el ancho de la columna, texto alineado a la izquierda */}
+        <div className="flex flex-col" data-anim="hero-copy">
           <div data-anim-item>
             <Eyebrow variant="light" dashClass="w-14">
               Investigación · Acción · Reflexión
@@ -55,8 +55,7 @@ export function Hero() {
 
           <h1
             data-anim-item
-            className="font-display mt-10 leading-[0.96] font-bold tracking-[-0.025em]"
-            style={{ fontSize: "clamp(2.85rem, 7.5vw, 6.25rem)" }}
+            className="font-display text-display mt-6 font-bold tracking-[-0.025em]"
           >
             Investigamos para{" "}
             <span className="relative whitespace-nowrap">
@@ -67,7 +66,7 @@ export function Hero() {
 
           <p
             data-anim-item
-            className="text-azul-claro/90 mt-8 max-w-xl font-sans text-[1.02rem] leading-relaxed md:text-[1.12rem]"
+            className="text-azul-claro/90 mt-5 font-sans text-[1.02rem] leading-relaxed md:text-[1.08rem]"
           >
             Desarrollo profesional docente y resignificación del conocimiento
             matemático escolar en {siteConfig.paises.join(", ")}. Un ciclo
@@ -77,7 +76,7 @@ export function Hero() {
           {/* Flujo del ciclo — chips con flechas */}
           <ol
             data-anim-item
-            className="text-azul-claro mt-10 flex flex-wrap items-center gap-x-2.5 gap-y-3 font-sans text-[0.78rem] tracking-[0.15em] uppercase md:text-[0.82rem]"
+            className="text-azul-claro mt-7 flex flex-wrap items-center gap-x-2.5 gap-y-3 font-sans text-[0.78rem] tracking-[0.15em] uppercase md:text-[0.82rem]"
           >
             {flujo.map((fase, i) => (
               <li key={fase} className="flex items-center gap-2.5">
@@ -93,7 +92,7 @@ export function Hero() {
 
           <div
             data-anim-item
-            className="mt-12 flex flex-wrap items-center gap-4"
+            className="mt-8 flex flex-wrap items-center gap-4"
           >
             <ButtonPrimary href="#comunidad">
               Sumate a la comunidad
@@ -104,20 +103,17 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Lado logo gigante (5/12) — pieza heroica */}
-        <div
-          className="relative flex items-center justify-center md:col-span-5"
-          data-anim="hero-logo"
-        >
+        {/* Pilar logo — centrado en su columna. La animación de "construcción"
+            (stroke-draw + reveal por partes) vive dentro de LogotipoEDInline. */}
+        <div className="relative flex items-center justify-center">
           {/* Glow detrás del logo */}
           <span
             aria-hidden="true"
             className="bg-azul-claro/5 absolute inset-0 -m-12 rounded-full blur-2xl"
           />
-          <LogoED
+          <LogotipoEDInline
             variant="negativo"
-            priority
-            className="relative h-auto w-full max-w-md drop-shadow-[0_8px_32px_rgba(0,0,0,0.35)] md:max-w-none"
+            className="relative h-auto w-full max-w-[14rem] drop-shadow-[0_8px_32px_rgba(0,0,0,0.35)] md:max-w-[20rem]"
             alt="Empoderamiento Docente"
           />
         </div>
