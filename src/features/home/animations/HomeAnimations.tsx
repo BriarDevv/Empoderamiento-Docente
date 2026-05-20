@@ -45,22 +45,9 @@ export function HomeAnimations({ children }: { children: ReactNode }) {
         );
       }
 
-      // Logo: fade-in + sutil scale-up
-      const heroLogo = scope.querySelector('[data-anim="hero-logo"]');
-      if (heroLogo) {
-        gsap.fromTo(
-          heroLogo,
-          { opacity: 0, scale: 0.92, y: 16 },
-          {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 1.2,
-            delay: 0.3,
-            ease: "power3.out",
-          },
-        );
-      }
+      // Logo: la animación de "construcción" (stroke-draw del border + reveal
+      // por partes del faro y las letras) vive dentro de LogotipoEDInline.tsx,
+      // que maneja su propio timeline GSAP al montar. No animar acá.
 
       // Scroll indicator: fade-in al final
       const scrollIndicator = scope.querySelector(
