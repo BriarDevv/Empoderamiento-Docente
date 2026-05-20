@@ -52,10 +52,12 @@ export const siteConfig = {
 
   // Redes sociales — pendientes de confirmar con el cliente. Dejar el
   // bloque vacío hasta tener los handles oficiales. No inventar URLs.
-  redes: {
-    // instagram: "https://instagram.com/<handle>",
-    // linkedin: "https://linkedin.com/company/<slug>",
-    // youtube: "https://youtube.com/@<handle>",
+  // El render condicional de ComunidadRedes y Footer las muestra cuando
+  // se llenen.
+  redes: {} as {
+    instagram?: string;
+    linkedin?: string;
+    facebook?: string;
   },
 
   // Frases pilares que el sitio reusa verbatim (AGENTS.md §5.5).
