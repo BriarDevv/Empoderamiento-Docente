@@ -18,6 +18,7 @@
 | Onboarding humano | [`../README.md`](../README.md)                  | Quickstart, arquitectura, stack, identidad visual resumida                    |
 | Commits           | [`COMMITS.md`](COMMITS.md)                      | Conventional Commits + atómicos + ejemplos por categoría                      |
 | Glosario          | [`GLOSSARY.md`](GLOSSARY.md)                    | Jerga del dominio educativo de ED, vocabulario de UI, frases pilares          |
+| Mensajes de marca | [`MESSAGING.md`](MESSAGING.md)                  | Copy canónico: tagline, hero, triángulo de pilares, manifiesto, tono de voz   |
 | Código IA-friendly| [`AI_GUIDELINES.md`](AI_GUIDELINES.md)          | 18 reglas detalladas: naming, archivos chicos, TS, Tailwind, GSAP, Mongo      |
 
 ---
@@ -27,7 +28,7 @@
 | Objetivo                                          | Leer en este orden                                                                  |
 | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | Maquetar un componente o sección                  | [`../DESIGN.md`](../DESIGN.md) → [`AI_GUIDELINES.md`](AI_GUIDELINES.md)              |
-| Escribir copy del sitio                           | [`GLOSSARY.md`](GLOSSARY.md) → `../AGENTS.md` §5.1 (lenguaje inclusivo) → §5.5 (mensajes pilares) |
+| Escribir copy del sitio                           | [`MESSAGING.md`](MESSAGING.md) → [`GLOSSARY.md`](GLOSSARY.md) → `../AGENTS.md` §5.1 (lenguaje inclusivo) |
 | Trabajar con animaciones (GSAP / Lenis)           | `../AGENTS.md` §7 → §8 (anti-patterns) → [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §11  |
 | Crear endpoints / API                             | [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §8 + §12 → `../AGENTS.md` §7                  |
 | Modelar datos en MongoDB                          | [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §12 → `../AGENTS.md` §7                       |
@@ -49,6 +50,7 @@ el código en una sesión futura, va a un `.md`.**
 | Convención de naming, patrón de código             | `AI_GUIDELINES.md`                 |
 | Nueva agente / workflow / hard rule                | `../AGENTS.md`                     |
 | Término nuevo del dominio educativo                | `GLOSSARY.md`                      |
+| Mensaje canónico, claim, tagline, pilar de marca   | `MESSAGING.md`                     |
 | Cambio en el formato de commits                    | `COMMITS.md`                       |
 | Quirk específico de Claude Code                    | `../CLAUDE.md`                     |
 | Datos institucionales, contacto, redes             | `../README.md` (resumen) + `src/config/site.ts` (canónico cuando exista) |
