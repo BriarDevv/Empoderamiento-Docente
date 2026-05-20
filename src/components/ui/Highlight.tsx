@@ -11,9 +11,14 @@ type Props = {
  * disponible para CTAs textuales puntuales — usar con cuidado.
  */
 export function Highlight({ children, tone = "verde" }: Props) {
-  const bg = tone === "verde" ? "bg-verde-concepto/30" : "bg-naranja-accion/25";
+  const decoration =
+    tone === "verde"
+      ? "decoration-verde-concepto"
+      : "decoration-naranja-accion";
   return (
-    <mark className={`-mx-1 rounded-sm px-1 text-inherit ${bg}`}>
+    <mark
+      className={`bg-transparent text-inherit underline decoration-[0.12em] underline-offset-[0.15em] ${decoration}`}
+    >
       {children}
     </mark>
   );
