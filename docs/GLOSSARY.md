@@ -4,6 +4,12 @@ Términos del dominio educativo y específicos de Empoderamiento Docente.
 Mantenerlo vivo: si aparece un término nuevo en una conversación con el
 cliente, agregarlo acá antes de usarlo en el código o el copy.
 
+> **Diccionario de términos, no de mensajes.** Este archivo define **qué
+> significa** cada palabra del dominio ED. Para **copy ensamblado**
+> (tagline, hero, manifiesto narrativo, triángulo de pilares, tono de voz,
+> reglas léxico usar/evitar, adaptación por canal), ver
+> [`MESSAGING.md`](MESSAGING.md).
+
 ---
 
 ## Términos institucionales
@@ -137,10 +143,8 @@ Combina virtual y presencial. ED la usa cuando el alcance lo permite.
 
 ---
 
-## Frases pilares (no parafrasear sin chequear)
+## Frases pilares
 
-- "Generar escenarios de aprendizaje"
-- "Potenciamos fortalezas, fortalecemos potencialidades"
-- "Comunidad docente en torno a la Matemática Educativa"
-- "Transformar la relación con las matemáticas es ampliar posibilidades"
-- "Las matemáticas no son solo calcular"
+Lista canónica (con contexto de uso) en
+[`MESSAGING.md §5`](MESSAGING.md#5-frases-pilares-cerradas). No
+duplicar acá para evitar drift entre los dos documentos.
