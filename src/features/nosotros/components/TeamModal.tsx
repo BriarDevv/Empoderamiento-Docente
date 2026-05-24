@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  type JSX,
-} from "react";
+import { useCallback, useEffect, useRef, type JSX } from "react";
 import gsap from "gsap";
+import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useLockScroll } from "@/lib/hooks/useLockScroll";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { Target, Users, BookOpen, X } from "@/components/ui/icons";
@@ -151,7 +146,7 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
   // (esa foto sí escolla con el sheet — el morph era position:fixed y se
   // salía del card al scrollear).
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!openContext) return;
     const morph = morphImgRef.current;
     const slot = photoSlotRef.current;
