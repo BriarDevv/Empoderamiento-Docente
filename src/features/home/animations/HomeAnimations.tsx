@@ -153,6 +153,93 @@ export function HomeAnimations({ children }: { children: ReactNode }) {
         },
       );
 
+      // ─── IMPACTO ──────────────────────────────────────────────────
+      const impactoIntro = scope.querySelector('[data-anim="impacto-intro"]');
+      if (impactoIntro) {
+        gsap.fromTo(
+          impactoIntro,
+          { opacity: 0, y: 22 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: impactoIntro,
+              start: "top 82%",
+              once: true,
+            },
+          },
+        );
+      }
+
+      const impactoCards = scope.querySelector('[data-anim="impacto-cards"]');
+      if (impactoCards) {
+        const cards = Array.from(impactoCards.children);
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            stagger: 0.09,
+            scrollTrigger: {
+              trigger: impactoCards,
+              start: "top 80%",
+              once: true,
+            },
+          },
+        );
+      }
+
+      // ─── ALIADOS ──────────────────────────────────────────────────
+      [
+        '[data-anim="aliados-intro"]',
+        '[data-anim="aliados-intro-text"]',
+      ].forEach((selector, index) => {
+        const target = scope.querySelector(selector);
+        if (!target) return;
+        gsap.fromTo(
+          target,
+          { opacity: 0, y: 22 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            delay: index === 1 ? 0.12 : 0,
+            scrollTrigger: {
+              trigger: target,
+              start: "top 82%",
+              once: true,
+            },
+          },
+        );
+      });
+
+      const aliadosGrid = scope.querySelector('[data-anim="aliados-grid"]');
+      if (aliadosGrid) {
+        const items = Array.from(aliadosGrid.children);
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 26 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.75,
+            ease: "power3.out",
+            stagger: 0.07,
+            scrollTrigger: {
+              trigger: aliadosGrid,
+              start: "top 82%",
+              once: true,
+            },
+          },
+        );
+      }
+
       // ─── COMUNIDAD ────────────────────────────────────────────────
       const comunidadIntro = scope.querySelector(
         '[data-anim="comunidad-intro"]',

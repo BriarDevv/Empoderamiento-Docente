@@ -2,7 +2,7 @@
 // Estilo: stroke 1.5px, esquinas redondeadas, currentColor para tema.
 // Tamaño base 24px; ajustar con className width/height.
 
-type IconProps = React.SVGProps<SVGSVGElement> & {
+export type IconProps = React.SVGProps<SVGSVGElement> & {
   /** Tamaño en px (genera width y height). Default 24. */
   size?: number;
 };

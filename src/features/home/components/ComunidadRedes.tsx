@@ -47,7 +47,7 @@ export function ComunidadRedes() {
         aria-hidden="true"
         className="text-azul-principal/30 absolute top-10 right-5 hidden font-sans text-[0.7rem] tracking-[0.3em] uppercase md:right-10 md:block"
       >
-        004 / Comunidad
+        006 / Comunidad
       </span>
 
       {/* Decoración: dash verde grueso a la izquierda */}
