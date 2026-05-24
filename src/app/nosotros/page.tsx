@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { PageHeader } from "@/features/nosotros/components/PageHeader";
 import { TeamSection } from "@/features/nosotros/components/TeamSection";
 import {
@@ -21,10 +22,10 @@ export default function NosotrosPage() {
   }, []);
 
   const handleClose = useCallback(() => {
-    setOpenContext(null);
-    setTimeout(() => {
-      lastFocusedRef.current?.focus();
-    }, 100);
+    // flushSync garantiza que el modal desmontó antes de devolver el foco;
+    // sin esto el foco aterrizaba mientras el dialog seguía en el DOM.
+    flushSync(() => setOpenContext(null));
+    lastFocusedRef.current?.focus();
   }, []);
 
   const directionCount = teamByTier.direccion.length;
