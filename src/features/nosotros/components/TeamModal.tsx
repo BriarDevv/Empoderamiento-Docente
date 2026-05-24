@@ -387,9 +387,9 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
                             : ""
                         }`}
                       >
-                        {member.credentials.map((c, i) => (
+                        {member.credentials.map((c) => (
                           <li
-                            key={i}
+                            key={c}
                             className="text-azul-principal before:bg-verde-concepto relative break-inside-avoid pl-3.5 font-sans text-[12px] leading-[1.5] before:absolute before:top-[0.65em] before:left-0 before:h-px before:w-2 before:content-['']"
                           >
                             {c}
@@ -408,31 +408,33 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
                     </div>
                   </div>
 
-                  <div className="pt-0.5">
-                    <a
-                      href={member.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-naranja-accion hover:bg-naranja-accion/90 group inline-flex items-center gap-2.5 px-3.5 py-2 font-sans text-[10px] font-medium tracking-[0.22em] text-white uppercase transition-colors duration-300"
-                      aria-label={`Ver perfil de ${member.name} en LinkedIn`}
-                    >
-                      Ver en LinkedIn
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                        fill="none"
-                        aria-hidden="true"
+                  {member.linkedin && (
+                    <div className="pt-0.5">
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-naranja-accion hover:bg-naranja-accion/90 group inline-flex items-center gap-2.5 px-3.5 py-2 font-sans text-[10px] font-medium tracking-[0.22em] text-white uppercase transition-colors duration-300"
+                        aria-label={`Ver perfil de ${member.name} en LinkedIn`}
                       >
-                        <path
-                          d="M7 17L17 7M17 7H9M17 7V15"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </a>
-                  </div>
+                        Ver en LinkedIn
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M7 17L17 7M17 7H9M17 7V15"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

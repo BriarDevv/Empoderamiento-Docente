@@ -12,5 +12,5 @@ export interface TeamMember {
   readonly bio: string;
   readonly credentials: readonly string[];
   readonly specialty: string;
-  readonly linkedin: string;
+  readonly linkedin: string | null;
 }
