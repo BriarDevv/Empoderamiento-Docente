@@ -36,7 +36,6 @@ export default function NosotrosPage() {
 
       <TeamSection
         number="01"
-        chapter="Capítulo"
         title="Dirección"
         subtitle="Quienes trazan el rumbo de la consultora y articulan la visión académica del equipo."
         members={teamByTier.direccion}
@@ -47,7 +46,6 @@ export default function NosotrosPage() {
 
       <TeamSection
         number="02"
-        chapter="Capítulo"
         title="Líderes de Área y Proyecto"
         subtitle="Quienes sostienen la estructura académica y conducen las líneas de investigación."
         members={teamByTier.lideres}
@@ -58,7 +56,6 @@ export default function NosotrosPage() {
 
       <TeamSection
         number="03"
-        chapter="Capítulo"
         title="Facilitación y Diseño"
         subtitle="Quienes construyen la práctica de aula y diseñan los materiales que llegan a docentes."
         members={teamByTier.facilitacion}

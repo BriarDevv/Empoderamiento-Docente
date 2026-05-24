@@ -3,8 +3,6 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { SectionNumber } from "@/features/home/components/SectionNumber";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import type { TeamMember } from "../types/team";
 import { TeamCard } from "./TeamCard";
@@ -18,7 +16,6 @@ type Variant = "large" | "medium" | "small";
 interface TeamSectionProps {
   /** Número de capítulo, ej "01". */
   number: string;
-  chapter: string;
   title: string;
   subtitle?: string;
   members: TeamMember[];
@@ -53,7 +50,6 @@ const GRID_MAX: Record<Variant, string> = {
  */
 export function TeamSection({
   number,
-  chapter,
   title,
   subtitle,
   members,
@@ -102,20 +98,23 @@ export function TeamSection({
           Manual §6: forma plana verde = acento conceptual. */}
       <SectionCircles variant={number} />
 
-      {/* Header editorial */}
+      {/* Header editorial: número grande en flow + título + subtítulo */}
       <header className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
-        <div className="relative">
-          <SectionNumber n={number} className="absolute -top-6 -left-2 -z-10" />
-          <Eyebrow>{chapter}</Eyebrow>
-          <h2 className="font-display text-h2 text-azul-principal mt-4 max-w-2xl font-bold tracking-[-0.015em]">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-gris-texto mt-3 max-w-2xl font-sans text-[1rem] leading-relaxed md:text-[1.05rem]">
-              {subtitle}
-            </p>
-          )}
-        </div>
+        <span
+          aria-hidden="true"
+          className="font-display text-verde-concepto/35 block leading-[0.85] font-bold tabular-nums"
+          style={{ fontSize: "clamp(3.5rem, 7vw, 5.5rem)" }}
+        >
+          {number}
+        </span>
+        <h2 className="font-display text-azul-principal mt-3 max-w-2xl text-[clamp(1.85rem,3.6vw,2.6rem)] leading-[1.1] font-bold tracking-[-0.015em]">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="text-gris-texto mt-3 max-w-2xl font-sans text-[1rem] leading-relaxed md:text-[1.05rem]">
+            {subtitle}
+          </p>
+        )}
       </header>
 
       {/* Grid de cards */}
