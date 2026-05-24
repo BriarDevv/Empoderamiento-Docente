@@ -30,15 +30,16 @@ export function LenisProvider({ children }: { children: ReactNode }) {
 
     lenis.on("scroll", ScrollTrigger.update);
 
-    let frameId: number;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      frameId = requestAnimationFrame(raf);
-    };
-    frameId = requestAnimationFrame(raf);
+    // Lenis corre dentro del ticker de GSAP para compartir el mismo
+    // frame que ScrollTrigger — evita el jitter típico de refresh-rates
+    // variables (120Hz, ProMotion) y dos RAF loops desincronizados.
+    const tickerFn = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tickerFn);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
-      cancelAnimationFrame(frameId);
+      gsap.ticker.remove(tickerFn);
+      lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
     };
   }, [reducedMotion]);
