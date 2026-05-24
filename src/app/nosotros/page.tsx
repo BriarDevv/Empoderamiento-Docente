@@ -36,6 +36,7 @@ export default function NosotrosPage() {
       <PageHeader />
 
       <TeamSection
+        id="equipo"
         number="01"
         title="Dirección"
         subtitle="Quienes trazan el rumbo de la consultora y articulan la visión académica del equipo."
