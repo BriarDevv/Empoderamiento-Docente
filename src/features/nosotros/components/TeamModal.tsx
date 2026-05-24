@@ -6,6 +6,7 @@ import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect
 import { useLockScroll } from "@/lib/hooks/useLockScroll";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { Target, Users, BookOpen, X } from "@/components/ui/icons";
+import { getInitials } from "../lib/getInitials";
 import type { TeamMember, Tier } from "../types/team";
 
 export interface ModalOpenContext {
@@ -477,11 +478,7 @@ function TierWatermark({ tier }: { tier: Tier }): JSX.Element {
 }
 
 function MorphMonogram({ name }: { name: string }) {
-  const parts = name.trim().split(/\s+/);
-  const initials =
-    parts.length === 1
-      ? parts[0].slice(0, 2).toUpperCase()
-      : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  const initials = getInitials(name);
 
   return (
     <div className="bg-azul-principal flex h-full w-full items-center justify-center">
