@@ -38,6 +38,16 @@ export function Users({ size = 24, ...rest }: IconProps) {
   );
 }
 
+export function Target({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  );
+}
+
 export function Compass({ size = 24, ...rest }: IconProps) {
   return (
     <svg width={size} height={size} {...baseProps} {...rest}>
