@@ -18,7 +18,7 @@ export const team: readonly TeamMember[] = [
       "Profesora de Matemáticas",
     ],
     specialty: "Desarrollo profesional docente y pensamiento matemático",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "karla-gomez",
@@ -34,7 +34,7 @@ export const team: readonly TeamMember[] = [
       "Licenciada en Enseñanza de las Matemáticas",
     ],
     specialty: "Desarrollo del pensamiento matemático y diseño de tareas",
-    linkedin: "#",
+    linkedin: null,
   },
 
   // ──────────────────────────────────────────
@@ -51,7 +51,7 @@ export const team: readonly TeamMember[] = [
     bio: "Académico del Departamento de Matemática de la Universidad Metropolitana de Ciencias de la Educación (UMCE), responsable de proyectos de investigación y de vinculación con el medio escolar.",
     credentials: ["Académico, Departamento de Matemática — UMCE"],
     specialty: "Modelación matemática y tecnologías para la enseñanza",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "andrea-vergara",
@@ -68,7 +68,7 @@ export const team: readonly TeamMember[] = [
       "Profesora de Matemática",
     ],
     specialty: "Pensamiento estadístico y didáctica de la matemática",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "luis-lopez",
@@ -84,7 +84,7 @@ export const team: readonly TeamMember[] = [
       "Licenciado en Enseñanza de las Matemáticas",
     ],
     specialty: "Pensamiento aritmético y algebraico",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "gabriela-buendia",
@@ -99,7 +99,7 @@ export const team: readonly TeamMember[] = [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
     ],
     specialty: "Desarrollo del pensamiento matemático",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "judith-hernandez",
@@ -114,7 +114,7 @@ export const team: readonly TeamMember[] = [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
     ],
     specialty: "Análisis y diseño del currículum en matemáticas",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "marcela-cano",
@@ -127,7 +127,7 @@ export const team: readonly TeamMember[] = [
     bio: "Especialista en evaluación educativa a gran escala en México, con experiencia en diseño, implementación y coordinación de evaluaciones en todos los niveles educativos. Ex Directora del programa de evaluación del desempeño docente y Directora del área de Exámenes Generales para el Egreso de la Licenciatura (EGEL).",
     credentials: ["Estudios en Psicología — UNAM"],
     specialty: "Evaluación educativa a gran escala",
-    linkedin: "#",
+    linkedin: null,
   },
 
   // ──────────────────────────────────────────
@@ -147,7 +147,7 @@ export const team: readonly TeamMember[] = [
       "Licenciada en Física y Matemáticas",
     ],
     specialty: "Pensamiento y lenguaje variacional",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "darly-ku-euan",
@@ -163,7 +163,7 @@ export const team: readonly TeamMember[] = [
       "Profesora de Matemáticas",
     ],
     specialty: "Pensamiento matemático y desarrollo profesional docente",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "pedro-vidal-szabo",
@@ -182,7 +182,7 @@ export const team: readonly TeamMember[] = [
       "Licenciado en Educación Matemática",
     ],
     specialty: "Pensamiento estocástico",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "paola-balda",
@@ -200,7 +200,7 @@ export const team: readonly TeamMember[] = [
       "Licenciada en Matemáticas",
     ],
     specialty: "Pensamiento proporcional y formación docente",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "luis-cabrera-chim",
@@ -215,7 +215,7 @@ export const team: readonly TeamMember[] = [
       "Doctor en Ciencias con especialidad en Matemática Educativa",
     ],
     specialty: "Desarrollo profesional docente y evaluación educativa",
-    linkedin: "#",
+    linkedin: null,
   },
   {
     id: "eduardo-briceno",
@@ -230,7 +230,7 @@ export const team: readonly TeamMember[] = [
       "Doctor en Ciencias con especialidad en Matemática Educativa",
     ],
     specialty: "Construcción social del conocimiento y tecnología educativa",
-    linkedin: "#",
+    linkedin: null,
   },
 ];
 
