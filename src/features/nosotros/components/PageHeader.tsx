@@ -40,11 +40,11 @@ export function PageHeader() {
           </Eyebrow>
 
           <h1 className="font-display text-display mt-6 font-bold tracking-[-0.025em]">
-            Un equipo de investigadoras e investigadores que{" "}
+            Un equipo de investigadores que{" "}
             <span className="relative whitespace-nowrap">
-              <Highlight>transformamos</Highlight>
+              <Highlight>transforma</Highlight>
             </span>{" "}
-            la matemática escolar.
+            la matemática escolar
           </h1>
 
           <p className="text-azul-claro/90 mt-6 max-w-xl font-sans text-[1.02rem] leading-relaxed md:text-[1.08rem]">
