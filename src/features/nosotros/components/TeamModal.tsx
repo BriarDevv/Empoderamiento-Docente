@@ -41,6 +41,7 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const photoSlotRef = useRef<HTMLDivElement>(null);
+  const slotImgRef = useRef<HTMLDivElement>(null);
   const morphImgRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -66,6 +67,8 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
 
     const card = openContext.photoEl;
 
+    const slotImg = slotImgRef.current;
+
     const finish = () => {
       // Restauramos la visibilidad de la foto original (mutación del DOM
       // legítima dentro de un efecto imperativo de animación).
@@ -80,7 +83,24 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
       return;
     }
 
+    const slot = photoSlotRef.current;
     const cardRect = card.getBoundingClientRect();
+
+    // Re-tomo control del morph desde la posición actual del slot
+    // (la foto que está en el sheet) y oculto la del slot mientras
+    // vuela de vuelta hacia la card.
+    if (slot && slotImg) {
+      const slotRect = slot.getBoundingClientRect();
+      gsap.set(morph, {
+        position: "fixed",
+        top: slotRect.top,
+        left: slotRect.left,
+        width: slotRect.width,
+        height: slotRect.height,
+        opacity: 1,
+      });
+      gsap.set(slotImg, { opacity: 0 });
+    }
 
     const tl = gsap.timeline({ onComplete: finish });
 
@@ -127,11 +147,15 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
   }, [isOpen, triggerClose]);
 
   // Apertura: morph clone vuela desde la card hasta el slot del modal.
+  // Cuando termina, el morph se oculta y la foto del slot toma el relevo
+  // (esa foto sí escolla con el sheet — el morph era position:fixed y se
+  // salía del card al scrollear).
   // eslint-disable-next-line react-hooks/immutability
   useLayoutEffect(() => {
     if (!openContext) return;
     const morph = morphImgRef.current;
     const slot = photoSlotRef.current;
+    const slotImg = slotImgRef.current;
     const backdrop = backdropRef.current;
     const sheet = sheetRef.current;
     const content = contentRef.current;
@@ -152,6 +176,7 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
       force3D: true,
     });
 
+    if (slotImg) gsap.set(slotImg, { opacity: 0 });
     gsap.set(backdrop, { opacity: 0 });
     gsap.set(sheet, { opacity: 0, y: 24 });
     gsap.set(content.children, { opacity: 0, y: 14 });
@@ -160,12 +185,8 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
       gsap.set(backdrop, { opacity: 1 });
       gsap.set(sheet, { opacity: 1, y: 0 });
       gsap.set(content.children, { opacity: 1, y: 0 });
-      gsap.set(morph, {
-        top: slotRect.top,
-        left: slotRect.left,
-        width: slotRect.width,
-        height: slotRect.height,
-      });
+      gsap.set(morph, { opacity: 0 });
+      if (slotImg) gsap.set(slotImg, { opacity: 1 });
       return;
     }
 
@@ -186,6 +207,12 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
           height: slotRect.height,
           duration: 0.7,
           ease: EASE_OPEN,
+          onComplete: () => {
+            // Switch: muestro la foto del slot (en flow del DOM, scrolla
+            // con el sheet) y oculto el morph clone.
+            if (slotImg) gsap.set(slotImg, { opacity: 1 });
+            gsap.set(morph, { opacity: 0 });
+          },
         },
         0,
       )
@@ -278,12 +305,31 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
 
             {/* Body — 2 columnas */}
             <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden md:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
-              {/* Slot de la foto — destino del morph */}
+              {/* Slot de la foto — destino del morph. Una vez termina la
+                  apertura, la foto real del slot toma el relevo del clone
+                  para que el scroll del sheet la arrastre. */}
               <div
                 ref={photoSlotRef}
                 className="bg-azul-principal relative aspect-[4/5] overflow-hidden md:aspect-auto md:h-full"
-                aria-hidden="true"
-              />
+              >
+                <div
+                  ref={slotImgRef}
+                  className="absolute inset-0"
+                  style={{ opacity: 0 }}
+                  aria-hidden="true"
+                >
+                  {member.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={member.photo}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <MorphMonogram name={member.name} />
+                  )}
+                </div>
+              </div>
 
               {/* Columna de contenido */}
               <div className="md:border-azul-claro/40 relative md:min-h-0 md:overflow-hidden md:border-l">
