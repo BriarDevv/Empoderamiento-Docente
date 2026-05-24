@@ -1,4 +1,5 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Highlight } from "@/components/ui/Highlight";
 
 /**
  * Header institucional de la página /nosotros. Más sobrio que el Hero
@@ -38,8 +39,11 @@ export function PageHeader() {
         </Eyebrow>
 
         <h1 className="font-display text-display mt-6 max-w-3xl font-bold tracking-[-0.025em]">
-          Un equipo de investigadoras e investigadores que transformamos la
-          matemática escolar.
+          Un equipo de investigadoras e investigadores que{" "}
+          <span className="relative whitespace-nowrap">
+            <Highlight>transformamos</Highlight>
+          </span>{" "}
+          la matemática escolar.
         </h1>
 
         <p className="text-azul-claro/90 mt-6 max-w-2xl font-sans text-[1.02rem] leading-relaxed md:text-[1.08rem]">
