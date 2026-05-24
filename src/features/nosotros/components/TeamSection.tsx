@@ -151,7 +151,7 @@ export function TeamSection({
  */
 function SectionCircles({ variant }: { variant: string }) {
   const DOTS =
-    "bg-[radial-gradient(circle,rgba(107,114,128,0.32)_1px,transparent_1px)] [background-size:14px_14px]";
+    "bg-[radial-gradient(circle,var(--pattern-dot-grey)_1px,transparent_1px)] [background-size:14px_14px]";
 
   if (variant === "01") {
     return (
