@@ -286,7 +286,7 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
         <div className="flex min-h-full items-start justify-center px-4 py-6 md:items-center md:px-10 md:py-10">
           <div
             ref={sheetRef}
-            className="border-azul-claro/40 relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1040px] flex-col overflow-hidden border bg-white shadow-[0_40px_80px_-20px_rgba(31,42,68,0.25)] md:max-h-[calc(100dvh-3rem)]"
+            className="border-azul-claro/40 relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1040px] flex-col overflow-hidden border bg-white shadow-[var(--shadow-modal-navy)] md:max-h-[calc(100dvh-3rem)]"
           >
             {/* Header del modal */}
             <header className="border-azul-claro/40 flex flex-shrink-0 items-center justify-between border-b px-5 py-3 md:px-7">

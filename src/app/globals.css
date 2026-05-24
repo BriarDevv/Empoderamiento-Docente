@@ -35,6 +35,17 @@ body {
   font-family: var(--font-sans);
 }
 
+/* === Decorativos derivados de tokens =================================
+   Sombras y patrones que necesitan opacidad sobre colores de marca.
+   Se centralizan acá para no esparcir literales rgba() por los
+   componentes (AGENTS §5.2 — tokens, no hardcodes). */
+:root {
+  /* Sombra navy del sheet del TeamModal: azul-principal/25. */
+  --shadow-modal-navy: 0 40px 80px -20px rgb(31 42 68 / 0.25);
+  /* Patrón de puntos sobre fondo claro: gris-texto/32. */
+  --pattern-dot-grey: rgb(107 114 128 / 0.32);
+}
+
 /* === Utilidades propias del proyecto ============================== */
 
 /* Grain texture sutil para fondos navy/oscuros (4-5% opacity). */
