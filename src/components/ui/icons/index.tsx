@@ -38,6 +38,37 @@ export function Users({ size = 24, ...rest }: IconProps) {
   );
 }
 
+export function Lightbulb({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+      <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+    </svg>
+  );
+}
+
+export function School({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <path d="M12 2L3 7l9 5 9-5-9-5z" />
+      <path d="M3 7v6c0 3 4 5 9 5s9-2 9-5V7" />
+      <path d="M12 12v10" />
+      <path d="M8 18v-4" />
+      <path d="M16 18v-4" />
+    </svg>
+  );
+}
+
+export function TrendingUp({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+      <polyline points="17 6 23 6 23 12" />
+    </svg>
+  );
+}
+
 export function Target({ size = 24, ...rest }: IconProps) {
   return (
     <svg width={size} height={size} {...baseProps} {...rest}>
