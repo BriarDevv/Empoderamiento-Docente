@@ -159,7 +159,7 @@ export function CicloTrabajo() {
           className="font-display text-azul-principal/70 mx-auto mt-32 max-w-3xl text-center text-[1.1rem] leading-relaxed md:mt-40 md:text-[1.35rem]"
         >
           Investigación + Acción + Reflexión + Alianzas{" "}
-          <span className="text-naranja-accion">=</span>{" "}
+          <span className="text-verde-concepto">=</span>{" "}
           <span className="text-azul-principal">Transformación educativa.</span>
         </p>
       </div>
