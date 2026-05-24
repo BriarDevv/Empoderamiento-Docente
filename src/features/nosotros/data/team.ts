@@ -1,6 +1,6 @@
-import type { TeamMember } from "../types/team";
+import type { Tier, TeamMember } from "../types/team";
 
-export const team: TeamMember[] = [
+export const team: readonly TeamMember[] = [
   // ──────────────────────────────────────────
   // 01 · DIRECCIÓN
   // ──────────────────────────────────────────
@@ -234,7 +234,7 @@ export const team: TeamMember[] = [
   },
 ];
 
-export const teamByTier = {
+export const teamByTier: Readonly<Record<Tier, readonly TeamMember[]>> = {
   direccion: team.filter((m) => m.tier === "direccion"),
   lideres: team.filter((m) => m.tier === "lideres"),
   facilitacion: team.filter((m) => m.tier === "facilitacion"),

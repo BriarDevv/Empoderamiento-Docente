@@ -18,7 +18,7 @@ interface TeamSectionProps {
   number: string;
   title: string;
   subtitle?: string;
-  members: TeamMember[];
+  members: readonly TeamMember[];
   variant: Variant;
   startIndex: number;
   onOpen: (member: TeamMember, photoEl: HTMLElement) => void;
