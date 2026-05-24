@@ -23,9 +23,9 @@ const NAME_SIZE: Record<Size, string> = {
 };
 
 /**
- * Card de persona del equipo. Al hover: foto pasa de grayscale a color +
- * scale 1.04 + underline verde aparece en el nombre + CTA "Leer semblanza"
- * fade-in. Al click: dispara morph del modal.
+ * Card de persona del equipo. Al hover: scale 1.04 + underline verde
+ * aparece en el nombre + CTA "Leer semblanza" fade-in. Al click:
+ * dispara morph del modal.
  *
  * Timings y easings alineados con DESIGN.md §9 (movimiento contenido).
  */
@@ -33,7 +33,6 @@ export function TeamCard({ member, size, index, onOpen }: TeamCardProps) {
   const rootRef = useRef<HTMLButtonElement>(null);
   const photoWrapperRef = useRef<HTMLDivElement>(null);
   const photoInnerRef = useRef<HTMLDivElement>(null);
-  const colorRef = useRef<HTMLDivElement>(null);
   const underlineRef = useRef<HTMLSpanElement>(null);
   const ctaRef = useRef<HTMLSpanElement>(null);
   const hoverTl = useRef<gsap.core.Timeline | null>(null);
@@ -50,7 +49,7 @@ export function TeamCard({ member, size, index, onOpen }: TeamCardProps) {
       return;
 
     const ctx = gsap.context(() => {
-      const tl = gsap
+      hoverTl.current = gsap
         .timeline({ paused: true, defaults: { ease: "power2.out" } })
         .to(photoInnerRef.current, { scale: 1.04, duration: 0.6 }, 0)
         .to(
@@ -59,12 +58,6 @@ export function TeamCard({ member, size, index, onOpen }: TeamCardProps) {
           0,
         )
         .to(ctaRef.current, { opacity: 1, x: 0, duration: 0.4 }, 0.05);
-
-      if (colorRef.current) {
-        tl.to(colorRef.current, { opacity: 1, duration: 0.55 }, 0);
-      }
-
-      hoverTl.current = tl;
     }, rootRef);
 
     return () => {
@@ -91,7 +84,7 @@ export function TeamCard({ member, size, index, onOpen }: TeamCardProps) {
         ref={photoWrapperRef}
         className="bg-azul-principal relative mb-4 aspect-[4/5] overflow-hidden"
       >
-        {/* Capa base: grayscale (o monogram si no hay foto). */}
+        {/* Foto a color (escala leve en hover). */}
         <div
           ref={photoInnerRef}
           className="absolute inset-0 will-change-transform"
@@ -102,32 +95,13 @@ export function TeamCard({ member, size, index, onOpen }: TeamCardProps) {
               alt={`Retrato de ${member.name}`}
               fill
               sizes="(min-width: 768px) 33vw, 50vw"
-              className="object-cover contrast-[1.05] grayscale"
+              className="object-cover"
               draggable={false}
             />
           ) : (
             <MonogramAvatar name={member.name} className="h-full w-full" />
           )}
         </div>
-
-        {/* Capa color: aparece en hover. */}
-        {member.photo && (
-          <div
-            ref={colorRef}
-            className="pointer-events-none absolute inset-0"
-            style={{ opacity: 0 }}
-            aria-hidden="true"
-          >
-            <Image
-              src={member.photo}
-              alt=""
-              fill
-              sizes="(min-width: 768px) 33vw, 50vw"
-              className="object-cover"
-              draggable={false}
-            />
-          </div>
-        )}
 
         {/* Index tick — verde, arriba izquierda. */}
         <span
@@ -151,7 +125,7 @@ export function TeamCard({ member, size, index, onOpen }: TeamCardProps) {
           {member.name}
           <span
             ref={underlineRef}
-            className="bg-verde-concepto absolute -bottom-0.5 left-0 h-[1.5px] w-full origin-left"
+            className="bg-verde-concepto absolute -bottom-0.5 left-0 h-px w-full origin-left"
             style={{ transform: "scaleX(0)" }}
             aria-hidden="true"
           />

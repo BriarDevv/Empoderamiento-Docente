@@ -51,10 +51,15 @@ export function Aliados() {
         005 / Alianzas
       </span>
 
-      {/* Decoración: círculo verde grande abajo derecha */}
+      {/* Patrón gráfico oficial (manual §6 / pág. 8): parche de dots
+          azul-medio + círculo verde sólido asomando por la derecha. */}
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/[0.06] absolute -right-32 -bottom-32 z-0 h-[28rem] w-[28rem] rounded-full"
+        className="absolute right-28 bottom-24 hidden h-44 w-44 bg-[radial-gradient(circle,rgba(74,111,165,0.55)_1px,transparent_1px)] [background-size:14px_14px] md:block"
+      />
+      <span
+        aria-hidden="true"
+        className="bg-verde-concepto absolute -right-12 bottom-32 z-0 hidden h-48 w-48 rounded-full md:block"
       />
 
       <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">

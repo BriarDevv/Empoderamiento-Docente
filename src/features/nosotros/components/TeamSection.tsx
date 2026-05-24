@@ -22,6 +22,8 @@ interface TeamSectionProps {
   variant: Variant;
   startIndex: number;
   onOpen: (member: TeamMember, photoEl: HTMLElement) => void;
+  /** id opcional para anchors (ej. #equipo en el primer capítulo). */
+  id?: string;
 }
 
 const GRID: Record<Variant, string> = {
@@ -56,6 +58,7 @@ export function TeamSection({
   variant,
   startIndex,
   onOpen,
+  id,
 }: TeamSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -91,6 +94,7 @@ export function TeamSection({
   return (
     <section
       ref={sectionRef}
+      id={id}
       className="relative overflow-hidden py-16 md:py-24"
     >
       {/* Círculos verdes distribuidos — composición distinta por capítulo
@@ -117,11 +121,13 @@ export function TeamSection({
         )}
       </header>
 
-      {/* Grid de cards */}
+      {/* Grid de cards — items-start asegura que cuando la fila tiene
+          cards con texto de distinto largo (nombres largos vs cortos),
+          todas se alinean al top en lugar de centrarse verticalmente. */}
       <div className="relative z-10 mx-auto mt-10 max-w-screen-xl px-5 md:mt-14 md:px-10">
         <div
           ref={gridRef}
-          className={`grid ${GRID[variant]} ${GAP[variant]} ${GRID_MAX[variant]} mx-auto`}
+          className={`grid items-start ${GRID[variant]} ${GAP[variant]} ${GRID_MAX[variant]} mx-auto`}
         >
           {members.map((m, i) => (
             <TeamCard
@@ -149,79 +155,57 @@ export function TeamSection({
  * Opacidades bajas (4-9% para círculos, 30% para dots) — son ambient,
  * no protagonistas.
  */
+/**
+ * Composición del patrón gráfico oficial (manual §6 / pág. 8):
+ * UN parche de dots azul-medio + UN círculo verde 100% sólido que
+ * asoma parcialmente desde un borde del viewport. Cada capítulo
+ * varía la esquina y el tamaño para que la página tenga ritmo
+ * sin repetir la misma composición.
+ */
 function SectionCircles({ variant }: { variant: string }) {
   const DOTS =
-    "bg-[radial-gradient(circle,rgba(107,114,128,0.32)_1px,transparent_1px)] [background-size:14px_14px]";
+    "bg-[radial-gradient(circle,rgba(74,111,165,0.55)_1px,transparent_1px)] [background-size:14px_14px]";
 
   if (variant === "01") {
+    // Composición a la derecha alta — círculo asomando por el borde derecho.
     return (
       <>
-        {/* Parche de dots arriba-derecha */}
         <span
           aria-hidden="true"
-          className={`absolute top-16 right-10 z-0 hidden h-40 w-40 md:block ${DOTS}`}
+          className={`absolute top-16 right-28 z-0 hidden h-40 w-40 md:block ${DOTS}`}
         />
-        {/* Círculo verde superpuesto al parche */}
         <span
           aria-hidden="true"
-          className="bg-verde-concepto/[0.08] absolute top-8 right-4 z-0 hidden h-32 w-32 rounded-full md:block"
-        />
-        {/* Círculo enorme alejado abajo-izquierda */}
-        <span
-          aria-hidden="true"
-          className="bg-verde-concepto/[0.06] absolute -bottom-32 -left-40 z-0 h-[34rem] w-[34rem] rounded-full"
+          className="bg-verde-concepto absolute top-24 -right-12 z-0 hidden h-44 w-44 rounded-full md:block"
         />
       </>
     );
   }
   if (variant === "02") {
+    // Composición a la izquierda media — círculo grande asomando por la izq.
     return (
       <>
-        {/* Parche de dots izquierda-medio */}
         <span
           aria-hidden="true"
-          className={`absolute top-1/2 left-8 z-0 hidden h-40 w-40 -translate-y-1/2 md:block ${DOTS}`}
+          className={`absolute top-1/2 left-28 z-0 hidden h-40 w-40 -translate-y-1/2 md:block ${DOTS}`}
         />
-        {/* Círculo verde superpuesto */}
         <span
           aria-hidden="true"
-          className="bg-verde-concepto/[0.08] absolute top-1/2 -left-4 z-0 hidden h-36 w-36 -translate-y-1/2 rounded-full md:block"
-        />
-        {/* Círculo grande alejado arriba-derecha */}
-        <span
-          aria-hidden="true"
-          className="bg-verde-concepto/[0.05] absolute -top-32 -right-48 z-0 h-[40rem] w-[40rem] rounded-full"
-        />
-        {/* Acento chico abajo-centro */}
-        <span
-          aria-hidden="true"
-          className="bg-verde-concepto/[0.07] absolute right-1/3 bottom-12 z-0 h-20 w-20 rounded-full blur-[2px]"
+          className="bg-verde-concepto absolute top-1/2 -left-16 z-0 hidden h-52 w-52 -translate-y-1/2 rounded-full md:block"
         />
       </>
     );
   }
-  // "03"
+  // "03" — composición a la derecha baja.
   return (
     <>
-      {/* Parche de dots arriba-centro (más sutil — sección final) */}
       <span
         aria-hidden="true"
-        className={`absolute top-20 right-1/3 z-0 hidden h-32 w-32 md:block ${DOTS}`}
+        className={`absolute right-28 bottom-20 z-0 hidden h-36 w-36 md:block ${DOTS}`}
       />
-      {/* Círculo verde superpuesto */}
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/[0.08] absolute top-12 right-1/3 z-0 hidden h-28 w-28 -translate-x-6 -translate-y-2 rounded-full md:block"
-      />
-      {/* Círculo grande alejado abajo-izquierda */}
-      <span
-        aria-hidden="true"
-        className="bg-verde-concepto/[0.06] absolute -bottom-40 -left-32 z-0 h-[36rem] w-[36rem] rounded-full"
-      />
-      {/* Acento chico derecha-medio */}
-      <span
-        aria-hidden="true"
-        className="bg-verde-concepto/[0.05] absolute top-1/2 right-8 z-0 h-16 w-16 -translate-y-1/2 rounded-full blur-[2px]"
+        className="bg-verde-concepto absolute -right-12 -bottom-12 z-0 hidden h-44 w-44 rounded-full md:block"
       />
     </>
   );
