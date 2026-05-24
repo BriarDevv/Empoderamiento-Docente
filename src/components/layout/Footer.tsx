@@ -54,7 +54,7 @@ export function Footer() {
           Investigación <span className="text-verde-concepto">+</span> Acción{" "}
           <span className="text-verde-concepto">+</span> Reflexión{" "}
           <span className="text-verde-concepto">+</span> Alianzas{" "}
-          <span className="text-naranja-accion">=</span>{" "}
+          <span className="text-verde-concepto">=</span>{" "}
           <span className="text-azul-claro">Transformación educativa.</span>
         </p>
 
