@@ -11,7 +11,7 @@ export const team: TeamMember[] = [
     tier: "direccion",
     country: "Argentina",
     countryCode: "AR",
-    photo: null,
+    photo: "/team/daniela-reyes.jpg",
     bio: "Especialista en desarrollo profesional docente y desarrollo del pensamiento matemático. Lidera la dirección general de Empoderamiento Docente, articulando la visión académica del equipo con los proyectos internacionales que la consultora sostiene a lo largo de Latinoamérica.",
     credentials: [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
@@ -27,7 +27,7 @@ export const team: TeamMember[] = [
     tier: "direccion",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/karla-gomez.jpg",
     bio: "Especialista en Desarrollo del pensamiento matemático y en el diseño de tareas. Como Directora Académica coordina la línea pedagógica de Empoderamiento Docente y supervisa el diseño curricular de los programas de formación docente.",
     credentials: [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
@@ -47,7 +47,7 @@ export const team: TeamMember[] = [
     tier: "lideres",
     country: "Chile",
     countryCode: "CL",
-    photo: null,
+    photo: "/team/ivan-perez.jpg",
     bio: "Académico del Departamento de Matemática de la Universidad Metropolitana de Ciencias de la Educación (UMCE), responsable de proyectos de investigación y de vinculación con el medio escolar.",
     credentials: ["Académico, Departamento de Matemática — UMCE"],
     specialty: "Modelación matemática y tecnologías para la enseñanza",
@@ -93,7 +93,7 @@ export const team: TeamMember[] = [
     tier: "lideres",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/gabriela-buendia.jpg",
     bio: "Líder de proyecto, facilitadora y diseñadora de material didáctico. Coordina iniciativas de formación continua centradas en el desarrollo del pensamiento matemático de profesores en servicio.",
     credentials: [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
@@ -108,7 +108,7 @@ export const team: TeamMember[] = [
     tier: "lideres",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/judith-hernandez.jpg",
     bio: "Especialista en Análisis y Diseño del Currículum en Matemáticas y en Desarrollo Profesional Docente. Lidera proyectos de acompañamiento curricular en instituciones públicas y privadas.",
     credentials: [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
@@ -123,7 +123,7 @@ export const team: TeamMember[] = [
     tier: "lideres",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/marcela-cano.jpg",
     bio: "Especialista en evaluación educativa a gran escala en México, con experiencia en diseño, implementación y coordinación de evaluaciones en todos los niveles educativos. Ex Directora del programa de evaluación del desempeño docente y Directora del área de Exámenes Generales para el Egreso de la Licenciatura (EGEL).",
     credentials: ["Estudios en Psicología — UNAM"],
     specialty: "Evaluación educativa a gran escala",
@@ -140,7 +140,7 @@ export const team: TeamMember[] = [
     tier: "facilitacion",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/wendolyne-rios.jpg",
     bio: "Facilitadora y diseñadora de material didáctico, especializada en pensamiento y lenguaje variacional. Acompaña a docentes en la resignificación del cálculo y el álgebra temprana.",
     credentials: [
       "Maestra en Ciencias con especialidad en Matemática Educativa",
@@ -156,7 +156,7 @@ export const team: TeamMember[] = [
     tier: "facilitacion",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/darly-ku-euan.jpg",
     bio: "Diseñadora de material didáctico con foco en el pensamiento matemático y el desarrollo profesional docente. Su práctica combina investigación educativa y construcción de secuencias de aula.",
     credentials: [
       "Doctora en Ciencias con especialidad en Matemática Educativa",
@@ -172,7 +172,7 @@ export const team: TeamMember[] = [
     tier: "facilitacion",
     country: "Chile",
     countryCode: "CL",
-    photo: null,
+    photo: "/team/pedro-vidal-szabo.jpg",
     bio: "Investigador y académico especialista en pensamiento estocástico. Facilita instancias de formación docente articulando la didáctica de la estadística con la práctica de aula.",
     credentials: [
       "Doctor en Didáctica de la Matemática",
@@ -191,7 +191,7 @@ export const team: TeamMember[] = [
     tier: "facilitacion",
     country: "Colombia",
     countryCode: "CO",
-    photo: null,
+    photo: "/team/paola-balda.jpg",
     bio: "Facilitadora y diseñadora de materiales educativos especialista en pensamiento proporcional y formación docente. Trabaja en la articulación entre investigación curricular y prácticas de aula.",
     credentials: [
       "Doctora en Educación",
@@ -209,7 +209,7 @@ export const team: TeamMember[] = [
     tier: "facilitacion",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/luis-cabrera-chim.jpg",
     bio: "Especialista en desarrollo profesional docente, pensamiento y lenguaje variacional, y evaluación educativa. Integra la investigación en matemática educativa con el diseño de experiencias de formación.",
     credentials: [
       "Doctor en Ciencias con especialidad en Matemática Educativa",
@@ -224,7 +224,7 @@ export const team: TeamMember[] = [
     tier: "facilitacion",
     country: "México",
     countryCode: "MX",
-    photo: null,
+    photo: "/team/eduardo-briceno.jpg",
     bio: "Especialista en la construcción social del conocimiento y el uso de tecnología en los procesos de enseñanza de matemáticas. Diseña materiales didácticos que incorporan herramientas digitales como mediadoras del aprendizaje.",
     credentials: [
       "Doctor en Ciencias con especialidad en Matemática Educativa",
