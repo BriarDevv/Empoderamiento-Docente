@@ -1,0 +1,147 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { SectionNumber } from "@/features/home/components/SectionNumber";
+import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
+import type { TeamMember } from "../types/team";
+import { TeamCard } from "./TeamCard";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+type Variant = "large" | "medium" | "small";
+
+interface TeamSectionProps {
+  /** Número de capítulo, ej "01". */
+  number: string;
+  chapter: string;
+  title: string;
+  subtitle?: string;
+  members: TeamMember[];
+  variant: Variant;
+  startIndex: number;
+  onOpen: (member: TeamMember, photoEl: HTMLElement) => void;
+}
+
+const GRID: Record<Variant, string> = {
+  large: "grid-cols-1 sm:grid-cols-2",
+  medium: "grid-cols-2 md:grid-cols-3",
+  small: "grid-cols-2 md:grid-cols-3",
+};
+
+const GAP: Record<Variant, string> = {
+  large: "gap-x-8 gap-y-10 md:gap-x-10 md:gap-y-12",
+  medium: "gap-x-6 gap-y-8 md:gap-x-8 md:gap-y-10",
+  small: "gap-x-5 gap-y-8 md:gap-x-7 md:gap-y-10",
+};
+
+const GRID_MAX: Record<Variant, string> = {
+  large: "max-w-3xl",
+  medium: "max-w-5xl",
+  small: "max-w-5xl",
+};
+
+/**
+ * Capítulo del equipo. Header editorial (number gigante + eyebrow +
+ * título + subtítulo) + grid de TeamCards con stagger GSAP al entrar
+ * en viewport. Patrón gráfico del manual (dots + semicírculo
+ * azul-medio) como decoración ambient.
+ */
+export function TeamSection({
+  number,
+  chapter,
+  title,
+  subtitle,
+  members,
+  variant,
+  startIndex,
+  onOpen,
+}: TeamSectionProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    if (!gridRef.current || !sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const cards = gridRef.current!.children;
+      gsap.fromTo(
+        cards,
+        { y: 28, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.07,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: "top 88%",
+            once: true,
+          },
+        },
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [reducedMotion]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden py-16 md:py-24"
+    >
+      {/* Semicírculo azul-medio — acento institucional del manual §6. */}
+      <span
+        aria-hidden="true"
+        className="bg-azul-medio/[0.06] absolute top-20 -right-40 z-0 h-[28rem] w-[28rem] rounded-full blur-[1px]"
+      />
+
+      {/* Grid de puntos — patrón gráfico del manual §6. */}
+      <span
+        aria-hidden="true"
+        className="absolute top-12 right-10 z-0 hidden h-32 w-32 bg-[radial-gradient(circle,rgba(107,114,128,0.35)_1px,transparent_1px)] [background-size:14px_14px] md:block"
+      />
+
+      {/* Header editorial */}
+      <header className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
+        <div className="relative">
+          <SectionNumber n={number} className="absolute -top-6 -left-2 -z-10" />
+          <Eyebrow>{chapter}</Eyebrow>
+          <h2 className="font-display text-h2 text-azul-principal mt-4 max-w-2xl font-bold tracking-[-0.015em]">
+            {title}
+          </h2>
+          {subtitle && (
+            <p className="text-gris-texto mt-3 max-w-2xl font-sans text-[1rem] leading-relaxed md:text-[1.05rem]">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </header>
+
+      {/* Grid de cards */}
+      <div className="relative z-10 mx-auto mt-10 max-w-screen-xl px-5 md:mt-14 md:px-10">
+        <div
+          ref={gridRef}
+          className={`grid ${GRID[variant]} ${GAP[variant]} ${GRID_MAX[variant]} mx-auto`}
+        >
+          {members.map((m, i) => (
+            <TeamCard
+              key={m.id}
+              member={m}
+              size={variant}
+              index={startIndex + i}
+              onOpen={onOpen}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
