@@ -150,7 +150,7 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
   // Cuando termina, el morph se oculta y la foto del slot toma el relevo
   // (esa foto sí escolla con el sheet — el morph era position:fixed y se
   // salía del card al scrollear).
-  // eslint-disable-next-line react-hooks/immutability
+
   useLayoutEffect(() => {
     if (!openContext) return;
     const morph = morphImgRef.current;
@@ -165,68 +165,80 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
     const cardRect = photoEl.getBoundingClientRect();
     const slotRect = slot.getBoundingClientRect();
 
-    gsap.set(morph, {
-      position: "fixed",
-      top: cardRect.top,
-      left: cardRect.left,
-      width: cardRect.width,
-      height: cardRect.height,
-      zIndex: 60,
-      opacity: 1,
-      force3D: true,
+    const ctx = gsap.context(() => {
+      gsap.set(morph, {
+        position: "fixed",
+        top: cardRect.top,
+        left: cardRect.left,
+        width: cardRect.width,
+        height: cardRect.height,
+        zIndex: 60,
+        opacity: 1,
+        force3D: true,
+      });
+
+      if (slotImg) gsap.set(slotImg, { opacity: 0 });
+      gsap.set(backdrop, { opacity: 0 });
+      gsap.set(sheet, { opacity: 0, y: 24 });
+      gsap.set(content.children, { opacity: 0, y: 14 });
+
+      if (reducedMotion) {
+        gsap.set(backdrop, { opacity: 1 });
+        gsap.set(sheet, { opacity: 1, y: 0 });
+        gsap.set(content.children, { opacity: 1, y: 0 });
+        gsap.set(morph, { opacity: 0 });
+        if (slotImg) gsap.set(slotImg, { opacity: 1 });
+        return;
+      }
+
+      // Oculto la foto real de la card mientras vuela el clon (mutación
+      // del DOM legítima dentro de un efecto imperativo).
+
+      photoEl.style.visibility = "hidden";
+
+      gsap
+        .timeline()
+        .to(backdrop, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0)
+        .to(sheet, { opacity: 1, y: 0, duration: 0.7, ease: EASE_OPEN }, 0.05)
+        .to(
+          morph,
+          {
+            top: slotRect.top,
+            left: slotRect.left,
+            width: slotRect.width,
+            height: slotRect.height,
+            duration: 0.7,
+            ease: EASE_OPEN,
+            onComplete: () => {
+              // Switch: muestro la foto del slot (en flow del DOM, scrolla
+              // con el sheet) y oculto el morph clone.
+              if (slotImg) gsap.set(slotImg, { opacity: 1 });
+              gsap.set(morph, { opacity: 0 });
+            },
+          },
+          0,
+        )
+        .to(
+          content.children,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            stagger: 0.045,
+            ease: "power2.out",
+          },
+          0.35,
+        );
     });
 
-    if (slotImg) gsap.set(slotImg, { opacity: 0 });
-    gsap.set(backdrop, { opacity: 0 });
-    gsap.set(sheet, { opacity: 0, y: 24 });
-    gsap.set(content.children, { opacity: 0, y: 14 });
+    return () => {
+      ctx.revert();
+      // ctx.revert mata los timelines pero no restaura el visibility de
+      // la card original (vive fuera del scope del contexto). Si el
+      // componente desmonta a mitad de animación, lo restauramos a mano.
 
-    if (reducedMotion) {
-      gsap.set(backdrop, { opacity: 1 });
-      gsap.set(sheet, { opacity: 1, y: 0 });
-      gsap.set(content.children, { opacity: 1, y: 0 });
-      gsap.set(morph, { opacity: 0 });
-      if (slotImg) gsap.set(slotImg, { opacity: 1 });
-      return;
-    }
-
-    // Oculto la foto real de la card mientras vuela el clon (mutación
-    // del DOM legítima dentro de un efecto imperativo).
-    // eslint-disable-next-line react-hooks/immutability
-    photoEl.style.visibility = "hidden";
-
-    const tl = gsap.timeline();
-    tl.to(backdrop, { opacity: 1, duration: 0.5, ease: "power2.out" }, 0)
-      .to(sheet, { opacity: 1, y: 0, duration: 0.7, ease: EASE_OPEN }, 0.05)
-      .to(
-        morph,
-        {
-          top: slotRect.top,
-          left: slotRect.left,
-          width: slotRect.width,
-          height: slotRect.height,
-          duration: 0.7,
-          ease: EASE_OPEN,
-          onComplete: () => {
-            // Switch: muestro la foto del slot (en flow del DOM, scrolla
-            // con el sheet) y oculto el morph clone.
-            if (slotImg) gsap.set(slotImg, { opacity: 1 });
-            gsap.set(morph, { opacity: 0 });
-          },
-        },
-        0,
-      )
-      .to(
-        content.children,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.55,
-          stagger: 0.045,
-          ease: "power2.out",
-        },
-        0.35,
-      );
+      photoEl.style.visibility = "";
+    };
   }, [openContext, reducedMotion]);
 
   if (!openContext || !member) return null;
