@@ -56,14 +56,15 @@ export function Impacto() {
         004 / Impacto
       </span>
 
-      {/* Decoración: parche de dots + círculo verde superpuesto */}
+      {/* Patrón gráfico oficial (manual §6 / pág. 8): parche de dots
+          azul-medio + círculo verde sólido asomando por la izquierda. */}
       <span
         aria-hidden="true"
-        className="absolute top-20 -left-8 hidden h-48 w-48 bg-[radial-gradient(circle,rgba(107,114,128,0.3)_1px,transparent_1px)] [background-size:14px_14px] md:block"
+        className="absolute top-24 left-16 hidden h-40 w-40 bg-[radial-gradient(circle,var(--pattern-dot-blue)_1px,transparent_1px)] [background-size:14px_14px] md:block"
       />
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/[0.08] absolute top-12 -left-12 z-0 hidden h-36 w-36 rounded-full md:block"
+        className="bg-verde-concepto absolute top-32 -left-12 z-0 hidden h-44 w-44 rounded-full md:block"
       />
 
       <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">

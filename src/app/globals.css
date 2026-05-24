@@ -44,6 +44,9 @@ body {
   --shadow-modal-navy: 0 40px 80px -20px rgb(31 42 68 / 0.25);
   /* Patrón de puntos sobre fondo claro: gris-texto/32. */
   --pattern-dot-grey: rgb(107 114 128 / 0.32);
+  /* Patrón de puntos azulado (manual §6): azul-medio/55 — usado en
+     /nosotros y bloques del home con composición dots + círculo verde. */
+  --pattern-dot-blue: rgb(74 111 165 / 0.55);
 }
 
 /* === Utilidades propias del proyecto ============================== */
