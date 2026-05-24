@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "@/components/ui/icons";
+import { useLockScroll } from "@/lib/hooks/useLockScroll";
 import { Brand } from "./Brand";
 import { ButtonPrimary } from "@/components/ui/ButtonPrimary";
 
@@ -27,12 +28,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [menuOpen]);
+  useLockScroll(menuOpen);
 
   return (
     <header
