@@ -98,30 +98,31 @@ export function TeamSection({
           Manual §6: forma plana verde = acento conceptual. */}
       <SectionCircles variant={number} />
 
-      {/* Header editorial: número grande en flow + título + subtítulo */}
+      {/* Header editorial — jerarquía: eyebrow "Capítulo NN" / título / línea / subtítulo */}
       <header className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
-        <span
-          aria-hidden="true"
-          className="font-display text-verde-concepto/35 block leading-[0.85] font-bold tabular-nums"
-          style={{ fontSize: "clamp(3.5rem, 7vw, 5.5rem)" }}
-        >
-          {number}
+        <span className="text-gris-texto inline-flex items-center gap-3 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase">
+          <span
+            aria-hidden="true"
+            className="bg-verde-concepto block h-px w-10"
+          />
+          Capítulo <span className="text-verde-concepto">{number}</span>
         </span>
-        <h2 className="font-display text-azul-principal mt-3 max-w-2xl text-[clamp(1.85rem,3.6vw,2.6rem)] leading-[1.1] font-bold tracking-[-0.015em]">
+        <h2 className="font-display text-azul-principal mt-5 max-w-2xl text-[clamp(2rem,3.8vw,2.75rem)] leading-[1.05] font-bold tracking-[-0.015em]">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-gris-texto mt-3 max-w-2xl font-sans text-[1rem] leading-relaxed md:text-[1.05rem]">
+          <p className="text-gris-texto mt-4 max-w-xl font-sans text-[0.98rem] leading-relaxed md:text-[1.02rem]">
             {subtitle}
           </p>
         )}
       </header>
 
-      {/* Grid de cards */}
-      <div className="relative z-10 mx-auto mt-10 max-w-screen-xl px-5 md:mt-14 md:px-10">
+      {/* Grid de cards — items-start alinea las cards al top de cada fila
+          (no se centran si tienen contenido de altura distinta). */}
+      <div className="relative z-10 mx-auto mt-12 max-w-screen-xl px-5 md:mt-16 md:px-10">
         <div
           ref={gridRef}
-          className={`grid ${GRID[variant]} ${GAP[variant]} ${GRID_MAX[variant]} mx-auto`}
+          className={`grid items-start ${GRID[variant]} ${GAP[variant]} ${GRID_MAX[variant]} mx-auto`}
         >
           {members.map((m, i) => (
             <TeamCard
@@ -149,27 +150,22 @@ export function TeamSection({
  * Opacidades bajas (4-9% para círculos, 30% para dots) — son ambient,
  * no protagonistas.
  */
+/**
+ * Composición canónica del manual §6: parche de dots azul-medio
+ * (.pattern-dots) + círculo verde sólido asomando por el borde.
+ * Cada capítulo varía la esquina para no repetir composición.
+ */
 function SectionCircles({ variant }: { variant: string }) {
-  const DOTS =
-    "bg-[radial-gradient(circle,var(--pattern-dot-grey)_1px,transparent_1px)] [background-size:14px_14px]";
-
   if (variant === "01") {
     return (
       <>
-        {/* Parche de dots arriba-derecha */}
         <span
           aria-hidden="true"
-          className={`absolute top-16 right-10 z-0 hidden h-40 w-40 md:block ${DOTS}`}
+          className="pattern-dots absolute top-16 right-28 z-0 hidden h-40 w-40 md:block"
         />
-        {/* Círculo verde superpuesto al parche */}
         <span
           aria-hidden="true"
-          className="bg-verde-concepto/[0.08] absolute top-8 right-4 z-0 hidden h-32 w-32 rounded-full md:block"
-        />
-        {/* Círculo enorme alejado abajo-izquierda */}
-        <span
-          aria-hidden="true"
-          className="bg-verde-concepto/[0.06] absolute -bottom-32 -left-40 z-0 h-[34rem] w-[34rem] rounded-full"
+          className="bg-verde-concepto absolute top-24 -right-12 z-0 hidden h-44 w-44 rounded-full md:block"
         />
       </>
     );
@@ -177,25 +173,13 @@ function SectionCircles({ variant }: { variant: string }) {
   if (variant === "02") {
     return (
       <>
-        {/* Parche de dots izquierda-medio */}
         <span
           aria-hidden="true"
-          className={`absolute top-1/2 left-8 z-0 hidden h-40 w-40 -translate-y-1/2 md:block ${DOTS}`}
+          className="pattern-dots absolute top-1/2 left-28 z-0 hidden h-40 w-40 -translate-y-1/2 md:block"
         />
-        {/* Círculo verde superpuesto */}
         <span
           aria-hidden="true"
-          className="bg-verde-concepto/[0.08] absolute top-1/2 -left-4 z-0 hidden h-36 w-36 -translate-y-1/2 rounded-full md:block"
-        />
-        {/* Círculo grande alejado arriba-derecha */}
-        <span
-          aria-hidden="true"
-          className="bg-verde-concepto/[0.05] absolute -top-32 -right-48 z-0 h-[40rem] w-[40rem] rounded-full"
-        />
-        {/* Acento chico abajo-centro */}
-        <span
-          aria-hidden="true"
-          className="bg-verde-concepto/[0.07] absolute right-1/3 bottom-12 z-0 h-20 w-20 rounded-full blur-[2px]"
+          className="bg-verde-concepto absolute top-1/2 -left-16 z-0 hidden h-52 w-52 -translate-y-1/2 rounded-full md:block"
         />
       </>
     );
@@ -203,25 +187,13 @@ function SectionCircles({ variant }: { variant: string }) {
   // "03"
   return (
     <>
-      {/* Parche de dots arriba-centro (más sutil — sección final) */}
       <span
         aria-hidden="true"
-        className={`absolute top-20 right-1/3 z-0 hidden h-32 w-32 md:block ${DOTS}`}
+        className="pattern-dots absolute right-28 bottom-20 z-0 hidden h-36 w-36 md:block"
       />
-      {/* Círculo verde superpuesto */}
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/[0.08] absolute top-12 right-1/3 z-0 hidden h-28 w-28 -translate-x-6 -translate-y-2 rounded-full md:block"
-      />
-      {/* Círculo grande alejado abajo-izquierda */}
-      <span
-        aria-hidden="true"
-        className="bg-verde-concepto/[0.06] absolute -bottom-40 -left-32 z-0 h-[36rem] w-[36rem] rounded-full"
-      />
-      {/* Acento chico derecha-medio */}
-      <span
-        aria-hidden="true"
-        className="bg-verde-concepto/[0.05] absolute top-1/2 right-8 z-0 h-16 w-16 -translate-y-1/2 rounded-full blur-[2px]"
+        className="bg-verde-concepto absolute -right-12 -bottom-12 z-0 hidden h-44 w-44 rounded-full md:block"
       />
     </>
   );
