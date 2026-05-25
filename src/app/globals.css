@@ -14,9 +14,11 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
-  /* === Escala tipográfica fluida (mobile → desktop) === */
-  --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);
-  --text-display--line-height: 1.05;
+  /* === Escala tipográfica fluida (mobile → desktop) ===
+     text-display: max bajado a 3rem (48px) para que el H1 del hero entre
+     en 2-3 líneas en lugar de 4 cuando comparte ancho con el logo. */
+  --text-display: clamp(2.25rem, 1rem + 3vw, 3rem);
+  --text-display--line-height: 1.06;
   --text-h1: clamp(2rem, 0.75rem + 4vw, 3rem);
   --text-h1--line-height: 1.1;
   --text-h2: clamp(1.5rem, 0.75rem + 2vw, 2.25rem);
@@ -29,10 +31,19 @@
   --text-small--line-height: 1.5;
 }
 
+/* Defensa global contra scroll horizontal: si algún decorativo absoluto
+   se escapa del overflow-hidden de su sección, el viewport NO genera
+   barra horizontal. `clip` (en vez de `hidden`) NO crea contexto de
+   scroll, así que `position: sticky` del Header sigue funcionando. */
+html {
+  overflow-x: clip;
+}
+
 body {
   background: var(--color-gris-fondo);
   color: var(--color-azul-principal);
   font-family: var(--font-sans);
+  overflow-x: clip;
 }
 
 /* === Decorativos derivados de tokens =================================
@@ -40,6 +51,12 @@ body {
    Se centralizan acá para no esparcir literales rgba() por los
    componentes (AGENTS §5.2 — tokens, no hardcodes). */
 :root {
+  /* Alto del Header sticky. Se usa para calcular el min-h de los hero
+     de cada página: `min-h-[calc(100svh-var(--header-height))]`.
+     Mide el header REAL: Brand h-12 (48px) + py-4 (32px) + holgura
+     visual del lockup con wordmark en 2 líneas. */
+  --header-height: 5rem; /* mobile: ~80px */
+
   /* Sombra navy del sheet del TeamModal: azul-principal/25. */
   --shadow-modal-navy: 0 40px 80px -20px rgb(31 42 68 / 0.25);
   /* Patrón de puntos sobre fondo claro: gris-texto/32. */
@@ -47,6 +64,15 @@ body {
   /* Patrón de puntos azulado (manual §6): azul-medio/55 — usado en
      /nosotros y bloques del home con composición dots + círculo verde. */
   --pattern-dot-blue: rgb(74 111 165 / 0.55);
+}
+
+@media (min-width: 768px) {
+  :root {
+    /* desktop: ~88px — Brand md:h-14 (56px) + py-4 (32px) sin holgura.
+       Valor preciso para que el Hero llene EXACTO el viewport visible
+       sin dejar asomar la siguiente sección. */
+    --header-height: 5.5rem;
+  }
 }
 
 /* === Utilidades propias del proyecto ============================== */
@@ -95,6 +121,270 @@ body {
   }
   50.001% {
     transform-origin: bottom;
+  }
+}
+
+/* === Microinteracciones premium ====================================
+   Adaptadas de patrones de portfolio (Nachera) al tone institucional
+   de ED: hover lift sutil, specular sheen blanco suave, ícono que
+   "despega" al hover, label swap del nav. CSS puro — sin dependencias.
+
+   Easings:
+   --ease-circle-out : movimientos principales (lift, sheen, underline).
+   --ease-back-out   : micro-overshoot SOLO en íconos / labels swap. */
+:root {
+  --ease-circle-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Botones premium ─────────────────────────────────────────── */
+.btn-premium {
+  transition:
+    transform 0.3s var(--ease-circle-out),
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+.btn-premium:hover {
+  transform: translateY(-2px);
+}
+.btn-premium:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: 80ms;
+}
+
+/* Specular sheen — luz blanca diagonal que barre al hover.
+   Subtle 18% white (vs 26% de Nachera) para tone institucional. */
+.btn-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.18) 50%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s var(--ease-circle-out);
+}
+.btn-premium:hover .btn-sheen,
+.btn-premium:focus-visible .btn-sheen {
+  transform: translateX(130%);
+}
+
+/* Icono launch/swap — el ícono original despega hacia la derecha y
+   entra un clon idéntico desde la izquierda. Sugiere "el botón te
+   lleva a algún lado". Micro-overshoot con ease-back-out. */
+.btn-ico {
+  position: relative;
+  display: inline-grid;
+  height: 1rem;
+  width: 1rem;
+  overflow: hidden;
+}
+.btn-ico > span {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.42s var(--ease-back-out),
+    opacity 0.28s ease;
+}
+.btn-ico__ghost {
+  opacity: 0;
+  transform: translateX(-90%);
+}
+.btn-premium:hover .btn-ico__main,
+.btn-premium:focus-visible .btn-ico__main {
+  transform: translateX(115%);
+  opacity: 0;
+}
+.btn-premium:hover .btn-ico__ghost,
+.btn-premium:focus-visible .btn-ico__ghost {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* ─── Nav: label swap + underline scaleX ──────────────────────── */
+.nav-label {
+  display: inline-grid;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.nav-label > span {
+  grid-area: 1 / 1;
+  display: block;
+  transition:
+    transform 0.42s var(--ease-back-out),
+    opacity 0.28s ease;
+}
+.nav-label__ghost {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.nav-link:hover .nav-label__main,
+.nav-link:focus-visible .nav-label__main {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+.nav-link:hover .nav-label__ghost,
+.nav-link:focus-visible .nav-label__ghost {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Underline animado: scaleX desde left, sin glow, verde concepto.
+   El estado activo lo mantiene fijo en scaleX(1). */
+.nav-link-underline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background-color: var(--color-verde-concepto);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-circle-out);
+  pointer-events: none;
+}
+.nav-link:hover .nav-link-underline,
+.nav-link:focus-visible .nav-link-underline,
+.nav-link[data-active="true"] .nav-link-underline {
+  transform: scaleX(1);
+}
+
+/* ─── Hamburger morph → X (CSS-only, sin Motion lib) ─────────── */
+.hbg-svg {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  fill: none;
+  overflow: visible;
+}
+.hbg-svg line {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.35s var(--ease-circle-out);
+}
+.hbg-btn[data-open="true"] .hbg-svg line:nth-child(1) {
+  transform: translateY(3px) rotate(45deg);
+}
+.hbg-btn[data-open="true"] .hbg-svg line:nth-child(2) {
+  transform: translateY(-3px) rotate(-45deg);
+}
+.hbg-btn {
+  transition:
+    transform 0.2s var(--ease-circle-out),
+    color 0.25s ease;
+}
+.hbg-btn:hover {
+  transform: scale(1.04);
+}
+.hbg-btn:active {
+  transform: scale(0.96);
+  transition-duration: 80ms;
+}
+
+/* ─── Header: aparición coordinada al cargar la página ─────────
+   Acto 1 de la secuencia de presentación inicial (ver HomeAnimations
+   + HeroH1Reveal). Brand y nav items entran con stagger sutil
+   controlado por --i. Delay base 100ms para no chocar con el primer
+   paint. CSS-only — el Header vive fuera de HomeAnimations. */
+@keyframes navEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.nav-enter {
+  opacity: 0;
+  animation: navEnter 0.5s var(--ease-circle-out) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms + 100ms);
+}
+
+/* ─── MobileMenu: stagger por item + accent wash al hover ─────── */
+@keyframes navItemEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.nav-mobile-item {
+  opacity: 0;
+  animation: navItemEnter 0.45s var(--ease-circle-out) forwards;
+  /* --i lo seta el JSX en style (0, 1, 2...). +180ms delay base. */
+  animation-delay: calc(var(--i, 0) * 60ms + 180ms);
+}
+.nav-mobile-link {
+  position: relative;
+  overflow: hidden;
+}
+.nav-mobile-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgb(62 124 109 / 0.1) 0%,
+    rgb(62 124 109 / 0.04) 60%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--ease-circle-out);
+}
+.nav-mobile-link:hover::before,
+.nav-mobile-link:focus-visible::before {
+  transform: translateX(0);
+}
+
+/* ─── Reduced motion: desactiva todas las microinteracciones ─── */
+@media (prefers-reduced-motion: reduce) {
+  .btn-premium,
+  .hbg-btn {
+    transition: none;
+  }
+  .btn-premium:hover,
+  .btn-premium:active,
+  .hbg-btn:hover,
+  .hbg-btn:active {
+    transform: none;
+  }
+  .btn-sheen,
+  .nav-mobile-link::before {
+    display: none;
+  }
+  .btn-ico > span,
+  .nav-label > span,
+  .hbg-svg line,
+  .nav-link-underline {
+    transition: none;
+  }
+  .btn-ico,
+  .nav-label {
+    overflow: visible;
+  }
+  .btn-ico__ghost,
+  .nav-label__ghost {
+    display: none;
+  }
+  .nav-mobile-item,
+  .nav-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 
