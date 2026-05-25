@@ -37,9 +37,14 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${manrope.variable} h-full antialiased`}
+      className={`${inter.variable} ${manrope.variable} antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      {/* min-h-screen + flex-col en body (NO h-full en html) — patrón
+          sticky footer estándar que NO confunde a Lenis. El bug clásico
+          "scroll vuelve hacia arriba después de cierto punto" se debe
+          a h-full en html: el body crece más que el html y Lenis lee
+          documentElement.scrollHeight mal. */}
+      <body className="flex min-h-screen flex-col">
         <LenisProvider>
           <Header />
           {children}
