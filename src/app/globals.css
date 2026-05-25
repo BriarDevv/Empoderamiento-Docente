@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  /* === Paleta cromática (manual de marca ED) === */
-  --color-azul-principal: #1f2a44;
+  /* === Paleta cromática (manual de marca ED — pág. 5 "Ejemplo de uso
+       AZUL + VERDE + NARANJA": valores afinados para web/social) === */
+  --color-azul-principal: #1f2d4d;
   --color-azul-medio: #4a6fa5;
   --color-azul-claro: #a9c5e8;
-  --color-verde-concepto: #3e7c6d;
+  --color-verde-concepto: #1f9a78;
   --color-naranja-accion: #e07a2f;
   --color-gris-fondo: #f2f4f7;
   --color-gris-texto: #6b7280;
@@ -41,12 +42,28 @@ body {
    componentes (AGENTS §5.2 — tokens, no hardcodes). */
 :root {
   /* Sombra navy del sheet del TeamModal: azul-principal/25. */
-  --shadow-modal-navy: 0 40px 80px -20px rgb(31 42 68 / 0.25);
+  --shadow-modal-navy: 0 40px 80px -20px rgb(31 45 77 / 0.25);
   /* Patrón de puntos sobre fondo claro: gris-texto/32. */
   --pattern-dot-grey: rgb(107 114 128 / 0.32);
+  /* Patrón de puntos azulado (manual §6, pág. 8): azul-medio sólido —
+     usado en el Hero, /nosotros y bloques con composición dots +
+     círculo verde sobre fondo claro. */
+  --pattern-dot-blue: rgb(74 111 165 / 0.9);
 }
 
 /* === Utilidades propias del proyecto ============================== */
+
+/* Grilla de puntos azules — patrón gráfico oficial del manual §6.
+   Centralizado para que todos los componentes hablen el mismo
+   tamaño/contraste sin variantes inline. */
+.pattern-dots {
+  background-image: radial-gradient(
+    circle,
+    var(--pattern-dot-blue) 2.5px,
+    transparent 3px
+  );
+  background-size: 22px 22px;
+}
 
 /* Grain texture sutil para fondos navy/oscuros (4-5% opacity). */
 .bg-grain {
