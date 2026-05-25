@@ -1,0 +1,246 @@
+============================================================
+DECISIONES DE DISEÑO — EMPODERAMIENTO DOCENTE
+============================================================
+
+Documento que explica el "por qué" detrás de cada decisión
+visual del sitio. Cada decisión está atada al Manual de Marca
+(DESIGN.md / pág. 4-8 del PDF oficial) o a una regla de UX.
+
+------------------------------------------------------------
+
+
+1. ESTÉTICA CLARA CON VERDE + NARANJA
+======================================
+
+1.1. FONDOS BLANCOS / GRIS-FONDO
+    En lugar del navy original. El manual (§5 "Ejemplo de
+    uso") muestra HEROs claros. El navy queda como acento
+    institucional (footer, modal, foto placeholder), no
+    como fondo dominante. Más aire, más legibilidad, más
+    cerca del look del manual.
+
+1.2. VERDE #1F9A78
+    Más vibrante que el #3E7C6D original. Vos pediste "más
+    brillante". Tomamos los valores de la pág. 5 del manual
+    ("OPCIÓN 1: AZUL + VERDE + NARANJA") afinados para web.
+
+1.3. NARANJA #E07A2F SOLO EN CTAs
+    Regla del manual §1 sin excepción: naranja = acción.
+    Sumé micro-acentos (flecha del flujo, "/" del page
+    marker, "=" de la ecuación) — no son "naranja
+    decorativo", son acentos editoriales mínimos en
+    elementos pequeños.
+
+
+2. TIPOGRAFÍA Y JERARQUÍA
+==========================
+
+2.1. MANROPE (DISPLAY) + INTER (CUERPO)
+    Manual §6. Manrope para H1/H2/nombres (geométrica,
+    contemporánea); Inter para bajadas (legibilidad pareja
+    en lectura larga).
+
+2.2. text-display (clamp 2.5–4.5rem) EN H1
+    Mismo tamaño exacto en Hero y PageHeader. Sirve para
+    que el usuario lea con la misma intensidad al abrir /
+    o /nosotros — el "ancla visual" es idéntica.
+
+2.3. PALABRA CLAVE EN VERDE SÓLIDO
+    No con Highlight subrayado. Vos lo pediste en el último
+    round. Tiene fundamento: el manual muestra la palabra
+    clave coloreada directamente (pág. 5 ejemplo:
+    "Transformamos la enseñanza de la matemática" — con
+    "enseñanza" en verde). El subrayado pelado distrae.
+
+2.4. UNA SOLA PALABRA VERDE POR BLOQUE
+    Regla del manual §1.3: "verde para conceptos, pero
+    no abusar".
+
+
+3. PATRÓN GRÁFICO CANÓNICO
+===========================
+
+3.1. DOTS AZUL-MEDIO + CÍRCULO VERDE SÓLIDO
+    En cada sección, en posiciones distintas. Es EL patrón
+    gráfico oficial (manual §6 / pág. 8). Repetirlo unifica
+    el sitio; variar la posición evita "copia-pega".
+
+3.2. SAQUÉ BLOBS BLUR, ONDAS CONCÉNTRICAS, DASHES VERTICALES
+    Esos eran decorativos arbitrarios sin respaldo en el
+    manual. Vos lo pediste: "usá los elementos del manual,
+    ya estoy harto de repetírtelo".
+
+3.3. DOTS CON 2.5px DE RADIO + 22px DE SEPARACIÓN, 90% OPACIDAD
+    Cuando los puse al 1px y 14px de separación se veían
+    como ruido invisible. Los del manual son visibles y
+    definidos.
+
+3.4. VERDE 100% SÓLIDO EN EL CÍRCULO PRINCIPAL
+    Manual pág. 8: el círculo es sólido. La versión al
+    5-9% de opacidad era invisible.
+
+
+4. COMPOSICIONES 2 COLUMNAS (HERO + PAGEHEADER)
+================================================
+
+4.1. LAYOUT IDÉNTICO EN HOME Y /NOSOTROS
+    Copy izquierda (eyebrow + H1 + bajada + CTAs) /
+    visual derecha (logo o composición canónica). Replica
+    exacta del ejemplo del manual §5. Misma estructura
+    para que el usuario sepa que está en el mismo sistema.
+
+4.2. min-h-[78vh] EN AMBOS
+    Cumple tu pedido "que ocupen el mismo espacio". 78vh
+    es lo suficientemente grande para impactar sin tapar
+    la siguiente sección.
+
+4.3. H1 LIMITADO EN MAX-WIDTH (max-w-lg EN /NOSOTROS)
+    Vos lo pediste: "más larga, menos ancha, 3 renglones
+    máx". El bloque vertical queda como una columna
+    editorial, no un rectángulo gordo.
+
+
+5. PAGE MARKERS ("001 / Home")
+===============================
+
+5.1. NUMERACIÓN SECUENCIAL
+    001 → 006 en el home, 001 → 002 en /nosotros.
+    Convención editorial (revistas, libros). Ayuda a
+    orientar al usuario en el scroll y suma identidad
+    "narrativa" al sitio.
+
+5.2. "/" EN NARANJA
+    Acento mínimo. Cumple "más naranja para cerrar
+    identidad" sin romper la regla "naranja solo CTAs"
+    (es un separador editorial, no decoración).
+
+
+6. CICLOTRABAJO (REESCRITO)
+============================
+
+6.1. 3 CARDS CON BORDER + FLECHAS NARANJAS ENTRE ELLAS
+    En lugar de la línea horizontal con bullets aislados +
+    curva dashed. El layout anterior tenía 3 elementos
+    decorativos sin contención (línea, bullets, curva) que
+    no se conectaban a las cards. Las flechas naranjas
+    entre cards transmiten acción / flujo directamente —
+    manual §1 (naranja = acción).
+
+6.2. NÚMERO GRANDE VERDE SUTIL + ÍCONO FLECHA EN CÍRCULO VERDE
+    Jerarquía clara dentro de la card: el número es ancla
+    visual, el ícono es CTA visual. Ambos verdes
+    (concepto).
+
+6.3. CIERRE CON BULLET VERDE + FRASE CORTA
+    Reemplaza la curva dashed "loop" que no se entendía.
+    Comunica "ciclo continuo" en texto directo.
+
+
+7. NEWSLETTER SIGNUP (EX-COMUNIDADREDES)
+=========================================
+
+7.1. INPUT EMAIL + BOTÓN NARANJA, MAX-W-XL CENTRADO
+    Vos lo pediste. Es el patrón estándar para newsletter
+    (Mailchimp / ConvertKit / Beehiiv usan el mismo).
+
+7.2. VALIDACIÓN REGEX + ESTADOS IDLE/LOADING/OK/ERROR
+    UX básica de form: feedback inmediato al usuario.
+    NOTA: el TODO está marcado en el código — hay que
+    conectar a un provider real (la suscripción actual
+    es un placeholder que simula éxito).
+
+7.3. MICROCOPY "NO COMPARTIMOS TU CORREO"
+    Confianza. Reduce fricción para suscribirse.
+
+7.4. REDES MOVIDAS A SUB-BLOQUE CHICO ABAJO
+    El newsletter es la acción principal; las redes son
+    canal secundario. Jerarquía clara.
+
+
+8. TEAMMODAL
+=============
+
+8.1. max-w-[1280px] (ERA 1040PX)
+    Vos lo pediste "se ven pequeños, agrandalos". 23% más
+    ancho da más respiro a la foto + más espacio para el
+    contenido editorial.
+
+8.2. X A LA DERECHA
+    Convención universal: usuarios entrenados (Apple,
+    Google, Windows) para que la X esté en el corner
+    derecho. Cumple Fitts's law (esquina = blanco grande).
+
+8.3. WATERMARK DEL TIER ELIMINADO
+    Vos lo pediste "sacá esa aureola". El target / users /
+    book-open detrás del texto sumaba ruido visual sin
+    valor informativo claro.
+
+
+9. CARDS DEL EQUIPO
+====================
+
+9.1. FOTO SIEMPRE A COLOR (SAQUÉ EL GRAYSCALE + REVEAL)
+    Es un trato más respetuoso del equipo (verlos
+    auténticos desde el inicio). El grayscale → color era
+    un truco editorial frío.
+
+9.2. HOVER: scale 1.04 + UNDERLINE VERDE + "LEER SEMBLANZA →"
+    Feedback sutil de affordance (click). Verde =
+    concepto (su rol / identidad).
+
+9.3. h-px EN EL UNDERLINE (ERA h-[1.5px])
+    El subpixel rounding del browser hacía que algunas
+    cards tuvieran 1px y otras 2px (inconsistencia
+    visible). 1px exacto siempre.
+
+9.4. items-start EN EL GRID
+    Las cards con texto largo arrastraban a la del medio
+    hacia abajo si el grid centraba. Top-aligned siempre.
+
+
+10. LENGUAJE INCLUSIVO
+=======================
+
+10.1. SUSTANTIVOS ABARCATIVOS
+    "Cuerpo docente" / "profesorado" / "red de
+    profesionales" en lugar de desdoblamientos ("las y
+    los docentes") o terminaciones neutras ("les"). El
+    cliente lo pidió textualmente en su mail: "sin caer
+    en lo binario las/los, pero tampoco les, usar
+    sustantivos abarcativos".
+
+
+11. FOOTER COMPACTO
+====================
+
+11.1. COMPACTADO ~50%
+    Padding de py-28 a py-14, márgenes mt-16 a mt-8/10.
+    Vos lo pediste. El footer es soporte estructural,
+    no protagonista.
+
+11.2. CTA GRANDE ARRIBA + ECUACIÓN + GRID 4 COL + BOTTOM BAR
+    Jerarquía descendente: lo más importante primero
+    (suscripción / contacto), después orientación (nav),
+    después legal (copyright).
+
+
+------------------------------------------------------------
+
+ANEXO: PRINCIPIOS TRANSVERSALES QUE APLICAN A TODO
+
+- Movimiento contenido (DESIGN.md §9):
+  Durations 400-800ms, easings power2.out / expo.out.
+  Nada de bounces ni elastic.
+
+- Naranja, verde y azul nunca conviven competiendo en el
+  mismo bloque visual (regla manual §1.4).
+
+- Tokens centralizados en globals.css (@theme):
+  ningún componente hardcodea colores o rgba inline.
+
+- Reduced motion: el sitio respeta la preferencia del
+  usuario (hook useReducedMotion); las animaciones se
+  saltean si el OS lo solicita.
+
+------------------------------------------------------------
+Fin del documento.

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sitemap — Empoderamiento Docente</title>
+    <style>
+      :root {
+        --azul-principal: #1f2d4d;
+        --azul-medio: #4a6fa5;
+        --azul-claro: #a9c5e8;
+        --verde-concepto: #1f9a78;
+        --naranja-accion: #e07a2f;
+        --gris-fondo: #f2f4f7;
+        --gris-texto: #6b7280;
+        --pattern-dot-blue: rgb(74 111 165 / 0.9);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, sans-serif;
+        background: var(--gris-fondo);
+        color: var(--azul-principal);
+        padding: 48px 32px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      header.titlebar {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 48px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid rgb(31 45 77 / 0.12);
+        position: relative;
+      }
+
+      .titlebar .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gris-texto);
+      }
+      .titlebar .eyebrow::before {
+        content: "";
+        display: block;
+        width: 40px;
+        height: 1px;
+        background: var(--verde-concepto);
+      }
+
+      .titlebar h1 {
+        font-family: "Manrope", -apple-system, sans-serif;
+        font-size: 40px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+      .titlebar h1 .accent {
+        color: var(--verde-concepto);
+      }
+
+      .titlebar .meta {
+        color: var(--gris-texto);
+        font-size: 14px;
+        max-width: 700px;
+        line-height: 1.6;
+      }
+
+      /* Dots decorativos en el corner */
+      .titlebar::after {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: 0;
+        width: 120px;
+        height: 80px;
+        background-image: radial-gradient(
+          circle,
+          var(--pattern-dot-blue) 2.5px,
+          transparent 3px
+        );
+        background-size: 22px 22px;
+        opacity: 0.6;
+      }
+
+      /* Grid de páginas */
+      .pages {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+
+      .page {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 8px 24px rgb(31 45 77 / 0.06);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page::before {
+        content: "";
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        background: var(--verde-concepto);
+        border-radius: 50%;
+        opacity: 0.08;
+      }
+
+      .page-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgb(31 45 77 / 0.1);
+        margin-bottom: 24px;
+        position: relative;
+      }
+
+      .page-head .label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--gris-texto);
+      }
+      .page-head .label .slash {
+        color: var(--naranja-accion);
+      }
+
+      .page-head h2 {
+        font-family: "Manrope", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin-top: 8px;
+      }
+
+      .page-head .url {
+        font-family: ui-monospace, monospace;
+        font-size: 13px;
+        background: var(--gris-fondo);
+        color: var(--azul-principal);
+        padding: 4px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+      }
+
+      .blocks {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .block {
+        border: 1px solid rgb(31 45 77 / 0.12);
+        border-left: 3px solid var(--verde-concepto);
+        border-radius: 6px;
+        padding: 16px 18px;
+        background: white;
+        position: relative;
+        transition: all 0.2s;
+      }
+
+      .block:hover {
+        border-color: var(--verde-concepto);
+        box-shadow: 0 4px 12px rgb(31 154 120 / 0.1);
+      }
+
+      .block.cta-block {
+        border-left-color: var(--naranja-accion);
+        background: linear-gradient(
+          to right,
+          rgb(224 122 47 / 0.06),
+          transparent
+        );
+      }
+
+      .block .marker {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gris-texto);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .block .marker .slash {
+        color: var(--naranja-accion);
+      }
+
+      .block h3 {
+        font-family: "Manrope", sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        margin-top: 4px;
+        letter-spacing: -0.005em;
+      }
+
+      .block .copy {
+        color: var(--gris-texto);
+        font-size: 13px;
+        line-height: 1.55;
+        margin-top: 8px;
+      }
+
+      .block .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        border-radius: 4px;
+        background: var(--gris-fondo);
+        color: var(--azul-principal);
+      }
+
+      .tag.cta {
+        background: var(--naranja-accion);
+        color: white;
+      }
+      .tag.anchor {
+        background: var(--verde-concepto);
+        color: white;
+      }
+      .tag.subtle {
+        background: rgb(74 111 165 / 0.12);
+        color: var(--azul-medio);
+      }
+
+      /* Connector flecha entre bloques */
+      .connector {
+        text-align: center;
+        color: var(--azul-medio);
+        font-size: 12px;
+        line-height: 1;
+        margin: 2px 0;
+        opacity: 0.5;
+      }
+
+      /* Layout global (header/footer) — bandas */
+      .band {
+        background: var(--azul-principal);
+        color: white;
+        border-radius: 6px;
+        padding: 12px 18px;
+        margin-bottom: 12px;
+      }
+      .band.footer {
+        margin-top: 12px;
+        margin-bottom: 0;
+      }
+      .band .marker {
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--azul-claro);
+        opacity: 0.8;
+      }
+      .band h3 {
+        font-family: "Manrope", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .band .copy {
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--azul-claro);
+        opacity: 0.9;
+        margin-top: 4px;
+      }
+
+      /* Sección leyenda */
+      .legend {
+        margin-top: 56px;
+        padding-top: 32px;
+        border-top: 1px solid rgb(31 45 77 / 0.12);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+
+      .legend-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .legend-item .swatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--gris-texto);
+      }
+      .legend-item .swatch::before {
+        content: "";
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        background: currentColor;
+      }
+      .legend-item .swatch.cta {
+        color: var(--naranja-accion);
+      }
+      .legend-item .swatch.anchor {
+        color: var(--verde-concepto);
+      }
+      .legend-item .swatch.global {
+        color: var(--azul-principal);
+      }
+      .legend-item .swatch.future {
+        color: var(--azul-medio);
+      }
+      .legend-item p {
+        font-size: 12px;
+        color: var(--gris-texto);
+        line-height: 1.5;
+      }
+
+      /* Sección futuras rutas */
+      .future-routes {
+        margin-top: 32px;
+        padding: 20px 24px;
+        background: rgb(74 111 165 / 0.06);
+        border-radius: 8px;
+        border-left: 3px solid var(--azul-medio);
+      }
+      .future-routes h3 {
+        font-family: "Manrope", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: var(--azul-medio);
+      }
+      .future-routes ul {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        list-style: none;
+      }
+      .future-routes li {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        padding: 4px 10px;
+        background: white;
+        border: 1px dashed rgb(74 111 165 / 0.4);
+        color: var(--azul-medio);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="titlebar">
+        <span class="eyebrow">Sitemap</span>
+        <h1>
+          <span class="accent">Empoderamiento Docente</span> · Inicio &
+          Nosotros
+        </h1>
+        <p class="meta">
+          Mapa estructural de las páginas activas del sitio. Cada bloque
+          representa una sección, con su page marker, propósito y
+          metadatos (anchor, CTAs, decorativos del manual §6).
+        </p>
+      </header>
+
+      <div class="pages">
+        <!-- ========== HOME ========== -->
+        <article class="page">
+          <header class="page-head">
+            <div>
+              <span class="label">Página · 001</span>
+              <h2>Inicio</h2>
+            </div>
+            <code class="url">/</code>
+          </header>
+
+          <div class="band">
+            <span class="marker">Layout global</span>
+            <h3>Header sticky</h3>
+            <p class="copy">
+              Brand + nav (Inicio · Nosotros · Investigación · Formación
+              · Contacto) + CTA "Sumate" naranja.
+            </p>
+          </div>
+
+          <div class="blocks">
+            <div class="block">
+              <span class="marker"
+                >001 <span class="slash">/</span> Home</span
+              >
+              <h3>Hero</h3>
+              <p class="copy">
+                "Transformamos la <em>enseñanza</em> de la matemática."
+                Layout 2 col: copy a la izquierda (eyebrow + h1 + bajada
+                + flujo del ciclo + 2 CTAs) · isotipo macizo a la derecha
+                con composición canónica (círculo verde sólido + dots
+                azules).
+              </p>
+              <div class="meta">
+                <span class="tag cta">CTA: Conocé más → /nosotros</span>
+                <span class="tag">CTA: Conocé al equipo</span>
+                <span class="tag subtle">Scroll indicator</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker"
+                >002 <span class="slash">/</span> Ciclo</span
+              >
+              <h3>CicloTrabajo</h3>
+              <p class="copy">
+                3 fases en arco: 01 Investigamos · 02 Hacemos · 03
+                Volvemos a investigar. Conectores hairline + curva verde
+                de retorno. Cierre con ecuación: Investigación + Acción +
+                Reflexión + Alianzas = Transformación educativa.
+              </p>
+              <div class="meta">
+                <span class="tag">Link: /recursos</span>
+                <span class="tag">Link: /formacion</span>
+                <span class="tag">Link: /nosotros</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker"
+                >003 <span class="slash">/</span> Identidad</span
+              >
+              <h3>SobreEd</h3>
+              <p class="copy">
+                Layout 2 col: copy a la izquierda con base epistemológica
+                + 3 principios + CTA · pull-quote "Vivir para hacer
+                vivir" a la derecha con TextReveal por palabra.
+              </p>
+              <div class="meta">
+                <span class="tag">CTA: Conocé al equipo → /nosotros</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker"
+                >004 <span class="slash">/</span> Impacto</span
+              >
+              <h3>Impacto</h3>
+              <p class="copy">
+                4 audiencias con íconos: Docentes (Users) · Estudiantes
+                (Lightbulb) · Escuelas (School) · Sistemas educativos
+                (TrendingUp). Cards con ícono que se invierte en hover.
+              </p>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker"
+                >005 <span class="slash">/</span> Alianzas</span
+              >
+              <h3>Aliados</h3>
+              <p class="copy">
+                6 partners en grid 3 cols con border-left: TECHINT · Gen
+                Técnico Roberto Rocca · Escuelas Técnicas Roberto Rocca ·
+                Min. Educ. CABA · Bloom · Redes y comunidades.
+              </p>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block cta-block">
+              <span class="marker"
+                >006 <span class="slash">/</span> Comunidad</span
+              >
+              <h3>ComunidadRedes</h3>
+              <p class="copy">
+                CTA de cierre: "Sumate a la <em>comunidad</em>". Grid de
+                3 cards de redes (IG/LinkedIn/Facebook) si están
+                configuradas; placeholder con email directo si no.
+              </p>
+              <div class="meta">
+                <span class="tag anchor">#comunidad</span>
+                <span class="tag cta">CTA email directo</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="band footer">
+            <span class="marker">Layout global</span>
+            <h3>Footer navy</h3>
+            <p class="copy">
+              CTA "Sumate al ciclo" + ecuación de cierre + grid 4 col
+              (Marca · Navegar · Comunidad · Contacto) + bottom bar.
+            </p>
+          </div>
+        </article>
+
+        <!-- ========== NOSOTROS ========== -->
+        <article class="page">
+          <header class="page-head">
+            <div>
+              <span class="label">Página · 002</span>
+              <h2>Nosotros</h2>
+            </div>
+            <code class="url">/nosotros</code>
+          </header>
+
+          <div class="band">
+            <span class="marker">Layout global</span>
+            <h3>Header sticky</h3>
+            <p class="copy">
+              (mismo de Inicio — link "Nosotros" activo).
+            </p>
+          </div>
+
+          <div class="blocks">
+            <div class="block cta-block">
+              <span class="marker"
+                >002 <span class="slash">/</span> Nosotros</span
+              >
+              <h3>PageHeader (full-screen)</h3>
+              <p class="copy">
+                Layout 2 col: copy a la izquierda (eyebrow + h1 con
+                "transforma" verde + línea decorativa + bajada + stats
+                14/5/3 + 2 CTAs) · composición canónica a la derecha
+                (círculo verde sólido + dots azules).
+              </p>
+              <div class="meta">
+                <span class="tag cta">CTA: Conocé al equipo → #equipo</span>
+                <span class="tag">CTA: Sumate a la comunidad → /#comunidad</span>
+                <span class="tag subtle">Scroll indicator</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker">Capítulo · 01</span>
+              <h3>TeamSection · Dirección</h3>
+              <p class="copy">
+                Grid large (1-2 col, max-w-3xl). 2 personas:
+                Directora General + Directora Académica. Cards con foto
+                a color, hover scale + underline verde, click abre modal.
+              </p>
+              <div class="meta">
+                <span class="tag anchor">#equipo</span>
+                <span class="tag subtle">2 personas</span>
+                <span class="tag subtle">Variant: large</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker">Capítulo · 02</span>
+              <h3>TeamSection · Líderes de Área y Proyecto</h3>
+              <p class="copy">
+                Grid medium (2-3 col, max-w-5xl). 6 personas que sostienen
+                la estructura académica y conducen las líneas de
+                investigación.
+              </p>
+              <div class="meta">
+                <span class="tag subtle">6 personas</span>
+                <span class="tag subtle">Variant: medium</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block">
+              <span class="marker">Capítulo · 03</span>
+              <h3>TeamSection · Facilitación y Diseño</h3>
+              <p class="copy">
+                Grid small (2-3 col, max-w-5xl). 6 personas que
+                construyen la práctica de aula y diseñan los materiales
+                que llegan a docentes.
+              </p>
+              <div class="meta">
+                <span class="tag subtle">6 personas</span>
+                <span class="tag subtle">Variant: small</span>
+              </div>
+            </div>
+
+            <div class="connector">↓</div>
+
+            <div class="block cta-block">
+              <span class="marker">Overlay</span>
+              <h3>TeamModal (morph animation)</h3>
+              <p class="copy">
+                Modal global que abre desde cualquier card: foto morpha
+                desde la card al slot, sheet con bio + credenciales +
+                especialidad + CTA LinkedIn naranja. Watermark de tier
+                con íconos Lucide (Target/Users/BookOpen).
+              </p>
+              <div class="meta">
+                <span class="tag cta">CTA: Ver en LinkedIn</span>
+                <span class="tag subtle">Focus trap + ESC</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="band footer">
+            <span class="marker">Layout global</span>
+            <h3>Footer navy</h3>
+            <p class="copy">(mismo de Inicio).</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- ========== Rutas futuras ========== -->
+      <div class="future-routes">
+        <h3>Rutas previstas (no implementadas todavía)</h3>
+        <ul>
+          <li>/servicios</li>
+          <li>/recursos</li>
+          <li>/formacion</li>
+          <li>/contacto</li>
+          <li>/novedades</li>
+          <li>/unite</li>
+        </ul>
+      </div>
+
+      <!-- ========== Leyenda ========== -->
+      <div class="legend">
+        <div class="legend-item">
+          <span class="swatch global">Layout global</span>
+          <p>Header sticky + Footer navy. Visibles en todas las páginas.</p>
+        </div>
+        <div class="legend-item">
+          <span class="swatch anchor">Anchor</span>
+          <p>
+            #equipo · #comunidad. Destinos de scroll de CTAs internos.
+          </p>
+        </div>
+        <div class="legend-item">
+          <span class="swatch cta">CTA</span>
+          <p>Botón naranja primario o link de acción. Solo CTAs (manual).</p>
+        </div>
+        <div class="legend-item">
+          <span class="swatch future">Futuro</span>
+          <p>
+            Rutas previstas que el cliente listó pero todavía no están
+            implementadas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
