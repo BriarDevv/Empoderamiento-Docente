@@ -46,7 +46,7 @@ export function Impacto() {
   return (
     <section
       data-section="impacto"
-      className="relative bg-white py-24 md:py-32"
+      className="relative overflow-hidden bg-white py-24 md:py-32"
     >
       {/* Page marker */}
       <span

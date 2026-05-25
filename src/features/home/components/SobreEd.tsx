@@ -7,7 +7,7 @@ import { siteConfig } from "@/config/site";
 
 const principios = [
   "Centrados en aprender, más que en enseñar",
-  "Sostenemos un vínculo continuo con las y los docentes",
+  "Sostenemos un vínculo continuo con la comunidad docente",
   "Base científica en Matemática Educativa",
 ] as const;
 
@@ -72,8 +72,9 @@ export function SobreEd() {
             Fase experiencial · principio rector
           </p>
           <p className="text-azul-claro/85 mt-3 max-w-sm font-sans text-[0.98rem] leading-relaxed">
-            Las y los docentes vivencian tareas disruptivas que problematizan la
-            matemática escolar. Recién después, la diseñan para sus estudiantes.
+            La comunidad docente vivencia tareas disruptivas que problematizan
+            la matemática escolar. Recién después, las diseña para sus
+            estudiantes.
           </p>
         </div>
 

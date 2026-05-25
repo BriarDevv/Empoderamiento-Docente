@@ -41,7 +41,7 @@ export function Aliados() {
   return (
     <section
       data-section="aliados"
-      className="bg-gris-fondo relative py-24 md:py-32"
+      className="bg-gris-fondo relative overflow-hidden py-24 md:py-32"
     >
       {/* Page marker */}
       <span

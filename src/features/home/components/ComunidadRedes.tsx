@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Instagram,
   Linkedin,
@@ -146,6 +147,18 @@ export function ComunidadRedes() {
             </div>
           </div>
         )}
+
+        {/* CTA secondary al hub /sumate — "esta sección es solo una de
+            las formas de sumarte". */}
+        <div className="mt-14 text-center">
+          <Link
+            href="/sumate"
+            className="text-azul-principal/85 hover:text-azul-principal decoration-verde-concepto inline-flex items-center gap-2 font-sans text-[0.92rem] font-medium underline decoration-2 underline-offset-4 transition-colors"
+          >
+            <span>Conocé todas las formas de sumarte a ED</span>
+            <ArrowRight size={14} className="text-verde-concepto" />
+          </Link>
+        </div>
       </div>
     </section>
   );

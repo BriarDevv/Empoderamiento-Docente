@@ -28,28 +28,64 @@ export function HomeAnimations({ children }: { children: ReactNode }) {
 
     const context = gsap.context(() => {
       // ─── HERO ────────────────────────────────────────────────────
-      // Copy: stagger de hijos data-anim-item (eyebrow → headline → bajada → flujo → CTAs)
+      // Presentación coordinada con el logo (timeline propia de
+      // LogotipoEDInline, ~2.8s) y el H1Reveal (timeline propia,
+      // termina ~1.9s + highlight hasta 2.65s). Cada item del copy
+      // tiene su delay individual — NO usar stagger plano porque el
+      // H1 (que va por dentro de HeroH1Reveal) corre en paralelo y
+      // necesitamos hooks de timing precisos.
+      //
+      // Acto 2: eyebrow t=0.5, H1 t=0.8 (interno), bajada t=1.0,
+      //         flujo t=1.3, CTAs t=1.6.
+      // Acto 3: highlight t=1.9 (interno), logo pulse t=2.1, scroll t=2.4.
       const heroCopy = scope.querySelector('[data-anim="hero-copy"]');
       if (heroCopy) {
-        const items = heroCopy.querySelectorAll("[data-anim-item]");
-        gsap.fromTo(
-          items,
-          { opacity: 0, y: 18 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "power3.out",
-            stagger: 0.085,
-          },
-        );
+        // Items que entran como bloque con fade + rise (cadencia editorial).
+        const heroItems: Array<{ sel: string; delay: number; dur: number }> = [
+          { sel: '[data-anim-item="eyebrow"]', delay: 0.5, dur: 0.6 },
+          { sel: '[data-anim-item="bajada"]', delay: 1.0, dur: 0.7 },
+          { sel: '[data-anim-item="ctas"]', delay: 1.8, dur: 0.7 },
+        ];
+        for (const { sel, delay, dur } of heroItems) {
+          const el = heroCopy.querySelector(sel);
+          if (!el) continue;
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: dur, delay, ease: "power3.out" },
+          );
+        }
+
+        // Flujo del ciclo: stagger izq→der, paso a paso. Refuerza
+        // conceptualmente la secuencialidad del ciclo (Investigamos →
+        // Diseñamos → Implementamos → Volvemos a investigar).
+        // Cada <li> incluye su flecha, así que la flecha aparece JUNTO
+        // con el item siguiente — visualmente "una cosa lleva a la otra".
+        const flujo = heroCopy.querySelector('[data-anim-item="flujo"]');
+        if (flujo) {
+          const items = flujo.querySelectorAll("li");
+          gsap.fromTo(
+            items,
+            { opacity: 0, x: -12 },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 0.5,
+              ease: "power3.out",
+              stagger: 0.14,
+              delay: 1.3,
+            },
+          );
+        }
       }
 
-      // Logo: la animación de "construcción" (stroke-draw del border + reveal
-      // por partes del faro y las letras) vive dentro de LogotipoEDInline.tsx,
-      // que maneja su propio timeline GSAP al montar. No animar acá.
+      // Logo: la animación de "construcción" (stroke-draw del border +
+      // reveal por partes del faro y las letras) vive dentro de
+      // LogotipoEDInline.tsx, que maneja su propio timeline GSAP al
+      // montar. No tocar acá — sincronía coordinada por timings absolutos.
 
-      // Scroll indicator: fade-in al final
+      // Scroll indicator: cierre del Acto 3. Después del highlight,
+      // del pulse del logo, y de los CTAs. Invita a continuar.
       const scrollIndicator = scope.querySelector(
         '[data-anim="scroll-indicator"]',
       );
@@ -57,7 +93,7 @@ export function HomeAnimations({ children }: { children: ReactNode }) {
         gsap.fromTo(
           scrollIndicator,
           { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.7, delay: 1.2, ease: "power2.out" },
+          { opacity: 1, y: 0, duration: 0.7, delay: 2.7, ease: "power2.out" },
         );
       }
 
