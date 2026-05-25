@@ -1,9 +1,8 @@
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Highlight } from "@/components/ui/Highlight";
 import { ButtonPrimary } from "@/components/ui/ButtonPrimary";
 import { ButtonSecondary } from "@/components/ui/ButtonSecondary";
-import { LogotipoEDInline } from "@/components/brand/LogotipoEDInline";
 
 const flujo = [
   "Investigamos",
@@ -16,39 +15,27 @@ export function Hero() {
   return (
     <section
       data-section="hero"
-      className="bg-grain bg-azul-principal relative isolate overflow-hidden text-white"
+      className="text-azul-principal relative isolate overflow-hidden bg-white"
     >
-      {/* Page marker editorial */}
+      {/* Page marker editorial — acento naranja en el separador */}
       <span
         aria-hidden="true"
-        className="text-azul-claro/50 absolute top-6 right-5 z-10 hidden font-sans text-[0.7rem] tracking-[0.3em] uppercase md:top-8 md:right-10 md:block"
+        className="text-azul-principal/40 absolute top-6 right-5 z-10 hidden font-sans text-[0.7rem] tracking-[0.3em] uppercase md:top-8 md:right-10 md:block"
       >
-        001 / Home
+        001 <span className="text-naranja-accion">/</span> Home
       </span>
 
-      {/* Grid editorial sutil */}
+      {/* Patrón de puntos azules — arriba izquierda */}
       <span
         aria-hidden="true"
-        className="bg-azul-claro/[0.05] absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 md:block"
+        className="pattern-dots absolute top-28 left-6 z-0 hidden h-48 w-48 md:block"
       />
 
-      {/* Círculo verde a la derecha (decoración inferior) */}
-      <span
-        aria-hidden="true"
-        className="bg-verde-concepto/30 absolute -right-32 -bottom-32 z-0 h-[34rem] w-[34rem] rounded-full blur-[1px]"
-      />
-
-      {/* Patrón de puntos arriba izquierda */}
-      <span
-        aria-hidden="true"
-        className="absolute top-28 left-6 z-0 hidden h-40 w-40 bg-[radial-gradient(circle,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:14px_14px] md:block"
-      />
-
-      <div className="relative z-10 mx-auto grid min-h-[72vh] max-w-screen-xl gap-12 px-5 pt-16 pb-20 md:grid-cols-2 md:items-center md:gap-12 md:px-10 md:pt-20 md:pb-24">
-        {/* Pilar copy — ocupa el ancho de la columna, texto alineado a la izquierda */}
+      <div className="relative z-10 mx-auto grid min-h-[78vh] max-w-screen-xl gap-12 px-5 pt-16 pb-20 md:grid-cols-2 md:items-center md:gap-12 md:px-10 md:pt-20 md:pb-24">
+        {/* Pilar copy */}
         <div className="flex flex-col" data-anim="hero-copy">
           <div data-anim-item>
-            <Eyebrow variant="light" dashClass="w-14">
+            <Eyebrow dashClass="w-14">
               Investigación · Acción · Reflexión
             </Eyebrow>
           </div>
@@ -57,32 +44,36 @@ export function Hero() {
             data-anim-item
             className="font-display text-display mt-6 font-bold tracking-[-0.025em]"
           >
-            Investigamos para{" "}
-            <span className="relative whitespace-nowrap">
-              <Highlight>transformar</Highlight>
-            </span>{" "}
-            la matemática escolar.
+            Transformamos la{" "}
+            <span className="text-verde-concepto">enseñanza</span> de la
+            matemática.
           </h1>
+
+          {/* Línea verde decorativa */}
+          <span
+            data-anim-item
+            aria-hidden="true"
+            className="bg-verde-concepto mt-7 block h-px w-14"
+          />
 
           <p
             data-anim-item
-            className="text-azul-claro/90 mt-5 font-sans text-[1.02rem] leading-relaxed md:text-[1.08rem]"
+            className="text-gris-texto mt-6 max-w-md font-sans text-[1.02rem] leading-relaxed md:text-[1.08rem]"
           >
-            Desarrollo profesional docente y resignificación del conocimiento
-            matemático escolar en {siteConfig.paises.join(", ")}. Un ciclo
-            continuo de conocimiento, acción y transformación.
+            Formación, reflexión y acompañamiento para docentes que quieren ir
+            más allá, en {siteConfig.paises.join(", ")}.
           </p>
 
-          {/* Flujo del ciclo — chips con flechas */}
+          {/* Flujo del ciclo */}
           <ol
             data-anim-item
-            className="text-azul-claro mt-7 flex flex-wrap items-center gap-x-2.5 gap-y-3 font-sans text-[0.78rem] tracking-[0.15em] uppercase md:text-[0.82rem]"
+            className="text-azul-principal/85 mt-7 flex flex-wrap items-center gap-x-2.5 gap-y-3 font-sans text-[0.78rem] tracking-[0.15em] uppercase md:text-[0.82rem]"
           >
             {flujo.map((fase, i) => (
               <li key={fase} className="flex items-center gap-2.5">
                 <span className="font-medium">{fase}</span>
                 {i < flujo.length - 1 && (
-                  <span aria-hidden="true" className="text-verde-concepto/80">
+                  <span aria-hidden="true" className="text-naranja-accion">
                     →
                   </span>
                 )}
@@ -94,46 +85,34 @@ export function Hero() {
             data-anim-item
             className="mt-8 flex flex-wrap items-center gap-4"
           >
-            <ButtonPrimary href="#comunidad">
-              Sumate a la comunidad
-            </ButtonPrimary>
-            <ButtonSecondary href="/nosotros" variant="dark">
-              Conocé a ED
-            </ButtonSecondary>
+            <ButtonPrimary href="#comunidad">Conocé más</ButtonPrimary>
+            <ButtonSecondary href="/nosotros">Conocé al equipo</ButtonSecondary>
           </div>
         </div>
 
-        {/* Pilar logo — centrado en su columna. La animación de "construcción"
-            (stroke-draw + reveal por partes) vive dentro de LogotipoEDInline. */}
+        {/* Pilar logo — composición del manual §5: isotipo macizo +
+            semicírculo verde en esquina inferior derecha + dots
+            azules superpuestos al verde. */}
         <div className="relative flex items-center justify-center">
-          {/* Glow detrás del logo */}
           <span
             aria-hidden="true"
-            className="bg-azul-claro/5 absolute inset-0 -m-12 rounded-full blur-2xl"
+            className="bg-verde-concepto absolute right-0 -bottom-40 z-0 h-[22rem] w-[22rem] translate-x-1/2 rounded-full md:-bottom-48 md:h-[26rem] md:w-[26rem]"
           />
-          <LogotipoEDInline
-            variant="negativo"
-            className="relative h-auto w-full max-w-[14rem] drop-shadow-[0_8px_32px_rgba(0,0,0,0.35)] md:max-w-[20rem]"
+
+          <span
+            aria-hidden="true"
+            className="pattern-dots absolute -right-4 -bottom-16 z-20 hidden h-40 w-40 md:block"
+          />
+
+          <Image
+            src="/brand/logotipo-ed-principal.svg"
             alt="Empoderamiento Docente"
+            width={262}
+            height={335}
+            priority
+            className="relative z-10 h-auto w-full max-w-[14rem] md:max-w-[18rem]"
           />
         </div>
-      </div>
-
-      {/* Scroll indicator abajo */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
-        data-anim="scroll-indicator"
-      >
-        <span className="text-azul-claro/60 font-sans text-[0.68rem] tracking-[0.3em] uppercase">
-          Scroll
-        </span>
-        <span className="bg-azul-claro/20 block h-12 w-px overflow-hidden">
-          <span
-            className="bg-verde-concepto block h-full w-full origin-top"
-            style={{ animation: "scrollHint 2.4s ease-in-out infinite" }}
-          />
-        </span>
       </div>
     </section>
   );

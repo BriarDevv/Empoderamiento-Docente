@@ -41,32 +41,37 @@ export function CicloTrabajo() {
   return (
     <section
       data-section="ciclo"
-      className="bg-gris-fondo relative py-24 md:py-32"
+      className="bg-gris-fondo relative overflow-hidden py-24 md:py-32"
     >
       {/* Page marker editorial */}
       <span
         aria-hidden="true"
-        className="text-azul-principal/30 absolute top-8 right-5 hidden font-sans text-[0.7rem] tracking-[0.3em] uppercase md:right-10 md:block"
+        className="text-azul-principal/40 absolute top-8 right-5 hidden font-sans text-[0.7rem] tracking-[0.3em] uppercase md:right-10 md:block"
       >
-        002 / Ciclo
+        002 <span className="text-naranja-accion">/</span> Ciclo
       </span>
 
-      {/* Patrón de puntos sutil */}
+      {/* Composición canónica — esquina superior derecha */}
       <span
         aria-hidden="true"
-        className="absolute top-1/2 -left-10 hidden h-72 w-72 -translate-y-1/2 bg-[radial-gradient(circle,var(--color-gris-texto)_1px,transparent_1px)] [background-size:18px_18px] opacity-25 md:block"
+        className="pattern-dots absolute top-20 right-32 hidden h-44 w-44 md:block"
+      />
+      <span
+        aria-hidden="true"
+        className="bg-verde-concepto absolute -top-20 -right-20 z-0 hidden h-72 w-72 rounded-full md:block"
       />
 
-      <div className="relative mx-auto max-w-screen-xl px-5 md:px-10">
-        {/* Encabezado */}
+      <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
+        {/* Header */}
         <div className="grid items-end gap-8 md:grid-cols-12 md:gap-10">
           <div className="md:col-span-7" data-anim="ciclo-intro">
             <Eyebrow>Cómo trabajamos</Eyebrow>
             <h2
-              className="font-display text-azul-principal mt-7 leading-[1.04] font-bold tracking-[-0.018em]"
-              style={{ fontSize: "clamp(2.1rem, 4.6vw, 3.6rem)" }}
+              className="font-display text-azul-principal mt-6 leading-[1.05] font-bold tracking-[-0.018em]"
+              style={{ fontSize: "clamp(2rem, 4.4vw, 3.25rem)" }}
             >
-              Un ciclo continuo de conocimiento, acción y transformación.
+              Un ciclo continuo de conocimiento, acción y{" "}
+              <span className="text-verde-concepto">transformación</span>.
             </h2>
           </div>
           <p
@@ -78,91 +83,89 @@ export function CicloTrabajo() {
           </p>
         </div>
 
-        {/* Fases del ciclo — arco con conectores */}
+        {/* Cards del ciclo con flechas naranjas entre ellas */}
         <div
           data-anim="ciclo-fases"
-          className="relative mt-20 grid gap-12 md:mt-24 md:grid-cols-3 md:gap-0"
+          className="mt-14 grid items-stretch gap-6 md:mt-20 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:gap-4"
         >
-          {/* Línea conectora horizontal (desktop) */}
-          <span
-            aria-hidden="true"
-            className="bg-azul-principal/15 absolute top-12 right-[12%] left-[12%] hidden h-px md:block"
-          />
-          {/* Línea de retorno curva (loop) */}
-          <svg
-            aria-hidden="true"
-            className="absolute right-[12%] -bottom-12 hidden h-28 w-[76%] md:block"
-            viewBox="0 0 760 110"
-            fill="none"
-          >
-            <path
-              d="M 0 0 Q 380 130 760 0"
-              stroke="var(--color-verde-concepto)"
-              strokeWidth="1.5"
-              strokeDasharray="6 6"
-              opacity="0.5"
-            />
-            <polygon
-              points="6,0 0,-6 -6,0 0,6"
-              fill="var(--color-verde-concepto)"
-              transform="translate(6 6) rotate(180)"
-            />
-          </svg>
-
-          {fases.map(({ n, titulo, resumen, detalles, href }, idx) => (
-            <article
-              key={n}
-              className="group relative flex flex-col"
-              style={{ marginTop: idx % 2 === 1 ? "0" : "0" }}
-            >
-              {/* Bullet sobre la línea */}
-              <span
-                aria-hidden="true"
-                className="bg-verde-concepto ring-gris-fondo absolute top-12 left-1/2 hidden h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-4 md:block"
-              />
-
-              <div className="flex flex-col px-6 md:px-8 md:pt-24">
-                {/* Número editorial gigante */}
-                <span
-                  aria-hidden="true"
-                  className="font-display text-verde-concepto/30 group-hover:text-verde-concepto/55 leading-none font-bold tracking-[-0.04em] transition-colors duration-500"
-                  style={{ fontSize: "clamp(4.5rem, 9vw, 7.5rem)" }}
-                >
-                  {n}
-                </span>
-
-                <h3 className="font-display text-h2 text-azul-principal mt-3 leading-tight font-bold tracking-[-0.01em]">
-                  {titulo}
-                </h3>
-                <p className="text-azul-principal/85 mt-3 font-sans text-[1.02rem] leading-snug font-medium">
-                  {resumen}
-                </p>
-                <p className="text-gris-texto mt-5 font-sans text-[0.92rem] leading-relaxed">
-                  {detalles}
-                </p>
-
-                <Link
-                  href={href}
-                  className="border-verde-concepto/40 text-azul-principal hover:border-verde-concepto mt-7 inline-flex items-center gap-2 self-start border-b pb-1 font-sans text-[0.88rem] font-medium tracking-wide transition-all hover:gap-3"
-                >
-                  <span>Conocé más</span>
-                  <ArrowRight size={14} className="text-verde-concepto" />
-                </Link>
-              </div>
-            </article>
+          {fases.map((fase, idx) => (
+            <FaseCard key={fase.n} fase={fase} arrow={idx < fases.length - 1} />
           ))}
         </div>
 
-        {/* Frase de cierre del ciclo */}
+        {/* Cierre editorial — el ciclo se reinicia */}
         <p
           data-anim="ciclo-outro"
-          className="font-display text-azul-principal/70 mx-auto mt-32 max-w-3xl text-center text-[1.1rem] leading-relaxed md:mt-40 md:text-[1.35rem]"
+          className="border-azul-principal/15 text-gris-texto mt-20 flex flex-wrap items-center justify-center gap-3 border-t pt-10 text-center font-sans text-[0.95rem] md:mt-24 md:text-[1.02rem]"
         >
-          Investigación + Acción + Reflexión + Alianzas{" "}
-          <span className="text-verde-concepto">=</span>{" "}
-          <span className="text-azul-principal">Transformación educativa.</span>
+          <span
+            aria-hidden="true"
+            className="bg-verde-concepto inline-block h-1.5 w-1.5 rounded-full"
+          />
+          <span>
+            El ciclo no termina:{" "}
+            <span className="text-azul-principal font-medium">
+              lo aprendido alimenta nuevas preguntas
+            </span>
+            .
+          </span>
         </p>
       </div>
     </section>
+  );
+}
+
+/**
+ * Card de una fase del ciclo. Render condicional de flecha al final
+ * (todas menos la última en desktop).
+ */
+function FaseCard({ fase, arrow }: { fase: Fase; arrow: boolean }) {
+  const { n, titulo, resumen, detalles, href } = fase;
+  return (
+    <>
+      <article className="border-azul-principal/10 hover:border-verde-concepto/60 hover:shadow-azul-principal/10 group relative flex flex-col rounded-2xl border bg-white p-7 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl md:p-8">
+        <header className="flex items-start justify-between gap-4">
+          <span
+            aria-hidden="true"
+            className="text-verde-concepto/40 group-hover:text-verde-concepto/70 font-display text-[2.75rem] leading-none font-bold tracking-[-0.02em] tabular-nums transition-colors duration-500"
+          >
+            {n}
+          </span>
+          <span
+            aria-hidden="true"
+            className="bg-verde-concepto/15 text-verde-concepto group-hover:bg-verde-concepto inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-500 group-hover:text-white"
+          >
+            <ArrowRight size={14} />
+          </span>
+        </header>
+
+        <h3 className="font-display text-azul-principal mt-6 text-[1.5rem] leading-tight font-bold tracking-[-0.01em]">
+          {titulo}
+        </h3>
+        <p className="text-azul-principal/85 mt-2 font-sans text-[0.98rem] leading-snug font-medium">
+          {resumen}
+        </p>
+        <p className="text-gris-texto mt-4 flex-1 font-sans text-[0.9rem] leading-relaxed">
+          {detalles}
+        </p>
+
+        <Link
+          href={href}
+          className="border-verde-concepto/40 text-azul-principal hover:border-verde-concepto mt-6 inline-flex items-center gap-2 self-start border-b pb-1 font-sans text-[0.85rem] font-medium tracking-wide transition-all hover:gap-3"
+        >
+          <span>Conocé más</span>
+          <ArrowRight size={13} className="text-verde-concepto" />
+        </Link>
+      </article>
+
+      {arrow && (
+        <div
+          aria-hidden="true"
+          className="hidden items-center justify-center md:flex"
+        >
+          <ArrowRight size={28} className="text-naranja-accion" />
+        </div>
+      )}
+    </>
   );
 }

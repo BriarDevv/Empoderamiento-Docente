@@ -46,7 +46,7 @@ export function Impacto() {
   return (
     <section
       data-section="impacto"
-      className="relative bg-white py-24 md:py-32"
+      className="relative overflow-hidden bg-white py-24 md:py-32"
     >
       {/* Page marker */}
       <span
@@ -56,14 +56,15 @@ export function Impacto() {
         004 / Impacto
       </span>
 
-      {/* Decoración: parche de dots + círculo verde superpuesto */}
+      {/* Composición canónica del manual §6: dots azul-medio +
+          círculo verde sólido asomando por la izquierda. */}
       <span
         aria-hidden="true"
-        className="absolute top-20 -left-8 hidden h-48 w-48 bg-[radial-gradient(circle,rgba(107,114,128,0.3)_1px,transparent_1px)] [background-size:14px_14px] md:block"
+        className="pattern-dots absolute top-24 left-20 hidden h-44 w-44 md:block"
       />
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/[0.08] absolute top-12 -left-12 z-0 hidden h-36 w-36 rounded-full md:block"
+        className="bg-verde-concepto absolute top-20 -left-24 z-0 hidden h-[20rem] w-[20rem] rounded-full md:block"
       />
 
       <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">

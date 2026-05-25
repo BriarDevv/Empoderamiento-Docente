@@ -41,7 +41,7 @@ export function Aliados() {
   return (
     <section
       data-section="aliados"
-      className="bg-gris-fondo relative py-24 md:py-32"
+      className="bg-gris-fondo relative overflow-hidden py-24 md:py-32"
     >
       {/* Page marker */}
       <span
@@ -51,10 +51,15 @@ export function Aliados() {
         005 / Alianzas
       </span>
 
-      {/* Decoración: círculo verde grande abajo derecha */}
+      {/* Composición canónica del manual §6: dots azul-medio +
+          círculo verde sólido asomando por la esquina inferior derecha. */}
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/[0.06] absolute -right-32 -bottom-32 z-0 h-[28rem] w-[28rem] rounded-full"
+        className="pattern-dots absolute right-20 bottom-20 hidden h-44 w-44 md:block"
+      />
+      <span
+        aria-hidden="true"
+        className="bg-verde-concepto absolute -right-24 -bottom-32 z-0 hidden h-[22rem] w-[22rem] rounded-full md:block"
       />
 
       <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
