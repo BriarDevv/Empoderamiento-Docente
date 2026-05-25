@@ -3,6 +3,9 @@
 import { useCallback, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { PageHeader } from "@/features/nosotros/components/PageHeader";
+import { PageHeaderAnimations } from "@/features/nosotros/components/PageHeaderAnimations";
+import { ManifestoSection } from "@/features/nosotros/components/ManifestoSection";
+import { FilosofiaSection } from "@/features/nosotros/components/FilosofiaSection";
 import { TeamSection } from "@/features/nosotros/components/TeamSection";
 import {
   TeamModal,
@@ -33,7 +36,18 @@ export default function NosotrosPage() {
 
   return (
     <main className="relative flex-1">
-      <PageHeader />
+      {/* Wrapper client que orquesta la presentación coordinada del
+          PageHeader (eyebrow → H1 por palabra → bajada → stats con
+          sub-stagger → CTAs → highlight como cierre). */}
+      <PageHeaderAnimations>
+        <PageHeader />
+      </PageHeaderAnimations>
+
+      {/* Manifesto editorial centered — "Lo que somos" */}
+      <ManifestoSection />
+
+      {/* Filosofía + steps + visual — "Cómo trabajamos" */}
+      <FilosofiaSection />
 
       <TeamSection
         id="equipo"
