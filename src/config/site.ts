@@ -19,6 +19,9 @@ export const siteConfig = {
 
   contacto: {
     email: "contacto@empoderamientodocente.org",
+    // Email institucional para postulaciones de trabajo (/sumate#equipo).
+    // Va directo a Daniela Reyes-Gasperini, fundadora.
+    emailPostulaciones: "daniela@empoderamientodocente.org",
     direccion: {
       calle: "Avenida Irarrázaval 2821",
       complemento: "Torre B, Oficina 527",
