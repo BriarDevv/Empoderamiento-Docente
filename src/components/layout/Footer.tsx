@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Brand } from "./Brand";
 import { siteConfig } from "@/config/site";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ButtonPrimary } from "@/components/ui/ButtonPrimary";
 import {
   Instagram,
   Linkedin,
   Facebook,
   MailOutline,
+  ArrowRight,
 } from "@/components/ui/icons";
 
 const navItems = [
@@ -34,50 +37,78 @@ export function Footer() {
 
   return (
     <footer
-      className="bg-azul-principal relative overflow-hidden text-white"
+      className="bg-azul-principal relative isolate overflow-hidden text-white"
       data-section="footer"
     >
-      {/* Decoración: media circunferencia verde sutil */}
+      {/* Composición canónica del manual §6: círculo verde sólido +
+          dots azul-claro sobre el navy. */}
       <span
         aria-hidden="true"
-        className="bg-verde-concepto/15 absolute -right-20 -bottom-32 h-80 w-80 rounded-full"
+        className="bg-verde-concepto absolute -right-32 -bottom-40 z-0 h-[28rem] w-[28rem] rounded-full md:h-[34rem] md:w-[34rem]"
       />
-      {/* Decoración: patrón de puntos */}
       <span
         aria-hidden="true"
-        className="absolute top-10 left-1/2 h-32 w-32 bg-[radial-gradient(circle,white_1px,transparent_1px)] [background-size:14px_14px] opacity-[0.06]"
+        className="absolute right-32 bottom-24 z-0 hidden h-44 w-44 bg-[radial-gradient(circle,rgba(255,255,255,0.18)_2.5px,transparent_3px)] [background-size:22px_22px] md:block"
       />
 
-      <div className="relative mx-auto max-w-screen-xl px-5 py-16 md:px-10 md:py-20">
-        {/* Equation de cierre — eco directo de la infografía oficial */}
-        <p className="font-display max-w-3xl text-[1.35rem] leading-snug md:text-[1.65rem]">
+      <div className="relative z-10 mx-auto max-w-screen-xl px-5 py-10 md:px-10 md:py-14">
+        {/* ── Bloque CTA + ecuación combinados ───────────────────── */}
+        <div className="grid items-end gap-6 md:grid-cols-12 md:gap-10">
+          <div className="md:col-span-8">
+            <Eyebrow variant="light" dashClass="w-10">
+              Sumate al ciclo
+            </Eyebrow>
+            <h2
+              className="font-display mt-4 leading-[1.05] font-bold tracking-[-0.02em]"
+              style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)" }}
+            >
+              Investigamos para{" "}
+              <span className="text-verde-concepto">transformar</span> la
+              matemática escolar.
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 md:col-span-4 md:justify-end">
+            <ButtonPrimary href="/#comunidad">Sumate</ButtonPrimary>
+            <Link
+              href="/contacto"
+              className="text-azul-claro inline-flex items-center gap-2 font-sans text-[0.9rem] font-medium transition-colors hover:text-white"
+            >
+              Contactanos
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Ecuación editorial — pegada al bloque CTA */}
+        <p className="border-azul-medio/25 font-display text-azul-claro/90 mt-8 max-w-3xl border-t pt-6 text-[0.95rem] leading-snug md:text-[1.05rem]">
           Investigación <span className="text-verde-concepto">+</span> Acción{" "}
           <span className="text-verde-concepto">+</span> Reflexión{" "}
           <span className="text-verde-concepto">+</span> Alianzas{" "}
-          <span className="text-verde-concepto">=</span>{" "}
-          <span className="text-azul-claro">Transformación educativa.</span>
+          <span className="text-naranja-accion">=</span>{" "}
+          <span className="text-white">Transformación educativa.</span>
         </p>
 
-        <div className="mt-14 grid gap-12 md:grid-cols-12">
+        {/* ── Grid principal ─────────────────────────────────────── */}
+        <div className="mt-8 grid gap-8 md:grid-cols-12 md:gap-8">
           {/* Marca */}
           <div className="md:col-span-5">
-            <Brand variant="compact" tone="light" asLink={false} />
-            <p className="text-azul-claro/90 mt-5 max-w-sm font-sans text-[0.95rem] leading-relaxed">
-              Investigamos para transformar la matemática escolar. Desarrollo
-              profesional docente con presencia en{" "}
-              {siteConfig.paises.join(", ")}.
+            <Brand variant="full" tone="light" asLink={false} />
+            <p className="text-azul-claro/90 mt-4 max-w-sm font-sans text-[0.88rem] leading-relaxed">
+              Desarrollo profesional docente y resignificación del conocimiento
+              matemático escolar. Presencia en {siteConfig.paises.join(", ")}.
             </p>
           </div>
 
           {/* Navegar */}
           <nav className="md:col-span-3" aria-labelledby="footer-navegar">
-            <h2
+            <h3
               id="footer-navegar"
               className="text-azul-claro/70 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase"
             >
               Navegar
-            </h2>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            </h3>
+            <ul className="mt-4 flex flex-col gap-2">
               {navItems.map((item) => (
                 <li key={item.href}>
                   <Link
@@ -95,16 +126,16 @@ export function Footer() {
             </ul>
           </nav>
 
-          {/* Comunidad — render condicional */}
+          {/* Comunidad (render condicional) */}
           {hayRedes && (
             <nav className="md:col-span-2" aria-labelledby="footer-comunidad">
-              <h2
+              <h3
                 id="footer-comunidad"
                 className="text-azul-claro/70 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase"
               >
                 Comunidad
-              </h2>
-              <ul className="mt-4 flex flex-col gap-2.5">
+              </h3>
+              <ul className="mt-4 flex flex-col gap-2">
                 {redesActivas.map(([key, Icon]) => {
                   const url = redes[key];
                   if (!url) return null;
@@ -114,9 +145,13 @@ export function Footer() {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 font-sans text-[0.95rem] text-white/90 hover:text-white"
+                        className="group inline-flex items-center gap-2.5 font-sans text-[0.95rem] text-white/90 hover:text-white"
                       >
-                        <Icon size={16} aria-hidden="true" />
+                        <Icon
+                          size={16}
+                          className="group-hover:text-verde-concepto transition-colors"
+                          aria-hidden="true"
+                        />
                         <span className="capitalize">{key}</span>
                       </a>
                     </li>
@@ -131,19 +166,23 @@ export function Footer() {
             className={hayRedes ? "md:col-span-2" : "md:col-span-4"}
             aria-labelledby="footer-contacto"
           >
-            <h2
+            <h3
               id="footer-contacto"
               className="text-azul-claro/70 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase"
             >
               Contacto
-            </h2>
-            <ul className="mt-4 flex flex-col gap-2.5">
+            </h3>
+            <ul className="mt-4 flex flex-col gap-3">
               <li>
                 <a
                   href={`mailto:${siteConfig.contacto.email}`}
-                  className="inline-flex items-center gap-2 font-sans text-[0.95rem] text-white/90 hover:text-white"
+                  className="group inline-flex items-center gap-2.5 font-sans text-[0.95rem] text-white/90 hover:text-white"
                 >
-                  <MailOutline size={15} aria-hidden="true" />
+                  <MailOutline
+                    size={15}
+                    className="group-hover:text-verde-concepto transition-colors"
+                    aria-hidden="true"
+                  />
                   <span>{siteConfig.contacto.email}</span>
                 </a>
               </li>
@@ -159,11 +198,12 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-azul-medio/25 mt-14 flex flex-col gap-3 border-t pt-6 md:flex-row md:items-center md:justify-between">
+        {/* ── Bottom bar ─────────────────────────────────────────── */}
+        <div className="border-azul-medio/25 mt-10 flex flex-col gap-2 border-t pt-5 md:flex-row md:items-center md:justify-between">
           <p className="text-azul-claro/70 font-sans text-[0.78rem] tracking-wide">
             © {year} {siteConfig.name}. Todos los derechos reservados.
           </p>
-          <p className="text-azul-claro/60 font-sans text-[0.78rem] tracking-wide">
+          <p className="text-azul-claro/60 font-sans text-[0.78rem] tracking-wide italic">
             Investigamos lo que hacemos, hacemos lo que investigamos.
           </p>
         </div>
