@@ -89,27 +89,27 @@ export function TeamModal({ openContext, total, onClose }: TeamModalProps) {
         <div className="flex min-h-full items-start justify-center px-4 py-6 md:items-center md:px-10 md:py-10">
           <div
             ref={sheetRef}
-            className="border-azul-claro/40 relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1040px] flex-col overflow-hidden border bg-white shadow-[var(--shadow-modal-navy)] md:max-h-[calc(100dvh-3rem)]"
+            className="border-azul-claro/40 relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1280px] flex-col overflow-hidden border bg-white shadow-[var(--shadow-modal-navy)] md:max-h-[calc(100dvh-3rem)]"
           >
             <header className="border-azul-claro/40 flex flex-shrink-0 items-center justify-between border-b px-5 py-3 md:px-7">
+              <span className="text-gris-texto font-sans text-[10px] font-medium tracking-[0.22em] uppercase">
+                {String(openContext.index).padStart(2, "0")}{" "}
+                <span className="opacity-40">/</span>{" "}
+                {String(total).padStart(2, "0")}
+              </span>
               <button
                 ref={closeBtnRef}
                 onClick={triggerClose}
                 aria-label="Cerrar"
                 className="text-azul-principal hover:text-naranja-accion group flex items-center gap-2.5 transition-colors"
               >
-                <span className="border-azul-principal/20 group-hover:border-naranja-accion relative inline-flex h-6 w-6 items-center justify-center rounded-full border transition-colors">
-                  <X size={10} />
-                </span>
                 <span className="font-sans text-[10px] font-medium tracking-[0.22em] uppercase">
                   Cerrar
                 </span>
+                <span className="border-azul-principal/20 group-hover:border-naranja-accion relative inline-flex h-7 w-7 items-center justify-center rounded-full border transition-colors">
+                  <X size={12} />
+                </span>
               </button>
-              <span className="text-gris-texto font-sans text-[10px] font-medium tracking-[0.22em] uppercase">
-                {String(openContext.index).padStart(2, "0")}{" "}
-                <span className="opacity-40">/</span>{" "}
-                {String(total).padStart(2, "0")}
-              </span>
             </header>
 
             <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden md:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">

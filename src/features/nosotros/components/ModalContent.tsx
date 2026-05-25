@@ -1,5 +1,4 @@
-import type { JSX, RefObject } from "react";
-import { BookOpen, Target, Users } from "@/components/ui/icons";
+import type { RefObject } from "react";
 import type { TeamMember, Tier } from "../types/team";
 
 interface ModalContentProps {
@@ -17,8 +16,6 @@ interface ModalContentProps {
 export function ModalContent({ member, contentRef }: ModalContentProps) {
   return (
     <div className="md:border-azul-claro/40 relative md:min-h-0 md:overflow-hidden md:border-l">
-      <TierWatermark tier={member.tier} />
-
       <div
         ref={contentRef}
         className="relative space-y-3 px-5 py-5 md:space-y-[14px] md:px-8 md:py-6 lg:px-10"
@@ -115,30 +112,6 @@ export function ModalContent({ member, contentRef }: ModalContentProps) {
         )}
       </div>
     </div>
-  );
-}
-
-function TierWatermark({ tier }: { tier: Tier }): JSX.Element {
-  const icon =
-    tier === "direccion" ? (
-      <Target size={200} />
-    ) : tier === "lideres" ? (
-      <Users size={200} />
-    ) : (
-      <BookOpen size={200} />
-    );
-
-  return (
-    <span
-      aria-hidden="true"
-      className="text-azul-principal pointer-events-none absolute top-0 right-0 hidden select-none md:block"
-      style={{
-        opacity: 0.06,
-        transform: "translate(20%, -10%)",
-      }}
-    >
-      {icon}
-    </span>
   );
 }
 
