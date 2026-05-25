@@ -14,6 +14,10 @@ const navItems = [
   { label: "Investigación", href: "/recursos" },
   { label: "Formación", href: "/formacion" },
   { label: "Contacto", href: "/contacto" },
+  // Sumate aparece en footer (no en header — el header lo tiene como CTA).
+  // Da visibilidad al hub /sumate desde la navegación institucional.
+  { label: "Sumate", href: "/sumate" },
+  { label: "Trabajá con nosotros", href: "/sumate#equipo" },
 ] as const;
 
 const redesIcons = {
