@@ -84,42 +84,29 @@ export function HomeAnimations({ children }: { children: ReactNode }) {
       // LogotipoEDInline.tsx, que maneja su propio timeline GSAP al
       // montar. No tocar acá — sincronía coordinada por timings absolutos.
 
-      // Scroll indicator: cierre del Acto 3. Después del highlight,
-      // del pulse del logo, y de los CTAs. Invita a continuar.
-      const scrollIndicator = scope.querySelector(
-        '[data-anim="scroll-indicator"]',
-      );
-      if (scrollIndicator) {
-        gsap.fromTo(
-          scrollIndicator,
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.7, delay: 2.7, ease: "power2.out" },
-        );
-      }
+      // (Scroll indicator removido del Hero del home — el flujo del ciclo
+      // ya invita visualmente a continuar leyendo).
 
       // ─── CICLO ────────────────────────────────────────────────────
-      // Intro: fade + rise
-      ['[data-anim="ciclo-intro"]', '[data-anim="ciclo-intro-text"]'].forEach(
-        (selector) => {
-          const target = scope.querySelector(selector);
-          if (!target) return;
-          gsap.fromTo(
-            target,
-            { opacity: 0, y: 22 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.85,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: target,
-                start: "top 82%",
-                once: true,
-              },
+      // Intro: solo el eyebrow (header compacto sin H2 + bajada).
+      const cicloIntro = scope.querySelector('[data-anim="ciclo-intro"]');
+      if (cicloIntro) {
+        gsap.fromTo(
+          cicloIntro,
+          { opacity: 0, y: 18 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: cicloIntro,
+              start: "top 85%",
+              once: true,
             },
-          );
-        },
-      );
+          },
+        );
+      }
 
       // Fases: stagger al entrar
       const fases = scope.querySelector('[data-anim="ciclo-fases"]');
@@ -166,28 +153,27 @@ export function HomeAnimations({ children }: { children: ReactNode }) {
       }
 
       // ─── SOBRE ED ────────────────────────────────────────────────
-      ['[data-anim="sobre-copy"]', '[data-anim="sobre-quote"]'].forEach(
-        (selector, index) => {
-          const target = scope.querySelector(selector);
-          if (!target) return;
-          gsap.fromTo(
-            target,
-            { opacity: 0, y: 28 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.95,
-              ease: "power3.out",
-              delay: index === 1 ? 0.18 : 0,
-              scrollTrigger: {
-                trigger: target,
-                start: "top 80%",
-                once: true,
-              },
+      // Versión compactada: el bloque pull-quote hero (eyebrow + "Vivir
+      // para hacer vivir" + atribución) se eliminó. Solo queda el split
+      // de identidad institucional + base epistemológica.
+      const sobreCopy = scope.querySelector('[data-anim="sobre-copy"]');
+      if (sobreCopy) {
+        gsap.fromTo(
+          sobreCopy,
+          { opacity: 0, y: 28 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.95,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sobreCopy,
+              start: "top 80%",
+              once: true,
             },
-          );
-        },
-      );
+          },
+        );
+      }
 
       // ─── IMPACTO ──────────────────────────────────────────────────
       const impactoIntro = scope.querySelector('[data-anim="impacto-intro"]');

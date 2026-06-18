@@ -120,23 +120,6 @@ export function Hero() {
           />
         </div>
       </div>
-
-      {/* Scroll indicator abajo */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
-        data-anim="scroll-indicator"
-      >
-        <span className="text-azul-claro/60 font-sans text-[0.68rem] tracking-[0.3em] uppercase">
-          Scroll
-        </span>
-        <span className="bg-azul-claro/20 block h-12 w-px overflow-hidden">
-          <span
-            className="bg-verde-concepto block h-full w-full origin-top"
-            style={{ animation: "scrollHint 2.4s ease-in-out infinite" }}
-          />
-        </span>
-      </div>
     </section>
   );
 }

@@ -41,7 +41,7 @@ export function CicloTrabajo() {
   return (
     <section
       data-section="ciclo"
-      className="bg-gris-fondo relative overflow-hidden py-24 md:py-32"
+      className="bg-gris-fondo relative overflow-hidden py-16 md:py-24"
     >
       {/* Page marker editorial */}
       <span
@@ -58,30 +58,17 @@ export function CicloTrabajo() {
       />
 
       <div className="relative mx-auto max-w-screen-xl px-5 md:px-10">
-        {/* Encabezado */}
-        <div className="grid items-end gap-8 md:grid-cols-12 md:gap-10">
-          <div className="md:col-span-7" data-anim="ciclo-intro">
-            <Eyebrow>Cómo trabajamos</Eyebrow>
-            <h2
-              className="font-display text-azul-principal mt-7 leading-[1.04] font-bold tracking-[-0.018em]"
-              style={{ fontSize: "clamp(2.1rem, 4.6vw, 3.6rem)" }}
-            >
-              Un ciclo continuo de conocimiento, acción y transformación.
-            </h2>
-          </div>
-          <p
-            data-anim="ciclo-intro-text"
-            className="text-gris-texto font-sans text-[0.98rem] leading-relaxed md:col-span-5 md:text-right"
-          >
-            Investigamos lo que hacemos. Hacemos lo que investigamos. Volvemos a
-            investigar lo aprendido. Y empezamos otra vez.
-          </p>
+        {/* Encabezado compacto — solo el eyebrow como label editorial.
+            Sacamos H2 + bajada porque las 3 fases con sus números
+            cuentan visualmente el mismo mensaje sin repetirlo. */}
+        <div data-anim="ciclo-intro">
+          <Eyebrow>Cómo trabajamos</Eyebrow>
         </div>
 
         {/* Fases del ciclo — arco con conectores */}
         <div
           data-anim="ciclo-fases"
-          className="relative mt-20 grid gap-12 md:mt-24 md:grid-cols-3 md:gap-0"
+          className="relative mt-14 grid gap-12 md:mt-16 md:grid-cols-3 md:gap-0"
         >
           {/* Línea conectora horizontal (desktop) */}
           <span
@@ -156,7 +143,7 @@ export function CicloTrabajo() {
         {/* Frase de cierre del ciclo */}
         <p
           data-anim="ciclo-outro"
-          className="font-display text-azul-principal/70 mx-auto mt-32 max-w-3xl text-center text-[1.1rem] leading-relaxed md:mt-40 md:text-[1.35rem]"
+          className="font-display text-azul-principal/70 mx-auto mt-20 max-w-3xl text-center text-[1.05rem] leading-relaxed md:mt-28 md:text-[1.25rem]"
         >
           Investigación + Acción + Reflexión + Alianzas{" "}
           <span className="text-verde-concepto">=</span>{" "}

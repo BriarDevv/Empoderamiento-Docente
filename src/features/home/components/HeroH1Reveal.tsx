@@ -138,6 +138,14 @@ export function HeroH1Reveal({
             <span
               key={i}
               className="relative inline-block overflow-hidden align-bottom"
+              // padding-bottom + margin-bottom negativo: extiende el área
+              // de overflow para que los descenders (g, p, y, j) NO se
+              // recorten contra el clip-mask del reveal. El margin negativo
+              // compensa el padding para no romper el layout flow.
+              style={{
+                paddingBottom: "0.2em",
+                marginBottom: "-0.2em",
+              }}
             >
               <span
                 data-word-inner

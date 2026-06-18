@@ -20,21 +20,23 @@ const navItems = [
   { label: "Trabajá con nosotros", href: "/sumate#equipo" },
 ] as const;
 
-const redesIcons = {
-  instagram: Instagram,
-  linkedin: Linkedin,
-  facebook: Facebook,
-} as const;
+/**
+ * Lista canónica de redes que ED quiere tener. Los íconos se muestran
+ * SIEMPRE — si la URL existe en siteConfig.redes, son links clickeables;
+ * si no, aparecen con badge "Pronto" y aria-label explícito.
+ *
+ * Cuando Daniela confirme los handles oficiales, basta llenar
+ * siteConfig.redes y los badges desaparecen automáticamente.
+ */
+const redesCanonicas = [
+  { key: "instagram" as const, label: "Instagram", Icon: Instagram },
+  { key: "linkedin" as const, label: "LinkedIn", Icon: Linkedin },
+  { key: "facebook" as const, label: "Facebook", Icon: Facebook },
+];
 
 export function Footer() {
   const year = new Date().getFullYear();
   const redes = siteConfig.redes;
-  const redesActivas = (
-    Object.entries(redesIcons) as Array<
-      [keyof typeof redesIcons, typeof Instagram]
-    >
-  ).filter(([key]) => Boolean(redes[key]));
-  const hayRedes = redesActivas.length > 0;
 
   return (
     <footer
@@ -99,42 +101,69 @@ export function Footer() {
             </ul>
           </nav>
 
-          {/* Comunidad — render condicional */}
-          {hayRedes && (
-            <nav className="md:col-span-2" aria-labelledby="footer-comunidad">
-              <h2
-                id="footer-comunidad"
-                className="text-azul-claro/70 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase"
-              >
-                Comunidad
-              </h2>
-              <ul className="mt-4 flex flex-col gap-2.5">
-                {redesActivas.map(([key, Icon]) => {
-                  const url = redes[key];
-                  if (!url) return null;
+          {/* Comunidad — siempre visible. Las redes sin URL configurada
+              aparecen con badge "Pronto" (placeholder no clickeable). */}
+          <nav className="md:col-span-2" aria-labelledby="footer-comunidad">
+            <h2
+              id="footer-comunidad"
+              className="text-azul-claro/70 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase"
+            >
+              Comunidad
+            </h2>
+            <ul className="mt-4 flex flex-col gap-2.5">
+              {redesCanonicas.map(({ key, label, Icon }) => {
+                const url = redes[key];
+
+                // Red activa — link real
+                if (url) {
                   return (
                     <li key={key}>
                       <a
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 font-sans text-[0.95rem] text-white/90 hover:text-white"
+                        className="group inline-flex items-center gap-2 font-sans text-[0.95rem] text-white/90 transition-colors hover:text-white"
                       >
-                        <Icon size={16} aria-hidden="true" />
-                        <span className="capitalize">{key}</span>
+                        <Icon
+                          size={16}
+                          aria-hidden="true"
+                          className="text-azul-claro group-hover:text-verde-concepto transition-colors"
+                        />
+                        <span>{label}</span>
                       </a>
                     </li>
                   );
-                })}
-              </ul>
-            </nav>
-          )}
+                }
+
+                // Red pendiente — placeholder no clickeable con badge
+                return (
+                  <li key={key}>
+                    <span
+                      title={`${label} — próximamente`}
+                      aria-label={`${label} próximamente disponible`}
+                      className="inline-flex cursor-not-allowed items-center gap-2 font-sans text-[0.95rem] text-white/50"
+                    >
+                      <Icon
+                        size={16}
+                        aria-hidden="true"
+                        className="text-azul-claro/40"
+                      />
+                      <span>{label}</span>
+                      <span
+                        aria-hidden="true"
+                        className="text-azul-claro/70 ml-1 rounded-full bg-white/8 px-1.5 py-0.5 text-[0.58rem] font-medium tracking-[0.14em] uppercase"
+                      >
+                        Pronto
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
           {/* Contacto */}
-          <div
-            className={hayRedes ? "md:col-span-2" : "md:col-span-4"}
-            aria-labelledby="footer-contacto"
-          >
+          <div className="md:col-span-2" aria-labelledby="footer-contacto">
             <h2
               id="footer-contacto"
               className="text-azul-claro/70 font-sans text-[0.72rem] font-medium tracking-[0.22em] uppercase"
