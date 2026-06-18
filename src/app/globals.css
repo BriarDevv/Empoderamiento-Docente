@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
+/* Tokens de marca — fuente de verdad: DESIGN.md §8. Cualquier cambio de
+   color/tipo/escala se hace en DESIGN.md primero y se replica acá. */
 @theme {
-  /* === Paleta cromática (manual de marca ED) === */
+  /* paleta */
   --color-azul-principal: #1f2a44;
   --color-azul-medio: #4a6fa5;
   --color-azul-claro: #a9c5e8;
@@ -10,11 +12,11 @@
   --color-gris-fondo: #f2f4f7;
   --color-gris-texto: #6b7280;
 
-  /* === Tipografías (variables expuestas por next/font en layout.tsx) === */
+  /* tipografías expuestas por next/font/google en src/app/layout.tsx */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
-  /* === Escala tipográfica fluida (mobile → desktop) === */
+  /* escala fluida mobile → desktop (con line-height pareada) */
   --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);
   --text-display--line-height: 1.05;
   --text-h1: clamp(2rem, 0.75rem + 4vw, 3rem);
@@ -35,67 +37,8 @@ body {
   font-family: var(--font-sans);
 }
 
-/* === Decorativos derivados de tokens =================================
-   Sombras y patrones que necesitan opacidad sobre colores de marca.
-   Se centralizan acá para no esparcir literales rgba() por los
-   componentes (AGENTS §5.2 — tokens, no hardcodes). */
-:root {
-  /* Sombra navy del sheet del TeamModal: azul-principal/25. */
-  --shadow-modal-navy: 0 40px 80px -20px rgb(31 42 68 / 0.25);
-  /* Patrón de puntos sobre fondo claro: gris-texto/32. */
-  --pattern-dot-grey: rgb(107 114 128 / 0.32);
-}
-
-/* === Utilidades propias del proyecto ============================== */
-
-/* Grain texture sutil para fondos navy/oscuros (4-5% opacity). */
-.bg-grain {
-  position: relative;
-}
-.bg-grain::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.06;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  background-size: 200px 200px;
-  z-index: 0;
-}
-
-.bg-grain-strong {
-  position: relative;
-}
-.bg-grain-strong::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.1;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  background-size: 220px 220px;
-  z-index: 0;
-}
-
-/* Scroll hint animation para el indicador del hero */
-@keyframes scrollHint {
-  0%,
-  100% {
-    transform: scaleY(0);
-    transform-origin: top;
-  }
-  50% {
-    transform: scaleY(1);
-    transform-origin: top;
-  }
-  50.001% {
-    transform-origin: bottom;
-  }
-}
-
-/* Smooth-scroll fallback (Lenis se encarga normalmente). */
+/* Reduced-motion: red de seguridad global. Cada animación JS además tiene
+   su propio guard (useReducedMotion), pero esto cubre transiciones CSS. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -105,4 +48,30 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Glow del faro: fondo claro premium con un halo de azul-claro arriba.
+   Metáfora de marca (faro/luz). Tokens, no hardcodes (DESIGN.md §1). */
+.faro-glow {
+  background-color: var(--color-gris-fondo);
+  background-image: radial-gradient(
+    110% 75% at 50% -5%,
+    color-mix(in srgb, var(--color-azul-claro) 55%, transparent),
+    transparent 62%
+  );
+}
+
+/* Haz superior del faro (overlay decorativo dentro del panel del hero). */
+.faro-beam {
+  background-image: radial-gradient(
+    72% 100% at 50% 0%,
+    color-mix(in srgb, var(--color-azul-claro) 60%, transparent),
+    transparent 70%
+  );
+}
+
+/* Sombra suave del panel del hero, derivada del token navy (sin hardcode). */
+.shadow-hero {
+  box-shadow: 0 40px 90px -50px
+    color-mix(in srgb, var(--color-azul-principal) 38%, transparent);
 }

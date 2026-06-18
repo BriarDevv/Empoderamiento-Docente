@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { LenisProvider } from "@/components/providers/LenisProvider";
+import { siteConfig } from "@/config/site";
+import { LenisProvider } from "@/lib/motion/LenisProvider";
+import { Navbar } from "@/components/layout/Navbar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,17 +16,15 @@ const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-manrope",
-  weight: ["500", "700"],
+  weight: ["500", "700", "800"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default:
-      "Empoderamiento Docente — Investigamos para transformar la matemática escolar",
-    template: "%s | Empoderamiento Docente",
+    default: `${siteConfig.name} — Desarrollo profesional docente`,
+    template: `%s | ${siteConfig.name}`,
   },
-  description:
-    "Desarrollo profesional docente y resignificación del conocimiento matemático escolar. Investigación, acción y reflexión en Chile, México y Argentina.",
+  description: siteConfig.description,
 };
 
 export default function RootLayout({
@@ -41,9 +39,8 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <LenisProvider>
-          <Header />
+          <Navbar />
           {children}
-          <Footer />
         </LenisProvider>
       </body>
     </html>

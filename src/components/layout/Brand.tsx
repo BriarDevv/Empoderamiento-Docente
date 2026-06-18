@@ -1,70 +1,55 @@
-import Link from "next/link";
-import { LogotipoEDInline } from "@/components/brand/LogotipoEDInline";
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
 
-type Props = {
-  /** Variante del lockup. `full` = isotipo + wordmark en CSS · `compact` = solo isotipo. */
-  variant?: "compact" | "full";
-  /** Tema del logo. `dark` = sobre claro · `light` = sobre navy. */
-  tone?: "dark" | "light";
-  className?: string;
-  /** Si es true, envuelve en `<Link href="/">`. */
-  asLink?: boolean;
+// Logos oficiales (public/brand). NUNCA redibujar el logo (DESIGN.md §10):
+// se sirven los SVG del manual. `unoptimized` evita pasar el SVG por el
+// optimizador de next/image (que lo bloquea sin dangerouslyAllowSVG).
+type Variant = "full" | "isotipo";
+type Tone = "negativo" | "principal";
+
+const SRC: Record<Variant, Record<Tone, string>> = {
+  full: {
+    negativo: "/brand/logo-ed-negativo.svg",
+    principal: "/brand/logo-ed-principal.svg",
+  },
+  isotipo: {
+    negativo: "/brand/logotipo-ed-negativo.svg",
+    principal: "/brand/logotipo-ed-principal.svg",
+  },
 };
 
-/**
- * Marca de ED.
- * - `compact` = solo el isotipo oficial (caja del faro + monograma ED).
- * - `full` = isotipo + wordmark "Empoderamiento Docente" ensamblado en CSS,
- *   no via `LogoED` con wordmark embebido en el SVG. Esto da control fino
- *   sobre el tamaño y peso del wordmark, que en el SVG oficial queda
- *   ilegible a las alturas que necesita el header.
- */
+// Dimensiones intrínsecas (del viewBox) para reservar espacio y evitar CLS.
+const DIMS: Record<Variant, { width: number; height: number }> = {
+  full: { width: 625, height: 303 },
+  isotipo: { width: 237, height: 303 },
+};
+
+interface BrandProps {
+  readonly variant?: Variant;
+  /** `negativo` (blanco) sobre fondo oscuro; `principal` (navy) sobre claro. */
+  readonly tone?: Tone;
+  /** Controlar el alto con `h-* w-auto`. */
+  readonly className?: string;
+  readonly priority?: boolean;
+}
+
 export function Brand({
-  variant = "compact",
-  tone = "dark",
-  className = "",
-  asLink = true,
-}: Props) {
-  const logoVariant = tone === "dark" ? "principal" : "negativo";
-  // Manual de marca DESIGN.md §10: el wordmark usa dos colores —
-  // "Empoderamiento" en el color base (navy / blanco) y "Docente" en
-  // un azul secundario (azul-medio sobre claro, azul-claro sobre navy).
-  const primaryColor = tone === "dark" ? "text-azul-principal" : "text-white";
-  const secondaryColor =
-    tone === "dark" ? "text-azul-medio" : "text-azul-claro";
-
-  const content =
-    variant === "full" ? (
-      <span className={`inline-flex items-center gap-3 ${className}`}>
-        <LogotipoEDInline
-          variant={logoVariant}
-          animate={false}
-          className="h-12 w-auto md:h-14"
-        />
-        <span className="font-display text-lg leading-[1.05] font-bold tracking-tight md:text-xl">
-          <span className={primaryColor}>Empoderamiento</span>
-          <br />
-          <span className={secondaryColor}>Docente</span>
-        </span>
-      </span>
-    ) : (
-      <LogotipoEDInline
-        variant={logoVariant}
-        animate={false}
-        className={`h-12 w-auto md:h-14 ${className}`}
-      />
-    );
-
-  if (!asLink) return content;
-
+  variant = "full",
+  tone = "negativo",
+  className,
+  priority,
+}: BrandProps) {
+  const { width, height } = DIMS[variant];
   return (
-    <Link
-      href="/"
-      aria-label={`${siteConfig.name} — Inicio`}
-      className="inline-flex"
-    >
-      {content}
-    </Link>
+    <Image
+      src={SRC[variant][tone]}
+      width={width}
+      height={height}
+      alt={`Logo de ${siteConfig.name}`}
+      className={className}
+      priority={priority}
+      unoptimized
+      draggable={false}
+    />
   );
 }
