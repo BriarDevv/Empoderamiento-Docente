@@ -1,22 +1,14 @@
-import { HomeAnimations } from "@/features/home/animations/HomeAnimations";
-import { Hero } from "@/features/home/components/Hero";
-import { CicloTrabajo } from "@/features/home/components/CicloTrabajo";
-import { SobreEd } from "@/features/home/components/SobreEd";
-import { Impacto } from "@/features/home/components/Impacto";
-import { Aliados } from "@/features/home/components/Aliados";
-import { ComunidadRedes } from "@/features/home/components/ComunidadRedes";
+import { Hero } from "@/features/home/Hero";
 
 export default function Home() {
   return (
     <main className="flex-1">
-      <HomeAnimations>
-        <Hero />
-        <CicloTrabajo />
-        <SobreEd />
-        <Impacto />
-        <Aliados />
-        <ComunidadRedes />
-      </HomeAnimations>
+      <Hero />
+      {/* TEMPORAL: espacio para scrollear y ver el navbar en estado sólido.
+          Se reemplaza cuando armemos el resto de la home. */}
+      <section className="flex min-h-screen items-center justify-center bg-white px-6">
+        <p className="text-gris-texto">Próximamente: el resto de la home.</p>
+      </section>
     </main>
   );
 }
