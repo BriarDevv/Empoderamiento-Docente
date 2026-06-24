@@ -1,0 +1,74 @@
+// Configuración institucional canónica.
+//
+// Cualquier dato que aparezca en más de un componente (mail, dirección,
+// dirección de ED, nombre de marca, países donde opera) vive acá. Nunca
+// hardcodear estos valores en JSX ni en metadata — importar de
+// '@/config/site'.
+//
+// Reglas relacionadas:
+// - AGENTS.md §5.3 (datos institucionales centralizados)
+// - AGENTS.md §5.4 (logos de aliados — no se publican sin autorización)
+// - docs/GLOSSARY.md (Raquel Ayala — rol exacto pendiente)
+
+export const siteConfig = {
+  name: "Empoderamiento Docente",
+  shortName: "ED",
+  url: "https://empoderamientodocente.org",
+  description:
+    "Empoderamiento Docente trabaja desarrollo profesional docente con presencia en Chile, México y Argentina. Trayectos formativos, asesorías y comunidad en torno a la Matemática Educativa.",
+
+  contacto: {
+    email: "contacto@empoderamientodocente.org",
+    direccion: {
+      calle: "Avenida Irarrázaval 2821",
+      complemento: "Torre B, Oficina 527",
+      ciudad: "Santiago",
+      region: "Región Metropolitana",
+      pais: "Chile",
+      lineas: [
+        "Avenida Irarrázaval 2821",
+        "Torre B, Oficina 527",
+        "Santiago, Región Metropolitana",
+        "Chile",
+      ],
+    },
+  },
+
+  paises: ["Chile", "México", "Argentina"],
+
+  // Personas destacadas en el sitio. El rol exacto de Raquel Ayala y su
+  // vínculo con ED están pendientes de confirmar con el cliente — antes
+  // de redactar copy que mencione el cargo, consultar (docs/GLOSSARY.md).
+  direccion: {
+    fundadora: {
+      nombre: "Daniela Reyes-Gasperini",
+      titulo: "Doctora en Matemática Educativa",
+    },
+    referente: {
+      nombre: "Raquel Ayala",
+      // titulo, rol y vínculo — pendiente de definir con el cliente.
+    },
+  },
+
+  // Redes sociales — pendientes de confirmar con el cliente. Dejar el
+  // bloque vacío hasta tener los handles oficiales. No inventar URLs.
+  // El render condicional de ComunidadRedes y Footer las muestra cuando
+  // se llenen.
+  redes: {} as {
+    instagram?: string;
+    linkedin?: string;
+    facebook?: string;
+  },
+
+  // Frases pilares que el sitio reusa verbatim (AGENTS.md §5.5).
+  // No parafrasear sin chequear con docs/GLOSSARY.md.
+  mensajesPilares: [
+    "Generar escenarios de aprendizaje",
+    "Potenciamos fortalezas, fortalecemos potencialidades",
+    "Comunidad docente en torno a la Matemática Educativa",
+    "Transformar la relación con las matemáticas es ampliar posibilidades",
+    "Las matemáticas no son solo calcular",
+  ],
+} as const;
+
+export type SiteConfig = typeof siteConfig;

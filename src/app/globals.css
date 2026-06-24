@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  /* === Paleta cromática (manual de marca ED) === */
+  --color-azul-principal: #1f2d4d;
+  --color-azul-medio: #4a6fa5;
+  --color-azul-claro: #a9c5e8;
+  --color-verde-concepto: #1f9a78;
+  --color-naranja-accion: #e07a2f;
+  --color-gris-fondo: #f2f4f7;
+  --color-gris-texto: #6b7280;
+
+  /* === Tipografías (variables expuestas por next/font en layout.tsx) === */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  /* === Escala tipográfica fluida (mobile → desktop) === */
+  --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);
+  --text-display--line-height: 1.05;
+  --text-h1: clamp(2rem, 0.75rem + 4vw, 3rem);
+  --text-h1--line-height: 1.1;
+  --text-h2: clamp(1.5rem, 0.75rem + 2vw, 2.25rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.25rem, 0.875rem + 1vw, 1.5rem);
+  --text-h3--line-height: 1.25;
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+}
+
+body {
+  background: var(--color-gris-fondo);
+  color: var(--color-azul-principal);
+  font-family: var(--font-sans);
+}
+
+/* === Decorativos derivados de tokens === */
+:root {
+  /* Patrón de puntos azulado (manual §6): azul-medio sólido — usado en el
+     Hero y bloques con composición dots + círculo verde sobre fondo claro. */
+  --pattern-dot-blue: rgb(74 111 165 / 0.9);
+}
+
+/* Cursor nativo oculto cuando el cursor custom está activo (solo desktop). */
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/* === Utilidades propias del proyecto ============================== */
+
+/* Grilla de puntos azules — patrón gráfico oficial del manual §6. */
+.pattern-dots {
+  background-image: radial-gradient(
+    circle,
+    var(--pattern-dot-blue) 2.5px,
+    transparent 3px
+  );
+  background-size: 22px 22px;
+}
+
+/* Grain sutil para fondos claros — saca el flat plano.
+   Opacidad muy baja para que no compita con el contenido. */
+.bg-grain-light {
+  position: relative;
+}
+.bg-grain-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 200px 200px;
+  z-index: 0;
+}
+
+/* Card editorial con elevación constante (no solo hover).
+   Sombra navy direccionada para no perder con el resto del UI. */
+.card-elevated {
+  background: white;
+  border: 1px solid rgb(31 45 77 / 0.08);
+  box-shadow:
+    0 1px 2px rgb(31 45 77 / 0.04),
+    0 8px 24px -8px rgb(31 45 77 / 0.08),
+    0 24px 48px -20px rgb(31 45 77 / 0.05);
+  transition:
+    transform 0.5s,
+    box-shadow 0.5s,
+    border-color 0.5s;
+}
+.card-elevated:hover {
+  transform: translateY(-6px);
+  border-color: rgb(31 154 120 / 0.5);
+  box-shadow:
+    0 4px 8px rgb(31 45 77 / 0.06),
+    0 20px 40px -12px rgb(31 45 77 / 0.14),
+    0 40px 64px -24px rgb(31 154 120 / 0.12);
+}
+
+/* Smooth-scroll fallback (Lenis se encarga normalmente). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
