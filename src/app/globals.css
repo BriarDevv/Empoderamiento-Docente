@@ -15,6 +15,7 @@
   /* tipografías expuestas por next/font/google en src/app/layout.tsx */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
   /* escala fluida mobile → desktop (con line-height pareada) */
   --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);

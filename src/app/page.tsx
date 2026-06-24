@@ -1,14 +1,11 @@
-import { Hero } from "@/features/home/Hero";
+import { BlueprintHero } from "@/features/blueprint/BlueprintHero";
 
+// TEMP: demo de réplica del hero de blueprintapps.io sobre nuevo-frontend.
+// La home original (Hero de ED) está versionada en git para restaurar.
 export default function Home() {
   return (
     <main className="flex-1">
-      <Hero />
-      {/* TEMPORAL: espacio para scrollear y ver el navbar en estado sólido.
-          Se reemplaza cuando armemos el resto de la home. */}
-      <section className="flex min-h-screen items-center justify-center bg-white px-6">
-        <p className="text-gris-texto">Próximamente: el resto de la home.</p>
-      </section>
+      <BlueprintHero />
     </main>
   );
 }
