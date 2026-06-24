@@ -49,3 +49,6 @@ next-env.d.ts
 
 # superpowers (per-developer local state — brainstorm visual companion content)
 .superpowers/
+
+# Playwright MCP scratch (capturas de sesión)
+.playwright-mcp/
