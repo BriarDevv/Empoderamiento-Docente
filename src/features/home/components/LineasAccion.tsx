@@ -1,264 +1,298 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef, type ComponentType } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { ArrowRight } from "@/components/ui/icons";
+import {
+  ArrowRight,
+  BookOpen,
+  Compass,
+  Lightbulb,
+  School,
+  Target,
+  TrendingUp,
+  Users,
+  type IconProps,
+} from "@/components/ui/icons";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
+import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const LINEAS = [
+type Linea = {
+  n: string;
+  titulo: string;
+  detalle: string;
+  Icon: ComponentType<IconProps>;
+};
+
+// Las 7 líneas de acción de ED. Copy en voz de marca: lenguaje inclusivo
+// ("las y los"), "estudiantes", sin "capacitar"/"formar" — ED acompaña,
+// diseña y transforma. La salida de la sección conecta con Investigación.
+const LINEAS: readonly Linea[] = [
   {
     n: "01",
-    titulo: "Formación docente",
-    detalle: "Trayectos situados para quienes enseñan matemática.",
+    titulo: "Desarrollo Profesional y Transformación Docente",
+    detalle:
+      "Acompañamos a las y los docentes en un crecimiento profesional que transforma su práctica.",
+    Icon: Users,
   },
   {
     n: "02",
-    titulo: "Asesoría a instituciones",
-    detalle: "Acompañamiento a escuelas y redes en procesos de mejora.",
+    titulo: "Diseño Curricular y Arquitectura Pedagógica",
+    detalle:
+      "Diseñamos trayectos y secuencias que dan estructura al aprendizaje matemático.",
+    Icon: Compass,
   },
   {
     n: "03",
-    titulo: "Investigación aplicada",
-    detalle: "Conocimiento que vuelve al aula como práctica concreta.",
+    titulo: "Evaluación y Analítica Educativa",
+    detalle:
+      "Leemos datos y evidencia para comprender y enriquecer los procesos de aprendizaje.",
+    Icon: TrendingUp,
   },
   {
     n: "04",
-    titulo: "Materiales y recursos",
-    detalle: "Propuestas listas para llevar a la enseñanza diaria.",
+    titulo: "Recursos para desarrollar el pensamiento matemático",
+    detalle:
+      "Creamos materiales que despiertan el pensamiento matemático de las y los estudiantes.",
+    Icon: Lightbulb,
   },
-] as const;
+  {
+    n: "05",
+    titulo: "Consultoría Estratégica en Matemática Educativa",
+    detalle:
+      "Asesoramos las decisiones institucionales desde la matemática educativa.",
+    Icon: Target,
+  },
+  {
+    n: "06",
+    titulo: "Investigación e Innovación",
+    detalle:
+      "Investigamos para que cada propuesta nazca de evidencia y vuelva al aula.",
+    Icon: BookOpen,
+  },
+  {
+    n: "07",
+    titulo: "Soluciones Institucionales Integrales",
+    detalle:
+      "Articulamos procesos a la medida de cada institución, de principio a fin.",
+    Icon: School,
+  },
+];
+
+const CARD_W = 360; // px — debe coincidir con .deck.is-live .deck-card width
 
 /**
- * Lista editorial numerada de las áreas de trabajo. Filas con reveal
- * lateral + máscara (clip-path inset izq→0, stagger). Fondo con parallax
- * dispar en capas (data-speed 0.85–1.3). Números en font-mono.
- * Enlace a /investigacion. Fondo gris-fondo.
+ * Líneas de acción — abanico de cartas.
+ *
+ * El título queda centrado detrás. A medida que se scrollea, las 7 cartas
+ * suben desde abajo una a una y se asientan en un abanico que ocupa todo
+ * el ancho máximo de la grilla, tapando el título.
+ *
+ * Desktop + motion → escenario sticky animado con GSAP (integrado con
+ * Lenis vía el ticker global). Mobile / tablet / reduced-motion → grilla
+ * estática legible (la clase .is-live se agrega pre-paint solo cuando hay
+ * que animar, así no hay flash grilla→abanico).
  */
 export function LineasAccion() {
   const rootRef = useRef<HTMLElement | null>(null);
-  const reducedMotion = useReducedMotion();
+  const reduced = useReducedMotion();
 
-  useEffect(() => {
-    if (reducedMotion) return;
-    const el = rootRef.current;
-    if (!el) return;
+  useIsomorphicLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    // El abanico solo tiene sentido en desktop con motion permitido.
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+    if (reduced || !isDesktop) return;
+
+    const scroll = root.querySelector<HTMLElement>("[data-deck-scroll]");
+    const stage = root.querySelector<HTMLElement>("[data-deck-stage]");
+    const cta = root.querySelector<HTMLElement>("[data-deck-cta]");
+    const cards = gsap.utils.toArray<HTMLElement>("[data-deck-card]", root);
+    if (!scroll || !stage || cards.length !== LINEAS.length) return;
+
+    root.classList.add("is-live");
 
     const ctx = gsap.context(() => {
-      // ── Parallax dispar de formas de fondo ───────────────────────
-      el.querySelectorAll<HTMLElement>("[data-speed]").forEach((shape) => {
-        const speed = parseFloat(shape.getAttribute("data-speed") ?? "1");
-        gsap.to(shape, {
-          yPercent: (1 - speed) * -50,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.2,
-          },
+      const total = cards.length;
+      const center = (total - 1) / 2; // índice central del abanico
+
+      // Paso horizontal calculado para que el abanico ocupe todo el ancho
+      // disponible del escenario (max-w-screen-xl), con un pequeño respiro.
+      const half = stage.clientWidth / 2;
+      const maxCenter = Math.max(120, half - CARD_W / 2 - 24);
+      const STEP = (2 * maxCenter) / (total - 1);
+
+      const restX = (i: number) => (i - center) * STEP;
+      const restRot = (i: number) => (i - center) * 1.6;
+      // Arco leve: las cartas de los extremos quedan apenas más abajo.
+      const restY = (i: number) => Math.pow(i - center, 2) * 4 - 8;
+
+      // Estado inicial: cada carta en su columna, fuera de cuadro por abajo.
+      cards.forEach((card, i) => {
+        gsap.set(card, {
+          x: restX(i),
+          y: restY(i) + 640,
+          rotation: restRot(i) - 3,
+          scale: 0.94,
+          opacity: 0,
+          zIndex: 10 + i,
         });
       });
+      // El CTA de cierre arranca oculto: se revela al final del reparto.
+      if (cta) gsap.set(cta, { opacity: 0, y: 24 });
 
-      // ── Header: mask reveal ──────────────────────────────────────
-      const headline = el.querySelector("[data-lineas-headline]");
-      if (headline) {
-        gsap.fromTo(
-          headline,
-          { clipPath: "inset(0 0 100% 0)", y: 24 },
+      const seg = 1 / total;
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: scroll,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
+      // Cada carta sube desde abajo a su lugar (x ya fijo en su columna).
+      cards.forEach((card, i) => {
+        tl.to(
+          card,
           {
-            clipPath: "inset(0 0 0% 0)",
-            y: 0,
-            duration: 1.2,
-            ease: "power4.out",
-            scrollTrigger: {
-              trigger: headline,
-              start: "top 84%",
-              once: true,
-            },
-          },
-        );
-      }
-
-      // ── Filas: reveal lateral + máscara (clip-path desde derecha) ─
-      const rows = el.querySelectorAll<HTMLElement>("[data-linea-row]");
-      if (rows.length) {
-        gsap.fromTo(
-          rows,
-          {
-            opacity: 0,
-            x: -48,
-            clipPath: "inset(0 0 0 8%)",
-            filter: "blur(6px)",
-          },
-          {
-            opacity: 1,
-            x: 0,
-            clipPath: "inset(0 0 0 0%)",
-            filter: "blur(0px)",
-            duration: 1.1,
-            ease: "expo.out",
-            stagger: 0.13,
-            scrollTrigger: {
-              trigger: el.querySelector("[data-lineas-list]"),
-              start: "top 82%",
-              once: true,
-            },
-          },
-        );
-      }
-
-      // ── Números: entran con escala+resorte, ligeramente después ───
-      const nums = el.querySelectorAll<HTMLElement>("[data-linea-num]");
-      if (nums.length) {
-        gsap.fromTo(
-          nums,
-          { opacity: 0, scale: 0.5, x: -24 },
-          {
-            opacity: 1,
+            y: restY(i),
+            rotation: restRot(i),
             scale: 1,
-            x: 0,
-            duration: 1,
-            ease: "back.out(2)",
-            stagger: 0.13,
-            delay: 0.1,
-            scrollTrigger: {
-              trigger: el.querySelector("[data-lineas-list]"),
-              start: "top 82%",
-              once: true,
-            },
+            opacity: 1,
+            ease: "power3.out",
+            duration: seg * 0.85,
           },
+          i * seg,
         );
-      }
-
-      // ── CTA final ─────────────────────────────────────────────────
-      const cta = el.querySelector("[data-lineas-cta]");
+      });
+      // CTA: entra cuando aterriza la última carta (tramo final del scroll).
       if (cta) {
-        gsap.fromTo(
+        tl.to(
           cta,
-          { opacity: 0, y: 24 },
           {
             opacity: 1,
             y: 0,
-            duration: 1,
-            ease: "expo.out",
-            scrollTrigger: {
-              trigger: cta,
-              start: "top 90%",
-              once: true,
-            },
+            ease: "power3.out",
+            duration: seg * 0.85,
           },
+          (total - 1) * seg,
         );
       }
-    }, el);
+    }, root);
 
-    return () => ctx.revert();
-  }, [reducedMotion]);
+    return () => {
+      ctx.revert();
+      root.classList.remove("is-live");
+    };
+  }, [reduced]);
 
   return (
     <section
       ref={rootRef}
-      className="bg-gris-fondo relative overflow-hidden py-24 md:py-32"
+      data-section="lineas"
+      className="deck from-white to-gris-fondo relative bg-gradient-to-b"
       aria-label="Líneas de acción"
     >
-      {/* Formas de fondo con parallax dispar */}
-      <span
-        aria-hidden="true"
-        data-speed="0.85"
-        className="bg-verde-concepto pointer-events-none absolute -bottom-24 -left-24 z-0 hidden h-72 w-72 rounded-full opacity-80 md:block"
-      />
-      <span
-        aria-hidden="true"
-        data-speed="1.28"
-        className="bg-verde-concepto/[0.06] pointer-events-none absolute -top-16 right-[12%] z-0 h-[24rem] w-[24rem] rounded-full blur-3xl"
-      />
-      <span
-        aria-hidden="true"
-        data-speed="1.05"
-        className="pointer-events-none absolute top-[18%] right-14 z-0 hidden h-40 w-40 bg-[radial-gradient(circle,rgb(74_111_165/0.3)_2.5px,transparent_3px)] [background-size:22px_22px] md:block"
-      />
-      <span
-        aria-hidden="true"
-        data-speed="0.9"
-        className="border-azul-medio/15 pointer-events-none absolute left-[8%] top-[40%] z-0 hidden h-16 w-16 rounded-full border-2 md:block"
-      />
-
-      <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
-        {/* Header */}
-        <div className="grid items-end gap-8 md:grid-cols-12 md:gap-10">
-          <div className="md:col-span-7">
-            <Eyebrow>Líneas de acción</Eyebrow>
-            <div className="overflow-hidden mt-6">
-              <h2
-                data-lineas-headline
-                className="font-display text-azul-principal font-bold tracking-[-0.018em] leading-[1.04]"
-                style={{ fontSize: "clamp(2rem, 4.4vw, 3.25rem)" }}
-              >
-                Lo que hacemos,{" "}
-                <span className="text-verde-concepto">en concreto</span>.
-              </h2>
-            </div>
-          </div>
-          <p className="text-gris-texto font-sans text-[0.97rem] leading-relaxed md:col-span-5 md:text-right">
-            Cuatro frentes de trabajo para acompañar la enseñanza de la
-            matemática.
-          </p>
-        </div>
-
-        {/* Lista editorial numerada */}
-        <ul data-lineas-list className="mt-14 md:mt-20">
-          {LINEAS.map(({ n, titulo, detalle }) => (
-            <li key={n} data-linea-row>
-              <div className="border-azul-principal/10 group hover:border-verde-concepto/30 relative grid grid-cols-[auto_1fr] items-center gap-x-5 border-t py-7 transition-colors duration-500 md:grid-cols-[5rem_1fr_auto] md:gap-x-8 md:py-9">
-                {/* Número mono */}
-                <span
-                  data-linea-num
-                  className="font-mono text-azul-principal/20 group-hover:text-verde-concepto/40 text-[1.9rem] leading-none font-bold tabular-nums transition-colors duration-500 md:text-[2.75rem]"
-                >
-                  {n}
-                </span>
-
-                {/* Título + detalle */}
-                <div>
-                  <h3 className="font-display text-azul-principal text-[1.15rem] leading-tight font-bold tracking-[-0.01em] md:text-[1.55rem]">
-                    {titulo}
-                  </h3>
-                  <p className="text-gris-texto mt-1.5 max-w-xl font-sans text-[0.93rem] leading-relaxed">
-                    {detalle}
-                  </p>
-                </div>
-
-                {/* Flecha */}
-                <span
-                  aria-hidden="true"
-                  className="border-azul-principal/15 text-azul-principal group-hover:border-naranja-accion group-hover:bg-naranja-accion col-span-2 hidden h-10 w-10 items-center justify-center rounded-full border transition-all duration-500 group-hover:text-white md:col-span-1 md:inline-flex"
-                >
-                  <ArrowRight size={16} />
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {/* CTA */}
+      <div data-deck-scroll className="deck-scroll">
         <div
-          data-lineas-cta
-          className="border-azul-principal/10 mt-4 flex border-t pt-10"
+          data-deck-stage
+          className="deck-stage relative mx-auto max-w-screen-xl px-5 py-24 md:px-10 md:py-28"
         >
-          <Link href="/investigacion" className="group inline-flex items-center gap-3">
-            <span className="border-azul-principal/15 group-hover:border-naranja-accion group-hover:bg-naranja-accion inline-flex h-11 w-11 items-center justify-center rounded-full border transition-all duration-500 group-hover:text-white">
-              <ArrowRight size={17} />
-            </span>
-            <span className="text-azul-principal group-hover:text-naranja-accion font-sans text-[0.93rem] font-medium tracking-wide transition-colors duration-500">
-              Explorar nuestra investigación
-            </span>
-          </Link>
+          {/* Encabezado: en grilla va arriba centrado; en live el título se
+              reubica al centro y la bajada abajo. */}
+          <div className="deck-head text-center">
+            <h2
+              className="deck-title font-display text-azul-principal font-bold tracking-[-0.022em]"
+              style={{
+                fontSize: "clamp(2.25rem, 7vw, 5.5rem)",
+                lineHeight: 1.02,
+              }}
+            >
+              Líneas de acción
+            </h2>
+            <p className="deck-caption text-gris-texto mx-auto mt-5 max-w-xl font-sans text-[0.97rem] leading-relaxed">
+              Las áreas donde acompañamos, diseñamos y transformamos la
+              enseñanza de la matemática junto a las y los docentes.
+            </p>
+          </div>
+
+          {/* Las cartas. */}
+          <ul className="deck-cards mt-14 md:mt-16">
+            {LINEAS.map(({ n, titulo, detalle, Icon }, i) => {
+              const azulBase = i % 2 === 1;
+              return (
+                <li
+                  key={n}
+                  data-deck-card
+                  className="deck-card flex flex-col overflow-hidden"
+                >
+                  {/* Encabezado de la carta: etiqueta de acción + paginado. */}
+                  <div className="flex items-start justify-between px-7 pt-6">
+                    <span className="text-naranja-accion font-mono inline-flex items-center gap-2 text-[0.72rem] font-medium tracking-[0.26em] uppercase">
+                      <span
+                        aria-hidden="true"
+                        className="bg-naranja-accion block h-px w-5"
+                      />
+                      Línea {n}
+                    </span>
+                    <span className="text-azul-principal/20 font-mono text-[0.72rem] font-medium tabular-nums">
+                      {n} / 07
+                    </span>
+                  </div>
+
+                  {/* Título (héroe de la carta) + detalle. */}
+                  <div className="flex flex-1 flex-col px-7 pt-5">
+                    <h3 className="font-display text-azul-principal text-[1.32rem] leading-[1.12] font-bold tracking-[-0.012em]">
+                      {titulo}
+                    </h3>
+                    <p className="text-gris-texto mt-3 font-sans text-[0.92rem] leading-relaxed">
+                      {detalle}
+                    </p>
+                  </div>
+
+                  {/* Base con el ícono de marca — identidad propia por línea. */}
+                  <div
+                    className={`relative mt-6 flex h-[8.5rem] items-center justify-center overflow-hidden ${
+                      azulBase
+                        ? "bg-azul-claro/25 text-azul-medio"
+                        : "bg-verde-concepto/[0.12] text-verde-concepto"
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -right-3 -bottom-3 h-24 w-24 opacity-50 [background-image:radial-gradient(circle,rgb(74_111_165/0.22)_2px,transparent_2.5px)] [background-size:14px_14px]"
+                    />
+                    <Icon size={52} strokeWidth={1.4} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Salida → Investigación (no Contacto). CTA de cierre: en live
+              aparece abajo-centro cuando ya salieron todas las cartas. */}
+          <div
+            data-deck-cta
+            className="deck-cta mt-12 flex justify-center md:justify-start"
+          >
+            <Link
+              href="/investigacion"
+              className="group inline-flex items-center gap-3"
+            >
+              <span className="border-azul-principal/15 group-hover:border-naranja-accion group-hover:bg-naranja-accion inline-flex h-11 w-11 items-center justify-center rounded-full border transition-all duration-500 group-hover:text-white">
+                <ArrowRight size={17} />
+              </span>
+              <span className="text-azul-principal group-hover:text-naranja-accion font-sans text-[0.93rem] font-medium tracking-wide transition-colors duration-500">
+                Explorar nuestra investigación
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -143,3 +143,176 @@ html.has-custom-cursor * {
     clip-path: inset(0 0 0 0) !important;
   }
 }
+
+/* === Líneas de acción — mano de cartas repartidas ================= */
+
+/* Carta — compartida por la grilla estática y por el abanico animado. */
+.deck-card {
+  background: #fff;
+  border: 1px solid rgb(31 45 77 / 0.08);
+  border-radius: 1.4rem;
+  box-shadow:
+    0 1px 2px rgb(31 45 77 / 0.04),
+    0 18px 44px -16px rgb(31 45 77 / 0.16),
+    0 36px 60px -30px rgb(31 45 77 / 0.12);
+}
+
+/* Estado base (sin JS / reduced-motion / pantallas chicas): grilla legible.
+   El reparto sticky solo se activa con la clase .is-live (desktop + motion). */
+.deck-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 640px) {
+  .deck-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .deck-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.deck:not(.is-live) .deck-card {
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.5s;
+}
+.deck:not(.is-live) .deck-card:hover {
+  transform: translateY(-6px);
+}
+
+/* Modo live: escenario sticky a pantalla completa. El alto del scroll
+   "alimenta" el timeline scrubbed que reparte las cartas (GSAP). */
+.deck.is-live .deck-scroll {
+  height: 600vh;
+}
+.deck.is-live .deck-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+/* Título + bajada: bloque centrado detrás de las cartas (la bajada queda
+   debajo del título). Se descubre al inicio y lo van tapando las cartas. */
+.deck.is-live .deck-head {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  height: max-content;
+  width: 100%;
+  text-align: center;
+  z-index: 0;
+}
+/* CTA de cierre: abajo y centrado. Se revela recién cuando salieron todas
+   las cartas (lo anima GSAP en el tramo final del timeline). */
+.deck.is-live .deck-cta {
+  position: absolute;
+  right: 0;
+  bottom: 2.75rem;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 30;
+}
+.deck.is-live .deck-cards {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.deck.is-live .deck-card {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 22.5rem;
+  height: 30rem;
+  will-change: transform, opacity;
+}
+
+/* === Biblioteca y Novedades ====================================== */
+
+/* Radio del realce — registrado para poder transicionarlo (expansión). */
+@property --bn-glow {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Divisor: línea punteada azul (patrón de marca) con fade en los extremos
+   y un nodo verde al centro (eco del faro / red de nodos de ED). */
+.bn-divider {
+  position: relative;
+  align-self: stretch;
+  width: 0;
+  border-left: 2px dotted color-mix(in srgb, var(--color-azul-medio) 50%, transparent);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+.bn-node {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 0.75rem;
+  width: 0.75rem;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background: var(--color-verde-concepto);
+  box-shadow: 0 0 0 0.4rem color-mix(in srgb, var(--color-verde-concepto) 14%, transparent);
+}
+
+/* Fila: el realce nace en el cursor y se expande sin mover el contenido. */
+.bn-row {
+  --bn-glow: 0px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  background: var(--color-gris-fondo);
+  transition:
+    background-color 0.4s,
+    border-color 0.4s,
+    box-shadow 0.4s;
+}
+.bn-row:hover {
+  --bn-glow: 240px;
+  border-color: color-mix(in srgb, var(--color-verde-concepto) 35%, transparent);
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(31 45 77 / 0.04),
+    0 16px 36px -16px rgb(31 45 77 / 0.16);
+}
+.bn-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle var(--bn-glow) at var(--bn-mx, 50%) var(--bn-my, 50%),
+    color-mix(in srgb, var(--color-verde-concepto) 22%, transparent),
+    transparent 70%
+  );
+  transition:
+    --bn-glow 0.45s ease,
+    opacity 0.35s ease;
+}
+.bn-row:hover .bn-glow {
+  opacity: 1;
+}
+.bn-row-inner {
+  position: relative;
+  z-index: 1;
+}

@@ -136,6 +136,16 @@ export function ArrowRight({ size = 24, ...rest }: IconProps) {
   );
 }
 
+/** Flecha diagonal ↗ (mismo trazo que la del Footer). */
+export function ArrowUpRight({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <path d="M7 17 17 7" />
+      <path d="M7 7h10v10" />
+    </svg>
+  );
+}
+
 export function Menu({ size = 24, ...rest }: IconProps) {
   return (
     <svg width={size} height={size} {...baseProps} {...rest}>

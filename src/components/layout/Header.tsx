@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -90,6 +90,48 @@ export function Header() {
       if (fallback) window.clearTimeout(fallback);
       cleanupReveal?.();
       ctx.revert();
+    };
+  }, [reducedMotion]);
+
+  // Auto-hide: al scrollear hacia abajo la píldora se esconde arriba; al
+  // scrollear un poco hacia arriba (o cerca del tope) reaparece. Animamos
+  // `top` (no `transform`) para no pisar el -translate-x-1/2 del centrado.
+  useEffect(() => {
+    const nav = ref.current;
+    if (!nav || reducedMotion) return;
+
+    const TOP_SHOWN = 16; // top-4 (1rem) — posición visible
+    const TOP_HIDDEN = -120; // fuera de cuadro por arriba
+    let lastY = window.scrollY;
+    let hidden = false;
+    const DELTA = 6; // ignora micro-jitter de scroll
+    const TOP_ZONE = 120; // cerca del tope siempre visible
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      const dy = y - lastY;
+      if (Math.abs(dy) < DELTA) return;
+
+      const show = () => {
+        if (!hidden) return;
+        hidden = false;
+        gsap.to(nav, { top: TOP_SHOWN, duration: 0.45, ease: "power3.out" });
+      };
+      const hide = () => {
+        if (hidden) return;
+        hidden = true;
+        gsap.to(nav, { top: TOP_HIDDEN, duration: 0.45, ease: "power3.out" });
+      };
+
+      if (y < TOP_ZONE || dy < 0) show();
+      else if (dy > 0) hide();
+      lastY = y;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      gsap.set(nav, { clearProps: "top" });
     };
   }, [reducedMotion]);
 
