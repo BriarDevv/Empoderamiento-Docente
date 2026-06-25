@@ -56,7 +56,7 @@ export function HeroQuienes() {
     <div ref={wrapRef} className="relative isolate bg-gradient-to-b from-white via-white to-gris-fondo/40">
       {/* Nodos PERSISTENTES: pegados al viewport durante todo el stage, animando.
           Quedan detrás del hero y de Quiénes somos (el hero ahora es transparente). */}
-      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-40" aria-hidden="true">
         <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
           <MathField className="h-full w-full" />
         </div>

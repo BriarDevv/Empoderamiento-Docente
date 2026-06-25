@@ -112,3 +112,34 @@ html.has-custom-cursor * {
     scroll-behavior: auto !important;
   }
 }
+
+/* === Port navbar mobile (MobileNav) ============================== */
+
+/* Glow del faro: fondo claro premium con un halo de azul-claro arriba.
+   Metáfora de marca (faro/luz). Tokens, no hardcodes. Usado como fondo del
+   panel de navegación mobile. */
+.faro-glow {
+  background-color: var(--color-gris-fondo);
+  background-image: radial-gradient(
+    110% 75% at 50% -5%,
+    color-mix(in srgb, var(--color-azul-claro) 55%, transparent),
+    transparent 62%
+  );
+}
+
+/* === Port reveal de imágenes (RevealImage) ====================== */
+
+/* El reveal es 100% GSAP (clip-path inline vía gsap.set/timeline), igual que
+   el FUENTE. Esta regla es solo defensiva: garantiza que sin JS, antes de
+   hidratar, o con prefers-reduced-motion, la imagen quede SIEMPRE descubierta
+   (clip completo). Evita cualquier flash de imagen "tapada". GSAP sobrescribe
+   el clip-path inline al montar el timeline cuando hay motion permitido. */
+[data-reveal-image] {
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal-image] {
+    clip-path: inset(0 0 0 0) !important;
+  }
+}

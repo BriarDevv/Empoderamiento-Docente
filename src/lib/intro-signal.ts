@@ -4,7 +4,10 @@
  * dispara su entrada en ese mismo instante — así el Inicio cobra vida mientras
  * lo atravesamos, en lugar de aparecer ya armado. Estado en memoria (cliente).
  */
-let entered = false;
+// Sin IntroGate (removido 2026-06-24): se entra directo, así que por defecto
+// ya estamos "adentro" → los consumidores (Hero, Header) animan en el mount.
+// Si se reincorpora el gate, volver `entered`/`revealed` a `false`.
+let entered = true;
 const listeners = new Set<() => void>();
 
 /** El gate llama esto al iniciar el zoom-through. */
@@ -37,7 +40,7 @@ export function onEnter(cb: () => void): () => void {
 // Lo usa el Navbar para que su intro coreografiada se vea YA con la página
 // revelada (su animación es corta y, atada a markEntered, quedaba tapada por
 // el zoom del gate).
-let revealed = false;
+let revealed = true; // sin gate: ya revelado (ver nota arriba).
 const revealListeners = new Set<() => void>();
 
 /** El gate llama esto cuando termina el zoom-through (página revelada). */

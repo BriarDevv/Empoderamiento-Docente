@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
@@ -18,6 +18,15 @@ type Props = {
 export function Magnetic({ children, strength = 0.3 }: Props) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const reduced = useReducedMotion();
+
+  // Matar cualquier tween magnético pendiente al desmontar (evita tweens
+  // huérfanos apuntando a un ref nulo si el componente se remonta).
+  useEffect(() => {
+    const el = wrapRef.current;
+    return () => {
+      if (el) gsap.killTweensOf(el);
+    };
+  }, []);
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (reduced) return;

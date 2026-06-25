@@ -50,7 +50,7 @@ export function MathField({ className, scrollRef }: MathFieldProps) {
     let nodes: Node[] = [];
     const mouse = { x: -9999, y: -9999 };
     const LINK = 132; // distancia de conexión entre nodos
-    const REACH = 170; // alcance del mouse
+    const REACH = 65; // alcance del mouse (más chico = hay que acercarse más)
 
     const build = () => {
       const count = Math.max(28, Math.min(82, Math.floor((w * h) / 15000)));

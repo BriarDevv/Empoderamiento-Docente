@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
-import Link from "next/link";
+import { useRef, type CSSProperties } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ButtonPrimary } from "@/components/ui/ButtonPrimary";
 import { ButtonSecondary } from "@/components/ui/ButtonSecondary";
 import { hasEntered, onEnter } from "@/lib/intro-signal";
+import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 if (typeof window !== "undefined") {
@@ -63,13 +62,19 @@ const CARDS: Card[] = [
  *  - SCROLL: parallax por capa (`[data-card-outer]`, scrub).
  *  - MOUSE: un solo RAF con lerp setea `--pnx/--pny` (-1..1) y cada card se
  *    desplaza por su profundidad, EN CONTRA del mouse (`[data-card-mouse]`).
+ *
+ * Copy (idioma de Empoderamiento Docente): el titular entra LIMPIO, línea por
+ * línea (fade-up con stagger, SIN blur), y después la descripción y las acciones
+ * suben con un fade suave — así el texto no "molesta" al aparecer.
  * Respeta prefers-reduced-motion (sin animación, estado final visible).
  */
 export function Hero() {
   const ref = useRef<HTMLElement | null>(null);
   const reduced = useReducedMotion();
 
-  useEffect(() => {
+  // Layout effect (síncrono, pre-paint): oculta las cards antes del primer
+  // paint para que, sin gate, no haya flash del hero ya armado antes de animar.
+  useIsomorphicLayoutEffect(() => {
     const scope = ref.current;
     if (!scope || reduced) return;
 
@@ -83,8 +88,11 @@ export function Hero() {
 
       // Ocultas hasta el ingreso desde el gate.
       gsap.set(inners, { autoAlpha: 0 });
-      gsap.set("[data-card-label]", { opacity: 0, scale: 0 });
-      gsap.set("[data-hero-copy]", { opacity: 0 });
+      // Copy oculta por partes: el titular en MÁSCARA (cada línea baja fuera de
+      // su recorte) + descripción + acciones.
+      gsap.set("[data-hero-headline] .hero-line > span", { yPercent: 110, opacity: 0 });
+      gsap.set("[data-hero-desc]", { autoAlpha: 0, y: 18 });
+      gsap.set("[data-hero-actions]", { autoAlpha: 0, y: 16 });
 
       // Centrado base de cada tarjeta. El scroll-parallax va sobre ESTA capa.
       gsap.set(outers, { xPercent: -50, yPercent: -50 });
@@ -93,7 +101,11 @@ export function Hero() {
       // cards arrancan APILADAS en el centro y se despliegan a su lugar. Se
       // dispara al atravesar el gate.
       const entrance = () => {
-        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        // Mismos TEMPOS que el hero de Empoderamiento Docente (BlueprintHero):
+        // delay 0.2 → cards aparecen apiladas (0.7s) → beat 0.15 → se despliegan
+        // (1.7s) → el titular sube en el ÚLTIMO ~1s del despliegue (-=1.0), y
+        // recién después la descripción (-=0.55) y las acciones (-=0.4).
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.2 });
 
         // Durante el despliegue, las cards van DELANTE del título.
         tl.set("[data-hero-cards]", { zIndex: 40 }, 0);
@@ -117,36 +129,38 @@ export function Hero() {
         tl.to(
           inners,
           { autoAlpha: 1, scale: 0.62, duration: 0.7, ease: "power2.out", stagger: 0.04 },
-          0.15,
+          0,
         );
 
         // 1b — se despliegan desde el centro hasta su lugar (crecen a 1; stagger
-        // desde el centro, easing power3.inOut suave).
+        // desde el centro, easing power3.inOut suave). Beat de 0.15 entre ambas.
         tl.to(
           inners,
           { x: 0, y: 0, scale: 1, duration: 1.7, ease: "power3.inOut", stagger: { each: 0.06, from: "center" } },
-          1.0,
+          "+=0.15",
         );
 
-        // Copy: entra mientras las cards se despliegan.
-        tl.fromTo(
-          "[data-hero-copy]",
-          { opacity: 0, y: 26, filter: "blur(10px)" },
-          { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.1, ease: "power3.out" },
-          1.1,
-        );
+        // Asentadas, vuelven DETRÁS del título justo cuando el texto va a entrar.
+        tl.set("[data-hero-cards]", { zIndex: 10 }, "-=1.0");
 
-        // Asentadas en la periferia, vuelven DETRÁS del título.
-        tl.set("[data-hero-cards]", { zIndex: 10 }, 3.1);
-
-        // Labels (spring) + hint.
-        tl.fromTo(
-          "[data-card-label]",
-          { opacity: 0, scale: 0 },
-          { opacity: 1, scale: 1, duration: 0.9, ease: "back.out(1.7)", stagger: 0.16 },
-          3.0,
-        );
-        tl.fromTo("[data-hero-hint-inner]", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8 }, 3.3);
+        // Copy (idioma de Empoderamiento Docente): el titular SUBE línea por
+        // línea desde su máscara (mask-rise, sin blur) en el último tramo del
+        // despliegue, y después la descripción y las acciones. Tempos del FUENTE.
+        tl.to(
+          "[data-hero-headline] .hero-line > span",
+          { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.12 },
+          "<",
+        )
+          .to(
+            "[data-hero-desc]",
+            { autoAlpha: 1, y: 0, duration: 0.7 },
+            "-=0.55",
+          )
+          .to(
+            "[data-hero-actions]",
+            { autoAlpha: 1, y: 0, duration: 0.6 },
+            "-=0.4",
+          );
       };
 
       const runOnce = () => {
@@ -171,24 +185,12 @@ export function Hero() {
         });
       });
 
-      // La copy y el hint se van con el scroll.
+      // La copy se va con el scroll.
       gsap.to("[data-hero-copy-scroll]", {
         y: -80,
         opacity: 0,
         ease: "none",
         scrollTrigger: { trigger: scope, start: "top top", end: "55% top", scrub: 1 },
-      });
-      gsap.to("[data-hero-hint]", {
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: { trigger: scope, start: "top top", end: "12% top", scrub: true },
-      });
-      gsap.to("[data-hero-arrow]", {
-        y: 8,
-        duration: 1.05,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
       });
     }, scope);
 
@@ -253,14 +255,6 @@ export function Hero() {
         style={{ background: "radial-gradient(circle, rgb(31 154 120 / 0.1) 0%, transparent 70%)" }}
       />
 
-      {/* Marcador editorial mono */}
-      <span
-        aria-hidden="true"
-        className="font-mono text-azul-principal/40 absolute top-6 right-5 z-30 hidden text-[0.7rem] tracking-[0.3em] uppercase md:top-8 md:right-10 md:block"
-      >
-        001 <span className="text-naranja-accion">/</span> Inicio
-      </span>
-
       {/* Campo de 9 tarjetas dispersas (desktop) */}
       <div
         data-hero-cards
@@ -302,24 +296,6 @@ export function Hero() {
                       </div>
                     )}
                   </div>
-
-                  {c.label ? (
-                    <div className="absolute top-[90%] left-1/2 w-max -translate-x-1/2">
-                      <div
-                        data-card-label
-                        className="bg-azul-principal/55 max-w-[15rem] rounded-xl border border-white/15 px-3.5 py-2.5 shadow-[0_18px_40px_-20px_rgb(0_0_0_/_0.6)] backdrop-blur-md"
-                      >
-                        <span className="text-verde-concepto block font-sans text-[0.82rem] font-semibold">
-                          {c.label.title}
-                        </span>
-                        {c.label.desc ? (
-                          <span className="mt-1 block font-mono text-[0.66rem] tracking-wide text-white/55">
-                            {c.label.desc}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </div>
@@ -332,52 +308,39 @@ export function Hero() {
         data-hero-copy-scroll
         className="absolute inset-x-0 top-0 z-20 flex h-screen flex-col items-center justify-center px-5 text-center md:px-10"
       >
-        <div data-hero-copy className="mx-auto max-w-3xl">
-          <div className="flex justify-center">
-            <Eyebrow dashClass="w-14">Consultora en educación matemática</Eyebrow>
-          </div>
-
+        <div data-hero-copy className="mx-auto max-w-xl">
           <h1
-            className="font-display mt-7 font-bold tracking-[-0.035em]"
-            style={{ fontSize: "clamp(2.9rem, 1.1rem + 7vw, 6rem)", lineHeight: 0.98 }}
+            data-hero-headline
+            className="font-display text-balance font-bold tracking-[-0.02em]"
+            style={{ fontSize: "clamp(2rem, 1rem + 2.5vw, 2.8rem)", lineHeight: 1.12 }}
           >
-            Transformamos la <span className="text-verde-concepto">enseñanza</span> de la matemática.
+            <span className="hero-line block overflow-hidden">
+              <span className="block">
+                Generamos escenarios de{" "}
+                <span className="text-verde-concepto">aprendizaje</span>
+              </span>
+            </span>
+            <span className="hero-line block overflow-hidden">
+              <span className="block">donde la matemática cobra sentido.</span>
+            </span>
           </h1>
 
-          <p className="text-gris-texto mx-auto mt-8 max-w-xl font-sans text-[1.08rem] leading-relaxed md:text-[1.2rem]">
-            Diseñamos, acompañamos y sostenemos el cambio en el aula — junto a cada escuela y cada docente.
+          <p
+            data-hero-desc
+            className="text-gris-texto mx-auto mt-6 max-w-md text-balance font-sans text-[1.05rem] leading-relaxed md:text-[1.2rem]"
+          >
+            Acompañamos a cada escuela y a cada docente, con foco en aprender y
+            no solo en enseñar.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div
+            data-hero-actions
+            className="mt-8 flex flex-wrap items-center justify-center gap-4"
+          >
             <ButtonPrimary href="/contacto">Contacto</ButtonPrimary>
             <ButtonSecondary href="/que-hacemos">Qué hacemos</ButtonSecondary>
           </div>
         </div>
-      </div>
-
-      {/* Scroll hint, abajo del primer viewport */}
-      <div
-        data-hero-hint
-        className="absolute inset-x-0 top-[calc(100vh-5.5rem)] z-20 flex items-center justify-center"
-      >
-        <Link
-          data-hero-hint-inner
-          href="#contenido"
-          className="group inline-flex flex-col items-center gap-2.5 md:flex-row md:gap-3"
-        >
-          <span className="font-mono text-azul-principal/60 group-hover:text-azul-principal text-[0.72rem] font-medium tracking-[0.28em] uppercase transition-colors">
-            Seguí bajando
-          </span>
-          <span
-            data-hero-arrow
-            className="border-azul-principal/20 text-azul-principal group-hover:border-naranja-accion group-hover:text-naranja-accion flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
-            aria-hidden="true"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </Link>
       </div>
     </section>
   );

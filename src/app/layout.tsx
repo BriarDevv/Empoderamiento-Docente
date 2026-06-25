@@ -4,7 +4,6 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LenisProvider } from "@/components/providers/LenisProvider";
-import { CustomCursor } from "@/components/ui/CustomCursor";
 import { siteConfig } from "@/config/site";
 
 const inter = Inter({
@@ -66,7 +65,6 @@ export default function RootLayout({
       className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <CustomCursor />
         <LenisProvider>
           <Header />
           {children}

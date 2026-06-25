@@ -1,208 +1,155 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import gsap from "gsap";
-import { Menu, X } from "@/components/ui/icons";
-import { useLockScroll } from "@/lib/hooks/useLockScroll";
-import { Brand } from "./Brand";
-import { NavbarLinks } from "./NavbarLinks";
-import { ButtonPrimary } from "@/components/ui/ButtonPrimary";
 import { NAV_LINKS, CTA_LINK, HOME_LINK } from "@/config/nav";
 import { hasRevealed, onReveal } from "@/lib/intro-signal";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 /**
- * Navbar global (portado del proyecto de referencia, adaptado a ED):
- *  - Transparente en el top (sobre el hero) → frosted al dejar el hero
- *    (IntersectionObserver sobre `[data-nav-sentinel]`), condensando altura.
- *  - El LOGO es el acceso a Inicio (cliqueable) y MORFEA wordmark→isotipo.
- *  - Intro coreografiada (sincronizada con el gate): brand → links (mask-rise
- *    stagger) → acciones.
- *  - Links con "magic line" + text-swap en hover (en `NavbarLinks`).
- * Respeta prefers-reduced-motion (sin animación, estado final visible).
+ * Navbar Blueprint — réplica 1:1 del navbar del hero "Blueprint" de la rama
+ * `nuevo-frontend`. Es una PÍLDORA flotante centrada (white/70 + backdrop-blur):
+ *  - Logo (PNG transparente del cliente) + wordmark "Empoderamiento Docente".
+ *  - Intro coreografiada: arranca CERRADO (logo + wordmark) y MORFEA a ABIERTO
+ *    (el wordmark se colapsa y entran los links en mono + el CTA naranja).
+ *  - Links en `font-mono`; CTA "Contacto" naranja (único acento de acción).
+ *
+ * Adaptación a ED (invisible, igual que el Header anterior): la intro se dispara
+ * cuando el IntroGate TERMINA (`onReveal`), no en el mount — si no, su animación
+ * corta queda tapada por el zoom-through del gate. Sin gate o con reduced-motion,
+ * el JSX por defecto ya muestra el estado ABIERTO (final). Respeta prefers-reduced-motion.
  */
 export function Header() {
-  const pathname = usePathname();
   const ref = useRef<HTMLElement>(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const reducedMotion = useReducedMotion();
+  // En el Inicio, el morph del navbar se choreografía DESPUÉS del hero (cards +
+  // texto), igual que en Empoderamiento Docente (3001): ~3.2s. En otras rutas
+  // no hay hero que coordinar, así que abre enseguida.
+  const isHome = usePathname() === "/";
 
-  // Transparente → frosted: el sentinel del hero deja el top del viewport.
-  useEffect(() => {
-    const sentinel = document.querySelector("[data-nav-sentinel]");
-    if (!sentinel) {
-      const raf = requestAnimationFrame(() => setScrolled(true));
-      return () => cancelAnimationFrame(raf);
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => setScrolled(!entry.isIntersecting),
-      { rootMargin: "0px 0px -100% 0px" },
-    );
-    io.observe(sentinel);
-    return () => io.disconnect();
-  }, [pathname]);
-
-  useLockScroll(menuOpen);
-
-  // Intro coreografiada, sincronizada con el gate (brand → links → acciones).
   useIsomorphicLayoutEffect(() => {
     const nav = ref.current;
     if (!nav || reducedMotion) return;
-    let cleanupEnter: (() => void) | undefined;
+    let cleanupReveal: (() => void) | undefined;
     let fallback: number | undefined;
     let ran = false;
+
     const ctx = gsap.context(() => {
-      // Estado inicial OCULTO mientras el gate cubre la página (evita el flash
-      // de verlo en su estado final antes de animar).
-      gsap.set("[data-nav-brand]", { opacity: 0, y: -12 });
-      gsap.set("[data-nav-stagger]", { yPercent: 110 });
-      gsap.set("[data-nav-action]", { opacity: 0, y: -10 });
+      // Estado inicial CERRADO: wordmark expandido + visible, links colapsados.
+      // (El JSX por defecto es el ABIERTO, para verse armado sin JS / reduced-motion.)
+      gsap.set("[data-nav-word]", { width: "auto", autoAlpha: 1, marginLeft: 12 });
+      gsap.set("[data-nav-links]", { width: 0, autoAlpha: 0 });
 
       const play = () => {
         if (ran) return;
         ran = true;
-        // Pequeño beat tras el reveal del gate para que respire.
+        // Morph cerrado → abierto: el wordmark fade (rápido y adelantado) + colapsa
+        // su ancho, y A LA VEZ abren los links. Mismo timing que el hero Blueprint.
         gsap
-          .timeline({ defaults: { ease: "power3.out" }, delay: 0.15 })
-          .to("[data-nav-brand]", { opacity: 1, y: 0, duration: 0.6 })
+          .timeline({ defaults: { ease: "power3.out" }, delay: isHome ? 3.2 : 0.2 })
+          // 1) CIERRA: el wordmark se desvanece y colapsa su ancho del todo.
+          .to("[data-nav-word]", {
+            autoAlpha: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          })
           .to(
-            "[data-nav-stagger]",
-            { yPercent: 0, duration: 0.7, stagger: 0.07 },
-            "<0.15",
+            "[data-nav-word]",
+            { width: 0, marginLeft: 0, duration: 0.45, ease: "power3.out" },
+            "<",
+          )
+          // 2) ABRE: ESPEJO del cierre — misma duración (0.45) y mismo easing
+          // (power3.out) para el ancho, y el mismo fade (0.3). Así abrir se
+          // siente a la MISMA velocidad que cerrar. Respiro entre ambas fases.
+          .to(
+            "[data-nav-links]",
+            { width: "auto", duration: 0.45, ease: "power3.out" },
+            "+=0.08",
           )
           .to(
-            "[data-nav-action]",
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
-            "<0.1",
+            "[data-nav-links]",
+            { autoAlpha: 1, duration: 0.3, ease: "power2.out" },
+            "<",
           );
       };
-      // La intro del nav se dispara cuando el gate TERMINA (página revelada),
-      // para que se vea (su animación es corta y atada al zoom quedaba tapada).
+
+      // Se dispara cuando el gate termina (página revelada). Fallback por si no
+      // hubo gate o nunca avisó.
       if (hasRevealed()) play();
       else {
-        cleanupEnter = onReveal(play);
+        cleanupReveal = onReveal(play);
         fallback = window.setTimeout(play, 6000);
       }
     }, nav);
+
     return () => {
       if (fallback) window.clearTimeout(fallback);
-      cleanupEnter?.();
+      cleanupReveal?.();
       ctx.revert();
     };
   }, [reducedMotion]);
 
   return (
-    <header
+    <nav
       ref={ref}
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-300 ${
-        scrolled
-          ? "border-azul-principal/10 bg-gris-fondo/85 backdrop-blur-md"
-          : "border-transparent bg-transparent"
-      }`}
+      data-bp-nav
+      className="border-azul-principal/10 fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-[1.25rem] border bg-white/70 px-4 py-3 backdrop-blur-xl"
     >
-      {/* Scrim sutil arriba: legibilidad del nav sobre el hero sin perder el
-          look transparente/inmersivo. Se desvanece al pasar a frosted. */}
-      <div
-        aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-36 bg-gradient-to-b from-gris-fondo/85 to-transparent transition-opacity duration-300 ${
-          scrolled ? "opacity-0" : "opacity-100"
-        }`}
-      />
-      <div
-        className={`mx-auto flex max-w-screen-xl items-center justify-between px-5 transition-[height] duration-300 md:px-10 ${
-          scrolled ? "h-16" : "h-20 md:h-24"
-        }`}
+      {/* Grupo logo + wordmark. El wordmark colapsa (width + marginLeft → 0) sin
+          dejar gap residual: la separación con los links la da el gap-3 del nav. */}
+      <Link
+        href={HOME_LINK.href}
+        aria-label="Empoderamiento Docente — Inicio"
+        className="flex shrink-0 items-center"
       >
-        {/* Logo = Inicio (cliqueable). Morfea wordmark→isotipo al scrollear. */}
-        <Link
-          data-nav-brand
-          href={HOME_LINK.href}
-          aria-label="Empoderamiento Docente — Inicio"
-          className="flex items-center"
+        {/* Logo (PNG transparente) tal cual lo pasó el cliente, sin recuadro. */}
+        <Image
+          src="/brand/logotipo-principal-ed.png"
+          alt="Empoderamiento Docente"
+          width={425}
+          height={467}
+          priority
+          unoptimized
+          className="h-11 w-auto shrink-0"
+        />
+        {/* Wordmark que se colapsa */}
+        <span
+          data-nav-word
+          className="font-display overflow-hidden text-[1.05rem] font-extrabold tracking-tight whitespace-nowrap"
+          style={{ width: 0, opacity: 0 }}
         >
-          <span className="relative hidden items-center lg:inline-flex">
-            <span
-              className={`transition-opacity duration-300 ${scrolled ? "opacity-0" : "opacity-100"}`}
-            >
-              <Brand variant="full" tone="dark" asLink={false} />
-            </span>
-            <span
-              className={`absolute top-1/2 left-0 -translate-y-1/2 transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0"}`}
-            >
-              <Brand variant="compact" tone="dark" asLink={false} />
-            </span>
-          </span>
-          <span className="lg:hidden">
-            <Brand variant="compact" tone="dark" asLink={false} />
-          </span>
-        </Link>
+          Empoderamiento&nbsp;Docente
+        </span>
+      </Link>
 
-        <NavbarLinks />
-
-        <div className="hidden items-center gap-4 lg:flex">
-          <span data-nav-action className="inline-block">
-            <ButtonPrimary href={CTA_LINK.href} withArrow={false}>
-              {CTA_LINK.label}
-            </ButtonPrimary>
-          </span>
-        </div>
-
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          className="lg:hidden"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Abrir menú de navegación"
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-        >
-          <Menu size={26} className="text-azul-principal" />
-        </button>
-      </div>
-
-      {/* Mobile overlay */}
-      {menuOpen && (
-        <div
-          id="mobile-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menú de navegación"
-          className="bg-gris-fondo fixed inset-0 z-50 flex flex-col px-5 py-4 lg:hidden"
-        >
-          <div className="flex items-center justify-between">
-            <Brand variant="compact" tone="dark" />
-            <button
-              type="button"
-              onClick={() => setMenuOpen(false)}
-              aria-label="Cerrar menú"
-            >
-              <X size={26} className="text-azul-principal" />
-            </button>
-          </div>
-          <nav
-            className="mt-14 flex flex-col gap-6"
-            aria-label="Navegación principal"
-          >
-            {NAV_LINKS.map((item) => (
+      {/* Links + CTA que se abren */}
+      <div
+        data-nav-links
+        className="flex items-center gap-1 whitespace-nowrap"
+      >
+        <ul className="text-azul-principal/70 hidden items-center gap-1 pr-2 font-mono text-[14px] lg:flex">
+          {NAV_LINKS.map((link) => (
+            <li key={link.href}>
               <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className="font-display text-azul-principal text-[1.85rem] leading-tight font-medium"
+                href={link.href}
+                className="hover:bg-azul-principal/5 hover:text-azul-principal rounded-lg px-3 py-2 transition-colors"
               >
-                {item.label}
+                {link.label}
               </Link>
-            ))}
-            <div className="mt-6">
-              <ButtonPrimary href={CTA_LINK.href}>{CTA_LINK.label}</ButtonPrimary>
-            </div>
-          </nav>
-        </div>
-      )}
-    </header>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href={CTA_LINK.href}
+          className="bg-naranja-accion rounded-xl px-5 py-2.5 font-mono text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+        >
+          {CTA_LINK.label}
+        </Link>
+      </div>
+    </nav>
   );
 }
