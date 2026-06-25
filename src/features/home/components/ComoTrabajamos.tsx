@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ArrowRight } from "@/components/ui/icons";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
@@ -19,41 +18,41 @@ const PASOS = [
     n: "01",
     slug: "escuchamos",
     titulo: "Escuchamos.",
-    resumen: "Antes de proponer, leemos.",
+    resumen: "Antes de proponer, comprendemos.",
     detalle:
-      "Dialogamos con la institución y el profesorado, observamos el aula y relevamos necesidades reales para construir una lectura situada.",
-    foto: "/metodo/escuchamos.png",
+      "Dialogamos con la institución y los equipos docentes, observamos el contexto y relevamos necesidades reales para construir una lectura situada.",
+    foto: "/metodo/escuchamos.jpg",
     fotoAlt: "Docentes en conversación — etapa de escucha",
   },
   {
     n: "02",
-    slug: "disenamos",
+    slug: "diseñamos",
     titulo: "Diseñamos.",
-    resumen: "A medida, nunca enlatado.",
+    resumen: "A medida, no en serie.",
     detalle:
-      "Co-construimos trayectos y materiales con base científica en matemática educativa, pensados para ese contexto y esas personas.",
-    foto: "/metodo/disenamos.png",
-    fotoAlt: "Planificación pedagógica colaborativa — etapa de diseño",
+      "Co-construimos recorridos, materiales y herramientas con base en matemática educativa, pensados para cada contexto y cada comunidad.",
+    foto: "/metodo/disenamos.jpg",
+    fotoAlt: "Selección de materiales educativos — etapa de diseño",
   },
   {
     n: "03",
-    slug: "acompanamos",
+    slug: "acompañamos",
     titulo: "Acompañamos.",
-    resumen: "Presencia en todo el recorrido.",
+    resumen: "Presencia durante todo el proceso.",
     detalle:
-      "Sostenemos la implementación en el territorio, reflexionamos sobre la práctica y ajustamos con evidencia para que el cambio perdure.",
-    foto: "/metodo/acompanamos.png",
-    fotoAlt: "Trabajo situado en el aula — etapa de acompañamiento",
+      "Sostenemos la implementación junto a docentes y equipos, revisando la práctica y ajustando decisiones con evidencia.",
+    foto: "/metodo/acompanamos.jpg",
+    fotoAlt: "Trabajo situado junto a docentes — etapa de acompañamiento",
   },
   {
     n: "04",
-    slug: "reflexionamos",
-    titulo: "Reflexionamos.",
-    resumen: "El cambio que se sostiene.",
+    slug: "evaluamos",
+    titulo: "Evaluamos.",
+    resumen: "Para que el cambio se sostenga.",
     detalle:
-      "Revisamos la práctica con datos concretos, celebramos los avances y ajustamos las propuestas para que nada dependa de condiciones aisladas.",
-    foto: "/metodo/reflexionamos.png",
-    fotoAlt: "Equipo analizando resultados — etapa de reflexión",
+      "Analizamos avances, reconocemos aprendizajes y ajustamos las propuestas para fortalecer procesos duraderos.",
+    foto: "/metodo/evaluamos.jpg",
+    fotoAlt: "Revisión de materiales y avances — etapa de evaluación",
   },
 ] as const;
 
@@ -202,7 +201,7 @@ export function ComoTrabajamos() {
       aria-label="Cómo trabajamos"
     >
       <div className="relative h-[400vh]">
-        <div className="sticky top-0 h-screen overflow-hidden">
+        <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
 
           {/* Glow verde ambiental */}
           <div
@@ -215,125 +214,135 @@ export function ComoTrabajamos() {
             }}
           />
 
-          {/* Eyebrow fijo + nav lateral */}
-          <div className="absolute top-8 left-5 right-5 z-30 mx-auto flex max-w-screen-xl items-center justify-between md:top-10 md:left-10 md:right-10">
-            <Eyebrow dashClass="w-8">Cómo trabajamos</Eyebrow>
+          {/* ── Recorrido de pasos (foto + indicador + texto). Sin encabezado:
+              la composición ocupa todo el alto y se centra verticalmente. ── */}
+          <div className="relative z-10 min-h-0 flex-1 overflow-hidden">
 
-            {/* Nav lateral de puntos — indicadores de progreso */}
-            <div
-              aria-hidden="true"
-              className="flex flex-col items-center gap-2"
-            >
-              {PASOS.map((p, idx) => (
+            {/* Indicador de pasos — eje vertical (centro en desktop, margen
+                izquierdo compacto en mobile). Funciona igual con la
+                alternancia: siempre queda entre la foto y el texto. */}
+            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-start pl-4 md:justify-center md:pl-0">
+              <div className="relative flex flex-col items-center gap-2.5">
+                {/* Línea fina conectora */}
                 <span
-                  key={p.n}
-                  data-nav-dot={idx}
-                  className="w-1.5 rounded-full"
-                  style={{
-                    height: idx === 0 ? 36 : 8,
-                    backgroundColor:
-                      idx === 0
-                        ? "var(--color-naranja-accion)"
-                        : "rgb(31 45 77 / 0.18)",
-                    transition: "none",
-                  }}
+                  aria-hidden="true"
+                  className="bg-azul-principal/10 absolute top-1 bottom-1 left-1/2 w-px -translate-x-1/2"
                 />
-              ))}
+                {PASOS.map((p, idx) => (
+                  <span
+                    key={p.n}
+                    data-nav-dot={idx}
+                    className="relative w-1.5 rounded-full"
+                    style={{
+                      height: idx === 0 ? 36 : 8,
+                      backgroundColor:
+                        idx === 0
+                          ? "var(--color-naranja-accion)"
+                          : "rgb(31 45 77 / 0.18)",
+                      transition: "none",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Pasos apilados */}
+            <div className="absolute inset-0 flex items-center">
+              {PASOS.map((paso, idx) => {
+                // Alternancia: 01 izq · 02 der · 03 izq · 04 der.
+                const fotoRight = idx % 2 === 1;
+                return (
+                  <div
+                    key={paso.n}
+                    data-paso={idx}
+                    className="absolute inset-0 flex items-center"
+                    style={{ willChange: "opacity, transform, filter" }}
+                  >
+                    <div className="mx-auto grid w-full max-w-screen-xl grid-cols-12 items-center gap-x-6 px-5 md:gap-x-8 md:px-10">
+
+                      {/* Foto real — pegada al eje central (alterna lado) */}
+                      <div
+                        className={`hidden md:col-span-5 md:row-start-1 md:block ${
+                          fotoRight ? "md:col-start-8" : "md:col-start-1"
+                        }`}
+                      >
+                        <div
+                          className={`relative w-full max-w-[25rem] overflow-hidden rounded-2xl shadow-[0_28px_72px_-18px_rgb(31_45_77/0.20)] ${
+                            fotoRight ? "mr-auto" : "ml-auto"
+                          }`}
+                        >
+                          <Image
+                            src={paso.foto}
+                            alt={paso.fotoAlt}
+                            width={400}
+                            height={533}
+                            className="aspect-[3/4] max-h-[66vh] w-full object-cover"
+                            sizes="(max-width: 768px) 90vw, 400px"
+                            priority={idx === 0}
+                          />
+                          {/* Overlay tenue de marca */}
+                          <div
+                            aria-hidden="true"
+                            className="bg-verde-concepto/10 absolute inset-0 mix-blend-multiply"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Contenido — del otro lado del eje */}
+                      <div
+                        className={`relative col-span-12 col-start-1 pl-10 md:col-span-5 md:row-start-1 md:pl-0 ${
+                          fotoRight ? "md:col-start-1" : "md:col-start-8"
+                        }`}
+                      >
+                        {/* Número watermark (sangra hacia el borde exterior) */}
+                        <span
+                          aria-hidden="true"
+                          className={`font-display text-azul-principal/[0.05] pointer-events-none absolute -top-20 select-none text-[9rem] leading-none font-bold tabular-nums md:text-[14rem] ${
+                            fotoRight ? "-right-2" : "-left-2"
+                          }`}
+                        >
+                          {paso.n}
+                        </span>
+
+                        <div className="relative">
+                          <h2
+                            className="font-display text-azul-principal leading-[1.02] font-bold tracking-[-0.022em]"
+                            style={{ fontSize: "clamp(2.1rem, 5vw, 3.7rem)" }}
+                          >
+                            {paso.titulo}
+                          </h2>
+
+                          {/* Resumen — verde concepto */}
+                          <p className="text-verde-concepto mt-4 font-sans text-[1.05rem] font-semibold leading-snug md:text-[1.2rem]">
+                            {paso.resumen}
+                          </p>
+
+                          <p className="text-gris-texto mt-3 max-w-md font-sans text-[0.97rem] leading-relaxed md:text-[1.02rem]">
+                            {paso.detalle}
+                          </p>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Pasos apilados full-screen */}
-          <div className="absolute inset-0 flex items-center">
-            {PASOS.map((paso, idx) => {
-              const fotoRight = idx % 2 === 1;
-              return (
-                <div
-                  key={paso.n}
-                  data-paso={idx}
-                  className="absolute inset-0 flex items-center"
-                  style={{ willChange: "opacity, transform, filter" }}
-                >
-                  <div className="mx-auto grid w-full max-w-screen-xl items-center gap-8 px-5 md:grid-cols-12 md:gap-12 md:px-10">
-
-                    {/* Foto real — alterna lado */}
-                    <div
-                      className={`hidden md:block md:col-span-5 ${fotoRight ? "md:order-2" : "md:order-1"}`}
-                    >
-                      <div className="relative mx-auto w-full max-w-[22rem] overflow-hidden rounded-2xl shadow-[0_24px_64px_-16px_rgb(31_45_77/0.18)]">
-                        <Image
-                          src={paso.foto}
-                          alt={paso.fotoAlt}
-                          width={352}
-                          height={469}
-                          className="aspect-[3/4] w-full object-cover"
-                          sizes="(max-width: 768px) 90vw, 352px"
-                          priority={idx === 0}
-                        />
-                        {/* Overlay tenue de marca */}
-                        <div
-                          aria-hidden="true"
-                          className="bg-verde-concepto/10 absolute inset-0 mix-blend-multiply"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Contenido */}
-                    <div
-                      className={`relative md:col-span-7 ${fotoRight ? "md:order-1" : "md:order-2"}`}
-                    >
-                      {/* Número watermark */}
-                      <span
-                        aria-hidden="true"
-                        className="font-display text-azul-principal/[0.05] pointer-events-none absolute -top-20 -left-2 select-none text-[9rem] leading-none font-bold tabular-nums md:text-[14rem]"
-                      >
-                        {paso.n}
-                      </span>
-
-                      {/* Caja glass para legibilidad */}
-                      <div className="relative bg-white/60 backdrop-blur-[2px] rounded-2xl p-6 md:p-8 md:bg-transparent md:backdrop-blur-none md:p-0">
-                        {/* Etiqueta naranja = acción */}
-                        <span className="text-naranja-accion font-mono inline-flex items-center gap-2 text-[0.7rem] font-medium tracking-[0.28em] uppercase">
-                          <span
-                            aria-hidden="true"
-                            className="bg-naranja-accion block h-px w-6"
-                          />
-                          Paso {paso.n} · {paso.slug}
-                        </span>
-
-                        <h2
-                          className="font-display text-azul-principal mt-4 leading-[1.02] font-bold tracking-[-0.022em]"
-                          style={{ fontSize: "clamp(2rem, 4.8vw, 3.5rem)" }}
-                        >
-                          {paso.titulo}
-                        </h2>
-
-                        {/* Resumen — verde concepto */}
-                        <p className="text-verde-concepto mt-4 font-sans text-[1.05rem] font-semibold leading-snug md:text-[1.2rem]">
-                          {paso.resumen}
-                        </p>
-
-                        <p className="text-gris-texto mt-3 max-w-md font-sans text-[0.97rem] leading-relaxed md:text-[1.02rem]">
-                          {paso.detalle}
-                        </p>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Enlace fijo al pie */}
-          <div className="absolute bottom-8 left-5 z-30 w-full max-w-screen-xl md:bottom-10 md:left-10">
+          {/* ── CTA · banda propia, centrada → nunca toca el contenido ───── */}
+          <div className="relative z-30 flex shrink-0 justify-center px-5 pt-2 pb-10 md:pb-12">
             <Link
               href="/que-hacemos"
-              className="group inline-flex items-center gap-3"
+              className="group focus-visible:outline-naranja-accion inline-flex items-center gap-3 rounded-full focus-visible:outline-2 focus-visible:outline-offset-4"
             >
-              <span className="border-azul-principal/15 group-hover:border-naranja-accion group-hover:bg-naranja-accion inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-500 group-hover:text-white">
-                <ArrowRight size={16} />
+              <span className="border-azul-principal/15 text-azul-principal group-hover:border-naranja-accion group-hover:bg-naranja-accion inline-flex h-11 w-11 items-center justify-center rounded-full border transition-all duration-500 group-hover:text-white">
+                <ArrowRight
+                  size={17}
+                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+                />
               </span>
-              <span className="text-azul-principal group-hover:text-naranja-accion font-sans text-[0.88rem] font-medium tracking-wide transition-colors duration-500">
+              <span className="text-azul-principal group-hover:text-naranja-accion font-sans text-[0.9rem] font-medium tracking-wide transition-colors duration-500">
                 Ver cómo trabajamos en detalle
               </span>
             </Link>
