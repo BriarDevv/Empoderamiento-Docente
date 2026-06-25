@@ -24,7 +24,7 @@ export function MisionPanel() {
       className="relative flex h-full w-full items-center overflow-hidden py-16 motion-reduce:h-auto motion-reduce:py-24"
       aria-label="Misión"
     >
-      <div className="mx-auto grid w-full max-w-[88rem] grid-cols-1 items-center gap-10 px-5 md:px-10 lg:grid-cols-2 lg:gap-16">
+      <div className="mx-auto grid w-full max-w-[88rem] grid-cols-1 items-start gap-10 px-5 md:px-10 lg:grid-cols-2 lg:gap-16">
         {/* Imagen (izquierda) — en mobile va debajo del texto */}
         <div className="relative order-last aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-[0_24px_60px_-28px_rgba(15,32,64,0.4)] lg:order-first lg:aspect-[5/4]">
           <Image
@@ -36,9 +36,10 @@ export function MisionPanel() {
           />
         </div>
 
-        {/* Texto (derecha) */}
-        <div className="text-left">
-          <span className="inline-flex items-center gap-3">
+        {/* Texto (derecha) — eyebrow arriba (absoluto) y párrafo centrado al
+            medio del alto de la foto: la columna se estira al alto de la fila. */}
+        <div className="relative flex items-center self-stretch text-left">
+          <span className="absolute top-0 left-0 inline-flex items-center gap-3">
             <span aria-hidden="true" className="bg-verde-concepto block h-px w-8" />
             <span className="font-mono text-gris-texto text-[0.78rem] font-medium tracking-[0.22em] uppercase">
               Misión
@@ -49,7 +50,7 @@ export function MisionPanel() {
               en azul (ver MISION_SEGMENTS). */}
           <ScrollFillText
             segments={MISION_SEGMENTS}
-            className="font-display text-verde-concepto mt-6 text-balance font-semibold leading-[1.3] tracking-[-0.01em]"
+            className="font-display text-verde-concepto text-balance font-semibold leading-[1.3] tracking-[-0.01em]"
             style={{ fontSize: "clamp(1.25rem, 1.7vw, 1.7rem)" }}
           />
         </div>

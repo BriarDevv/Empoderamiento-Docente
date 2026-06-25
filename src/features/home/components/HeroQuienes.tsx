@@ -104,6 +104,16 @@ export function HeroQuienes() {
         xLeft = cr.left - pr.left;
         // la barra arranca con el alto y el centro vertical del bloque.
         gsap.set(line, { top: cr.top - pr.top, height: cr.height });
+
+        // los dos párrafos están centrados en su columna; para que ARRANQUEN a
+        // la misma altura igualo la caja de Misión al alto real de Quiénes somos
+        // (el más largo). Robusto a cualquier ancho / cantidad de líneas.
+        const pAbout = about.querySelector<HTMLElement>("[data-qs-fill]");
+        const pMision = mision.querySelector<HTMLElement>("[data-qs-fill]");
+        if (pAbout && pMision) {
+          gsap.set(pMision, { minHeight: 0 });
+          gsap.set(pMision, { minHeight: pAbout.getBoundingClientRect().height });
+        }
       };
 
       const OPEN = 0.16; // 0..OPEN abre | OPEN..CLOSE barre | CLOSE..1 cierra

@@ -31,11 +31,12 @@ export function Manifiesto() {
     >
       <div
         data-wipe-bounds
-        className="mx-auto grid w-full max-w-[88rem] grid-cols-1 items-center gap-10 px-5 md:px-10 lg:grid-cols-2 lg:gap-16"
+        className="mx-auto grid w-full max-w-[88rem] grid-cols-1 items-start gap-10 px-5 md:px-10 lg:grid-cols-2 lg:gap-16"
       >
-        {/* Texto (izquierda) */}
-        <div className="text-left">
-          <span className="inline-flex items-center gap-3">
+        {/* Texto (izquierda) — eyebrow arriba (absoluto) y párrafo centrado al
+            medio del alto de la foto: la columna se estira al alto de la fila. */}
+        <div className="relative flex items-center self-stretch text-left">
+          <span className="absolute top-0 left-0 inline-flex items-center gap-3">
             <span aria-hidden="true" className="bg-verde-concepto block h-px w-8" />
             <span className="font-mono text-gris-texto text-[0.78rem] font-medium tracking-[0.22em] uppercase">
               Quiénes somos
@@ -46,7 +47,7 @@ export function Manifiesto() {
               acentos en azul (ver QS_SEGMENTS). */}
           <ScrollFillText
             segments={QS_SEGMENTS}
-            className="font-display text-verde-concepto mt-6 text-balance font-semibold leading-[1.3] tracking-[-0.01em]"
+            className="font-display text-verde-concepto text-balance font-semibold leading-[1.3] tracking-[-0.01em]"
             style={{ fontSize: "clamp(1.25rem, 1.7vw, 1.7rem)" }}
           />
         </div>
