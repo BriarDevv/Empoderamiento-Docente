@@ -49,3 +49,6 @@ next-env.d.ts
 
 # superpowers (per-developer local state)
 .superpowers/
+
+# playwright mcp (local screenshots / console artifacts)
+.playwright-mcp/

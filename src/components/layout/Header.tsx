@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { NAV_LINKS, CTA_LINK, HOME_LINK } from "@/config/nav";
 import { hasRevealed, onReveal } from "@/lib/intro-signal";
@@ -15,42 +14,61 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
  * `nuevo-frontend`. Es una PÍLDORA flotante centrada (white/70 + backdrop-blur):
  *  - Logo (PNG transparente del cliente) + wordmark "Empoderamiento Docente".
  *  - Intro coreografiada: arranca CERRADO (logo + wordmark) y MORFEA a ABIERTO
- *    (el wordmark se colapsa y entran los links en mono + el CTA naranja).
- *  - Links en `font-mono`; CTA "Contacto" naranja (único acento de acción).
+ *    — el wordmark se ve un RATITO fijo, después colapsa y entran los links +
+ *    el CTA naranja con slide + fade escalonado. Pasa igual aunque cargues la
+ *    página scrolleada (sin depender de estar parado en el hero).
+ *  - Links + CTA en Inter Medium (font-sans, por manual de marca §2: UI/botones);
+ *    CTA "Contacto" naranja (único acento de acción).
  *
  * Adaptación a ED (invisible, igual que el Header anterior): la intro se dispara
  * cuando el IntroGate TERMINA (`onReveal`), no en el mount — si no, su animación
  * corta queda tapada por el zoom-through del gate. Sin gate o con reduced-motion,
  * el JSX por defecto ya muestra el estado ABIERTO (final). Respeta prefers-reduced-motion.
  */
+// Cuánto se ve el wordmark antes de colapsar y abrir los links. Hay dos tiempos
+// según DÓNDE estás cuando arranca la intro (posición de scroll al cargar):
+//  - HERO (arriba): tiempo largo, sincronizado a la entrada del hero (cards +
+//    texto) — el wordmark colapsa recién cuando el hero termina de asentarse.
+//  - De "Quiénes somos" para abajo (recargaste scrolleado): un ratito corto,
+//    no tiene sentido hacerte esperar.
+// Se elige por POSICIÓN, no por listener de scroll: así el wordmark nunca se
+// saltea (el bug viejo venía justamente del listener).
+const HERO_HOLD_MS = 3200;
+const SCROLLED_HOLD_MS = 900;
+
 export function Header() {
   const ref = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
-  // En el Inicio, el morph del navbar se choreografía DESPUÉS del hero (cards +
-  // texto), igual que en Empoderamiento Docente (3001): ~3.2s. En otras rutas
-  // no hay hero que coordinar, así que abre enseguida.
-  const isHome = usePathname() === "/";
 
   useIsomorphicLayoutEffect(() => {
     const nav = ref.current;
     if (!nav || reducedMotion) return;
     let cleanupReveal: (() => void) | undefined;
     let fallback: number | undefined;
+    let openTimer: number | undefined;
     let ran = false;
 
     const ctx = gsap.context(() => {
-      // Estado inicial CERRADO: wordmark expandido + visible, links colapsados.
-      // (El JSX por defecto es el ABIERTO, para verse armado sin JS / reduced-motion.)
-      gsap.set("[data-nav-word]", { width: "auto", autoAlpha: 1, marginLeft: 12 });
+      // Estado inicial CERRADO: logo + wordmark expandido + visible, links
+      // colapsados. (El JSX por defecto es el ABIERTO, para verse armado sin
+      // JS / reduced-motion.) Los ítems apenas corridos para entrar escalonados.
+      gsap.set("[data-nav-word]", {
+        width: "auto",
+        autoAlpha: 1,
+        marginLeft: 12,
+      });
       gsap.set("[data-nav-links]", { width: 0, autoAlpha: 0 });
+      gsap.set("[data-nav-item]", { autoAlpha: 0, x: -8 });
 
       const play = () => {
         if (ran) return;
         ran = true;
-        // Morph cerrado → abierto: el wordmark fade (rápido y adelantado) + colapsa
-        // su ancho, y A LA VEZ abren los links. Mismo timing que el hero Blueprint.
+        if (openTimer) window.clearTimeout(openTimer);
+        // Morph cerrado → abierto: el wordmark se desvanece (rápido, adelantado)
+        // + colapsa su ancho, y A LA VEZ la píldora crece (expo.out) y los ítems
+        // entran con slide + fade ESCALONADO. (La espera la maneja el schedule.)
         gsap
-          .timeline({ defaults: { ease: "power3.out" }, delay: isHome ? 3.2 : 0.2 })
+          .timeline({ defaults: { ease: "power3.out" } })
           // 1) CIERRA: el wordmark se desvanece y colapsa su ancho del todo.
           .to("[data-nav-word]", {
             autoAlpha: 0,
@@ -62,32 +80,50 @@ export function Header() {
             { width: 0, marginLeft: 0, duration: 0.45, ease: "power3.out" },
             "<",
           )
-          // 2) ABRE: ESPEJO del cierre — misma duración (0.45) y mismo easing
-          // (power3.out) para el ancho, y el mismo fade (0.3). Así abrir se
-          // siente a la MISMA velocidad que cerrar. Respiro entre ambas fases.
+          // 2) ABRE: la píldora crece (expo.out) y los ítems entran escalonados.
+          .set("[data-nav-links]", { autoAlpha: 1 }, "+=0.08")
           .to(
             "[data-nav-links]",
-            { width: "auto", duration: 0.45, ease: "power3.out" },
-            "+=0.08",
+            { width: "auto", duration: 0.75, ease: "expo.out" },
+            "<",
           )
           .to(
-            "[data-nav-links]",
-            { autoAlpha: 1, duration: 0.3, ease: "power2.out" },
-            "<",
+            "[data-nav-item]",
+            {
+              autoAlpha: 1,
+              x: 0,
+              duration: 0.55,
+              ease: "power3.out",
+              stagger: 0.07,
+            },
+            "<0.12",
           );
+      };
+
+      // Elegí el "ratito" según dónde estás al cargar: en el hero (arriba), el
+      // tiempo largo sincronizado al hero; ya scrolleado en "Quiénes somos" o
+      // más abajo, el corto. Es por POSICIÓN, sin listener de scroll, así el
+      // wordmark siempre tiene su momento (el bug viejo venía del listener).
+      const schedule = () => {
+        const pastHero = window.scrollY > window.innerHeight * 0.5;
+        openTimer = window.setTimeout(
+          play,
+          pastHero ? SCROLLED_HOLD_MS : HERO_HOLD_MS,
+        );
       };
 
       // Se dispara cuando el gate termina (página revelada). Fallback por si no
       // hubo gate o nunca avisó.
-      if (hasRevealed()) play();
+      if (hasRevealed()) schedule();
       else {
-        cleanupReveal = onReveal(play);
-        fallback = window.setTimeout(play, 6000);
+        cleanupReveal = onReveal(schedule);
+        fallback = window.setTimeout(schedule, 6000);
       }
     }, nav);
 
     return () => {
       if (fallback) window.clearTimeout(fallback);
+      if (openTimer) window.clearTimeout(openTimer);
       cleanupReveal?.();
       ctx.revert();
     };
@@ -173,9 +209,9 @@ export function Header() {
         data-nav-links
         className="flex items-center gap-1 whitespace-nowrap"
       >
-        <ul className="text-azul-principal/70 hidden items-center gap-1 pr-2 font-mono text-[14px] lg:flex">
+        <ul className="text-azul-principal/70 hidden items-center gap-1 pr-2 font-sans text-[14px] font-medium lg:flex">
           {NAV_LINKS.map((link) => (
-            <li key={link.href}>
+            <li key={link.href} data-nav-item>
               <Link
                 href={link.href}
                 className="hover:bg-azul-principal/5 hover:text-azul-principal rounded-lg px-3 py-2 transition-colors"
@@ -187,7 +223,8 @@ export function Header() {
         </ul>
         <Link
           href={CTA_LINK.href}
-          className="bg-naranja-accion rounded-xl px-5 py-2.5 font-mono text-[14px] font-medium text-white transition-opacity hover:opacity-90"
+          data-nav-item
+          className="bg-naranja-accion rounded-xl px-5 py-2.5 font-sans text-[14px] font-medium text-white transition-opacity hover:opacity-90"
         >
           {CTA_LINK.label}
         </Link>

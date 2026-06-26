@@ -28,6 +28,9 @@ export function HeroQuienes() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const zoneRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Progreso de scroll del hero (0 arriba → 1 cuando queda atrás). El campo de
+  // nodos lo lee en cada frame para ir apagando nodos (cada vez menos).
+  const heroScroll = useRef(0);
   const reduced = useReducedMotion();
 
   useEffect(() => {
@@ -37,6 +40,25 @@ export function HeroQuienes() {
     if (!zone || !panel) return;
 
     const ctx = gsap.context(() => {
+      // Apagado de nodos por scroll del hero: progreso 0 (hero arriba) → 1
+      // (hero ya pasó). El MathField lo lee y va apagando nodos.
+      const heroEl =
+        wrapRef.current?.querySelector<HTMLElement>('[data-section="hero"]');
+      if (heroEl) {
+        ScrollTrigger.create({
+          trigger: heroEl,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            heroScroll.current = self.progress;
+          },
+          onRefresh: (self) => {
+            heroScroll.current = self.progress;
+          },
+        });
+      }
+
       const about = panel.querySelector<HTMLElement>("[data-about-layer]");
       const mision = panel.querySelector<HTMLElement>("[data-mision-layer]");
       const line = panel.querySelector<HTMLElement>("[data-wipe-line]");
@@ -152,11 +174,13 @@ export function HeroQuienes() {
 
   return (
     <div ref={wrapRef} className="relative isolate bg-gradient-to-b from-white via-white to-gris-fondo/40">
-      {/* Nodos PERSISTENTES: pegados al viewport, detrás del hero y del panel. */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-40" aria-hidden="true">
-        <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
-          <MathField className="h-full w-full" />
-        </div>
+      {/* Nodos detrás del hero — NO sticky: scrollean con el hero y se quedan
+          atrás al scrollear (no siguen al viewport). Cubren el alto del hero. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[100svh] overflow-hidden opacity-40 lg:h-[93.75vw]"
+        aria-hidden="true"
+      >
+        <MathField className="h-full w-full" scrollRef={heroScroll} />
       </div>
 
       {/* Hero — scrollea normal (sin slide). */}

@@ -118,6 +118,9 @@ export function LineasAccion() {
 
     root.classList.add("is-live");
 
+    // Limpieza de listeners del tilt interactivo (se llenan dentro del ctx).
+    const tiltCleanups: Array<() => void> = [];
+
     const ctx = gsap.context(() => {
       const total = cards.length;
       const center = (total - 1) / 2; // índice central del abanico
@@ -184,9 +187,70 @@ export function LineasAccion() {
           (total - 1) * seg,
         );
       }
+
+      // --- Tilt interactivo --------------------------------------------
+      // Al pasar el mouse, la carta sube al frente y se inclina apenas
+      // siguiendo el cursor (como una carta física que levantás de la mano),
+      // así se lee sin volver a scrollear. GSAP del abanico vive en el <li>;
+      // el tilt vive en la capa interna → los transforms se componen sin
+      // pisarse. Solo activo acá (desktop + motion).
+      const TILT_MAX = 9; // grados máximos de inclinación
+      const LIFT = -16; // px que "levanta" la carta
+      const HOVER_SCALE = 1.05;
+
+      cards.forEach((card) => {
+        const inner = card.querySelector<HTMLElement>("[data-deck-inner]");
+        if (!inner) return;
+
+        gsap.set(inner, { transformPerspective: 900, transformOrigin: "center" });
+
+        const tween = { duration: 0.5, ease: "power3.out" } as const;
+        const rotX = gsap.quickTo(inner, "rotationX", tween);
+        const rotY = gsap.quickTo(inner, "rotationY", tween);
+        const moveY = gsap.quickTo(inner, "y", tween);
+        // "scale" como atajo no es válido en quickTo → se separa por eje.
+        const scaleX = gsap.quickTo(inner, "scaleX", tween);
+        const scaleY = gsap.quickTo(inner, "scaleY", tween);
+        const setScale = (v: number) => {
+          scaleX(v);
+          scaleY(v);
+        };
+
+        const baseZ = card.style.zIndex; // z del abanico fijado por GSAP
+
+        const onEnter = () => {
+          card.style.zIndex = "100";
+          moveY(LIFT);
+          setScale(HOVER_SCALE);
+        };
+        const onMove = (e: PointerEvent) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5; // -0.5 … 0.5
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          rotY(px * TILT_MAX * 2);
+          rotX(-py * TILT_MAX * 2);
+        };
+        const onLeave = () => {
+          card.style.zIndex = baseZ;
+          rotX(0);
+          rotY(0);
+          moveY(0);
+          setScale(1);
+        };
+
+        card.addEventListener("pointerenter", onEnter);
+        card.addEventListener("pointermove", onMove);
+        card.addEventListener("pointerleave", onLeave);
+        tiltCleanups.push(() => {
+          card.removeEventListener("pointerenter", onEnter);
+          card.removeEventListener("pointermove", onMove);
+          card.removeEventListener("pointerleave", onLeave);
+        });
+      });
     }, root);
 
     return () => {
+      tiltCleanups.forEach((fn) => fn());
       ctx.revert();
       root.classList.remove("is-live");
     };
@@ -227,11 +291,11 @@ export function LineasAccion() {
             {LINEAS.map(({ n, titulo, detalle, Icon }, i) => {
               const azulBase = i % 2 === 1;
               return (
-                <li
-                  key={n}
-                  data-deck-card
-                  className="deck-card flex flex-col overflow-hidden"
-                >
+                <li key={n} data-deck-card className="deck-card">
+                  <div
+                    data-deck-inner
+                    className="deck-card-inner flex h-full flex-col overflow-hidden"
+                  >
                   {/* Encabezado de la carta: etiqueta de acción + paginado. */}
                   <div className="flex items-start justify-between px-7 pt-6">
                     <span className="text-naranja-accion font-mono inline-flex items-center gap-2 text-[0.72rem] font-medium tracking-[0.26em] uppercase">
@@ -269,6 +333,7 @@ export function LineasAccion() {
                       className="pointer-events-none absolute -right-3 -bottom-3 h-24 w-24 opacity-50 [background-image:radial-gradient(circle,rgb(74_111_165/0.22)_2px,transparent_2.5px)] [background-size:14px_14px]"
                     />
                     <Icon size={52} strokeWidth={1.4} />
+                  </div>
                   </div>
                 </li>
               );

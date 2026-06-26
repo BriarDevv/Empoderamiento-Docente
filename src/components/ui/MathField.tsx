@@ -10,6 +10,8 @@ type Node = {
   vy: number;
   r: number;
   color: string;
+  /** Umbral de scroll (0→1) a partir del cual el nodo se apaga. */
+  vanish: number;
 };
 
 const COLORS = {
@@ -51,9 +53,10 @@ export function MathField({ className, scrollRef }: MathFieldProps) {
     const mouse = { x: -9999, y: -9999 };
     const LINK = 132; // distancia de conexión entre nodos
     const REACH = 65; // alcance del mouse (más chico = hay que acercarse más)
+    const FADE = 0.14; // banda de transición del apagado por nodo
 
     const build = () => {
-      const count = Math.max(28, Math.min(82, Math.floor((w * h) / 15000)));
+      const count = Math.max(28, Math.min(140, Math.floor((w * h) / 15000)));
       nodes = Array.from({ length: count }, () => {
         const roll = Math.random();
         const color =
@@ -65,6 +68,9 @@ export function MathField({ className, scrollRef }: MathFieldProps) {
           vy: (Math.random() - 0.5) * 0.22,
           r: color === COLORS.base ? 1.5 : 2.4,
           color,
+          // Umbral de apagado aleatorio: a más scroll se apagan más nodos
+          // (cada vez menos), de a poco y en orden disperso.
+          vanish: FADE + Math.random() * (1 - FADE),
         };
       });
     };
@@ -101,14 +107,27 @@ export function MathField({ className, scrollRef }: MathFieldProps) {
         }
       }
 
+      // Apagado por scroll: cada nodo se desvanece al cruzar su umbral
+      // (vanish). A más progreso de scroll → cada vez menos nodos y líneas.
+      const prog = scrollRef?.current ?? 0;
+      const alphaOf = (n: Node) => {
+        const a = (n.vanish - prog) / FADE;
+        return a < 0 ? 0 : a > 1 ? 1 : a;
+      };
+
       // Líneas entre nodos cercanos
       for (let i = 0; i < nodes.length; i++) {
         const a = nodes[i];
+        const aAlpha = alphaOf(a);
+        if (aAlpha <= 0) continue;
         for (let j = i + 1; j < nodes.length; j++) {
           const b = nodes[j];
+          const bAlpha = alphaOf(b);
+          if (bAlpha <= 0) continue;
           const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d < LINK) {
-            ctx.strokeStyle = `rgba(74,111,165,${(1 - d / LINK) * 0.32})`;
+            const la = (1 - d / LINK) * 0.32 * Math.min(aAlpha, bAlpha);
+            ctx.strokeStyle = `rgba(74,111,165,${la})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -119,7 +138,7 @@ export function MathField({ className, scrollRef }: MathFieldProps) {
         // Línea al cursor
         const dm = Math.hypot(a.x - mouse.x, a.y - mouse.y);
         if (dm < REACH) {
-          ctx.strokeStyle = `rgba(31,154,120,${(1 - dm / REACH) * 0.55})`;
+          ctx.strokeStyle = `rgba(31,154,120,${(1 - dm / REACH) * 0.55 * aAlpha})`;
           ctx.lineWidth = 1.1;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -130,8 +149,10 @@ export function MathField({ className, scrollRef }: MathFieldProps) {
 
       // Nodos
       for (const n of nodes) {
+        const nAlpha = alphaOf(n);
+        if (nAlpha <= 0) continue;
         ctx.fillStyle = n.color;
-        ctx.globalAlpha = 0.9;
+        ctx.globalAlpha = 0.9 * nAlpha;
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         ctx.fill();

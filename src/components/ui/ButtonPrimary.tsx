@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight } from "./icons";
+import { ArrowUpRight } from "./icons";
 
 type Props = {
   href: string;
@@ -21,9 +21,9 @@ export function ButtonPrimary({ href, children, withArrow = true }: Props) {
     >
       <span>{children}</span>
       {withArrow && (
-        <ArrowRight
+        <ArrowUpRight
           size={16}
-          className="transition-transform group-hover:translate-x-1"
+          className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
         />
       )}
     </Link>

@@ -11,7 +11,8 @@ import { NAV_LINKS, CTA_LINK, HOME_LINK } from "@/config/nav";
  * marca de ED:
  *
  *  1. Bloque oscuro (azul-principal), esquinas superiores redondeadas: a la
- *     izquierda logo negativo + descripción (centrada) + redes al pie; a la
+ *     izquierda el logo del navbar sobre chip blanco + descripción (centrada) +
+ *     redes al pie; a la
  *     derecha la navegación grande apilada con hairlines entre ítems. Debajo,
  *     la tira de logos de aliados (centrada, sin título) y la barra legal.
  *  2. Banda de imagen debajo, enmarcada por el azul (padding sup./laterales),
@@ -67,16 +68,20 @@ export function Footer() {
           <Link
             href={HOME_LINK.href}
             aria-label={name}
-            className="focus-visible:outline-azul-claro inline-flex w-fit rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
+            className="focus-visible:outline-azul-claro inline-flex w-fit rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4"
           >
-            <Image
-              src="/brand/logo-ed-negativo.png"
-              alt={name}
-              width={625}
-              height={303}
-              priority={false}
-              className="h-10 w-auto md:h-12"
-            />
+            {/* MISMO logo que el navbar (logotipo-principal-ed). Como está hecho
+                para fondo claro, va sobre un chip blanco para leerse en el navy. */}
+            <span className="inline-flex items-center justify-center rounded-2xl bg-white px-3 py-2.5">
+              <Image
+                src="/brand/logotipo-principal-ed.png"
+                alt={name}
+                width={425}
+                height={467}
+                priority={false}
+                className="h-12 w-auto md:h-14"
+              />
+            </span>
           </Link>
 
           {/* Descripción centrada verticalmente (al medio de la columna),
@@ -207,11 +212,13 @@ export function Footer() {
 
           <div className="absolute inset-0 flex items-center justify-center px-5">
             <p className="font-display flex flex-wrap items-center justify-center gap-x-[0.35em] gap-y-1 text-center text-[clamp(1.3rem,5vw,3.8rem)] leading-none tracking-[0.02em] text-white [text-shadow:0_2px_24px_rgba(15,21,40,0.55)]">
+              {/* Versión NEGATIVA (blanca) del mark del navbar — se lee limpio
+                  sobre la foto oscura, sin chip. */}
               <Image
-                src="/brand/logotipo-ed-negativo.png"
+                src="/brand/logotipo-principal-ed-negativo.png"
                 alt=""
-                width={237}
-                height={303}
+                width={395}
+                height={433}
                 className="mr-[0.1em] inline-block h-[1.15em] w-auto"
               />
               <span aria-hidden="true" className="text-azul-claro/45 font-light">

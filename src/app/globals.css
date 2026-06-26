@@ -146,8 +146,11 @@ html.has-custom-cursor * {
 
 /* === Líneas de acción — mano de cartas repartidas ================= */
 
-/* Carta — compartida por la grilla estática y por el abanico animado. */
-.deck-card {
+/* Carta — la superficie visible vive en .deck-card-inner para que el tilt
+   por hover (capa interna) no pelee con el transform del abanico (GSAP,
+   capa externa). El <li> .deck-card es solo el "slot" posicionable. */
+.deck-card-inner {
+  height: 100%;
   background: #fff;
   border: 1px solid rgb(31 45 77 / 0.08);
   border-radius: 1.4rem;
@@ -174,12 +177,12 @@ html.has-custom-cursor * {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-.deck:not(.is-live) .deck-card {
+.deck:not(.is-live) .deck-card-inner {
   transition:
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.5s;
 }
-.deck:not(.is-live) .deck-card:hover {
+.deck:not(.is-live) .deck-card:hover .deck-card-inner {
   transform: translateY(-6px);
 }
 
@@ -228,6 +231,10 @@ html.has-custom-cursor * {
   width: 22.5rem;
   height: 30rem;
   will-change: transform, opacity;
+}
+/* En el abanico, el tilt 3D por hover lo maneja GSAP sobre la capa interna. */
+.deck.is-live .deck-card-inner {
+  will-change: transform;
 }
 
 /* === Biblioteca y Novedades ====================================== */

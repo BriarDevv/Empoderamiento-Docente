@@ -73,21 +73,27 @@ export function DatosDuros() {
   return (
     <section
       ref={rootRef}
-      className="bg-gris-fondo relative overflow-hidden pt-12 pb-24 md:pt-16 md:pb-32"
+      className="bg-azul-principal relative overflow-hidden pt-12 pb-14 md:pt-16 md:pb-20"
       aria-label="En números y alianzas"
     >
-      <div className="mx-auto w-full max-w-[88rem] px-5 md:px-10">
+      {/* Textura de puntos (motivo de marca) muy sutil para que el azul no
+          quede plano. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle,#fff_1.1px,transparent_1.6px)] [background-size:22px_22px]"
+      />
+      <div className="relative z-10 mx-auto w-full max-w-[88rem] px-5 md:px-10">
         {/* Métricas */}
         <ul className="grid grid-cols-2 gap-y-10 md:grid-cols-4">
           {DATOS.map((d, i) => (
             <li
               key={d.label}
               className={`flex flex-col items-center px-2 text-center ${
-                i > 0 ? "md:border-azul-principal/10 md:border-l" : ""
+                i > 0 ? "md:border-white/12 md:border-l" : ""
               }`}
             >
               <p
-                className="font-display text-azul-principal flex items-baseline font-bold tracking-[-0.02em] tabular-nums"
+                className="font-display flex items-baseline font-bold tracking-[-0.02em] text-white tabular-nums"
                 style={{ fontSize: "clamp(2.4rem, 4.4vw, 4rem)" }}
               >
                 {d.prefix && (
@@ -100,22 +106,19 @@ export function DatosDuros() {
                   <span className="text-verde-concepto">{d.suffix}</span>
                 )}
               </p>
-              <p className="text-azul-principal mt-2 font-sans text-[0.82rem] font-semibold tracking-[0.16em] uppercase">
+              <p className="mt-2 font-sans text-[0.82rem] font-semibold tracking-[0.16em] text-white uppercase">
                 {d.label}
               </p>
-              <p className="text-gris-texto mt-1.5 max-w-[14rem] font-sans text-[0.85rem] leading-snug">
+              <p className="text-azul-claro/80 mt-1.5 max-w-[14rem] font-sans text-[0.85rem] leading-snug">
                 {d.nota}
               </p>
             </li>
           ))}
         </ul>
 
-        {/* Alianzas */}
-        <div className="border-azul-principal/10 mt-16 border-t pt-12">
-          <p className="text-gris-texto text-center font-sans text-[0.72rem] font-medium tracking-[0.24em] uppercase">
-            Confían en nuestro trabajo
-          </p>
-          <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-12 gap-y-6 md:gap-x-20">
+        {/* Alianzas — sin título; logos en blanco sobre el azul, subidos. */}
+        <div className="border-white/12 mt-10 border-t pt-9">
+          <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 md:gap-x-20">
             {ALIADOS.map((a) => (
               <li key={a.src} className="flex h-10 items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -123,7 +126,7 @@ export function DatosDuros() {
                   src={a.src}
                   alt={a.alt}
                   draggable={false}
-                  className="h-7 w-auto opacity-50 transition-opacity duration-300 [filter:brightness(0)] hover:opacity-80"
+                  className="h-7 w-auto opacity-60 transition-opacity duration-300 [filter:brightness(0)_invert(1)] hover:opacity-100"
                 />
               </li>
             ))}
