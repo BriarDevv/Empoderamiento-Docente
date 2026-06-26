@@ -392,7 +392,7 @@ export function Hero() {
 
           <p
             data-hero-desc
-            className="text-gris-texto mx-auto mt-6 max-w-md text-balance font-sans text-[1.05rem] leading-relaxed md:text-[1.2rem]"
+            className="text-gris-texto mx-auto mt-6 max-w-[34rem] text-balance font-sans text-[1.05rem] leading-relaxed md:text-[1.2rem]"
           >
             Acompañamos a cada docente y a cada escuela, con base en la
             investigación, para que el aprendizaje tenga sentido.
