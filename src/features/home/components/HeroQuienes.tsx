@@ -19,7 +19,9 @@ if (typeof window !== "undefined") {
  * scrollea normal; debajo, el panel se clava (sticky) y una LÍNEA VERDE barre de
  * derecha a izquierda: BORRA "¿Quiénes somos?" (clip desde la derecha) y revela
  * la "Misión" (clip desde la izquierda) en el mismo lugar, con la MISMA forma.
- * Clips complementarios → no se solapan; la línea es la costura.
+ * La barra mide el alto del bloque y se despliega desde el centro hacia los
+ * extremos. Clips complementarios → no se solapan; la línea es la costura. Todo
+ * en píxeles para que línea y borrado vayan pegados.
  * Respeta prefers-reduced-motion (capas apiladas en flow, sin animación).
  */
 export function HeroQuienes() {
@@ -93,21 +95,27 @@ export function HeroQuienes() {
       //    píxeles para que la LÍNEA y el borrado (clip) queden siempre pegados.
       //    Coreografía: abre desde el centro → barre der→izq → cierra al centro.
       const bounds = about.querySelector<HTMLElement>("[data-wipe-bounds]");
+      const OPEN = 0.16; // 0..OPEN abre | OPEN..CLOSE barre | CLOSE..1 cierra
+      const CLOSE = 0.84;
+      const openScale = (p: number) =>
+        p < OPEN ? p / OPEN : p > CLOSE ? (1 - p) / (1 - CLOSE) : 1;
+      const travel = (p: number) =>
+        p <= OPEN ? 0 : p >= CLOSE ? 1 : (p - OPEN) / (CLOSE - OPEN);
+
+      let panelW = 0;
       let xRight = 0;
       let xLeft = 0;
-      let panelW = 0;
       const measure = () => {
         const pr = panel.getBoundingClientRect();
-        const cr = (bounds ?? about).getBoundingClientRect();
         panelW = pr.width;
+
+        const cr = (bounds ?? about).getBoundingClientRect();
         xRight = cr.right - pr.left;
         xLeft = cr.left - pr.left;
         // la barra arranca con el alto y el centro vertical del bloque.
         gsap.set(line, { top: cr.top - pr.top, height: cr.height });
 
-        // los dos párrafos están centrados en su columna; para que ARRANQUEN a
-        // la misma altura igualo la caja de Misión al alto real de Quiénes somos
-        // (el más largo). Robusto a cualquier ancho / cantidad de líneas.
+        // igualo la caja de Misión al alto real de QS (arrancan a la misma altura)
         const pAbout = about.querySelector<HTMLElement>("[data-qs-fill]");
         const pMision = mision.querySelector<HTMLElement>("[data-qs-fill]");
         if (pAbout && pMision) {
@@ -116,27 +124,20 @@ export function HeroQuienes() {
         }
       };
 
-      const OPEN = 0.16; // 0..OPEN abre | OPEN..CLOSE barre | CLOSE..1 cierra
-      const CLOSE = 0.84;
       const apply = (p: number) => {
-        const scaleY =
-          p < OPEN ? p / OPEN : p > CLOSE ? (1 - p) / (1 - CLOSE) : 1;
-        const t =
-          p <= OPEN ? 0 : p >= CLOSE ? 1 : (p - OPEN) / (CLOSE - OPEN);
-        const x = xRight + (xLeft - xRight) * t; // der → izq
-        gsap.set(line, { x, scaleY });
+        const x = xRight + (xLeft - xRight) * travel(p); // der → izq
+        gsap.set(line, { x, scaleY: openScale(p) });
         gsap.set(about, { clipPath: `inset(0px ${panelW - x}px 0px 0px)` });
         gsap.set(mision, { clipPath: `inset(0px 0px 0px ${x}px)` });
       };
-
       ScrollTrigger.create({
         trigger: zone,
         start: () => "top top-=" + window.innerHeight * 1.0,
         end: () => "top top-=" + window.innerHeight * 1.5,
         scrub: true,
-        onRefresh: () => {
+        onRefresh: (self) => {
           measure();
-          apply(0);
+          apply(self.progress);
         },
         onUpdate: (self) => apply(self.progress),
       });
