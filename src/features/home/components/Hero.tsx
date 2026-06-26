@@ -40,20 +40,18 @@ type Card = {
 // Orden, cantidad (9) y métricas EXACTAS del hero de referencia. Slots 1, 3 y 8
 // usan cuadrado de marca hasta tener las fotos (los más chicos / sin label).
 const CARDS: Card[] = [
-  { w: 17.36, ar: "300 / 250", cx: 31.25, cy: 7.1, par: 1.027, img: "/hero/hero-1.jpg", alt: "Equipo en reunión de trabajo", label: { title: "En el aula" } },
+  { w: 17.36, ar: "300 / 250", cx: 31.25, cy: 7.1, par: 1.027, img: "/hero/hero-1.jpg", alt: "Equipo en reunión de trabajo", label: { title: "En el aula", desc: "Acompañamos la enseñanza donde sucede." } },
   { w: 12.73, ar: "220 / 280", cx: 81.6, cy: 16.07, par: 1.108, img: "/hero/hero-7.jpg", alt: "Encuentro de trabajo en equipo" },
-  { w: 13.89, ar: "240 / 320", cx: 93.75, cy: 26.85, par: 1.014, img: "/hero/hero-3.jpg", alt: "Investigación en equipo", label: { title: "Investigación aplicada" } },
+  { w: 13.89, ar: "240 / 320", cx: 93.75, cy: 26.85, par: 1.014, img: "/hero/hero-3.jpg", alt: "Investigación en equipo", label: { title: "Investigación aplicada", desc: "Conocimiento que vuelve al aula." } },
   { w: 12.73, ar: "220 / 260", cx: 5.21, cy: 25.01, par: 1.068, img: "/hero/hero-8.jpg", alt: "Materiales educativos" },
-  { w: 16.2, ar: "280 / 240", cx: 16.2, cy: 44.61, par: 1.034, img: "/hero/hero-5.jpg", alt: "Taller en aula", label: { title: "Acompañamiento situado" } },
-  { w: 19.68, ar: "340 / 260", cx: 72.92, cy: 55.71, par: 1.007, img: "/hero/hero-6.jpg", alt: "Encuentro de trabajo" },
+  { w: 16.2, ar: "280 / 240", cx: 16.2, cy: 44.61, par: 1.034, img: "/hero/hero-5.jpg", alt: "Taller en aula", label: { title: "Acompañamiento situado", desc: "Junto a cada docente y escuela." } },
+  { w: 19.68, ar: "340 / 260", cx: 72.92, cy: 55.71, par: 1.007, img: "/hero/hero-6.jpg", alt: "Encuentro de trabajo", label: { title: "Formación docente", desc: "Trayectos para quienes enseñan matemática." } },
   { w: 14.47, ar: "250 / 320", cx: 24.59, cy: 71.16, par: 1.088, img: "/hero/hero-4.jpg", alt: "Equipo de Empoderamiento Docente" },
-  { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.jpg", alt: "Equipo con su publicación", label: { title: "Chile · México · Argentina", desc: "Presencia regional" } },
+  { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.jpg", alt: "Equipo con su publicación", label: { title: "Presencia regional", desc: "Chile · México · Argentina." } },
   { w: 9.84, ar: "170 / 230", cx: 85.94, cy: 93.84, par: 1.068, img: "/hero/hero-9.jpg", alt: "Lectura de material didáctico" },
   // Sumadas para llenar el vacío de la parte de abajo y "bajar" hacia Acerca de.
-  // PLACEHOLDER (img: null = cuadrado de marca): reemplazar por fotos reales en
-  // /hero/hero-10.jpg y /hero/hero-11.jpg (mismos slots).
-  { w: 14, ar: "300 / 210", cx: 50, cy: 64, par: 1.04, img: null, alt: "" },
-  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: null, alt: "" },
+  { w: 14, ar: "300 / 210", cx: 50, cy: 64, par: 1.04, img: "/hero/hero-10.webp", alt: "Materiales de geometría en una actividad de aula" },
+  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: "/hero/hero-11.jpg", alt: "Cuadernillo de matemática con representación de números", label: { title: "Materiales propios", desc: "Recursos listos para llevar al aula." } },
 ];
 
 /**
@@ -95,9 +93,21 @@ export function Hero() {
       gsap.set(inners, { autoAlpha: 0 });
       // Copy oculta por partes: el titular en MÁSCARA (cada línea baja fuera de
       // su recorte) + descripción + acciones.
-      gsap.set("[data-hero-headline] .hero-line > span", { yPercent: 110, opacity: 0 });
+      // Titular: cada palabra arranca volteada hacia abajo (flip 3D) e invisible.
+      gsap.set("[data-hero-word]", {
+        opacity: 0,
+        yPercent: 120,
+        rotateX: -85,
+        transformOrigin: "50% 100%",
+        transformPerspective: 700,
+      });
+      // El acento ENTRA en azul (como el resto) y vira a verde en el pop.
+      gsap.set("[data-hero-accent]", { color: "#1f2d4d" });
       gsap.set("[data-hero-desc]", { autoAlpha: 0, y: 18 });
       gsap.set("[data-hero-actions]", { autoAlpha: 0, y: 16 });
+      // Los carteles de las fotos arrancan ocultos: aparecen DESPUÉS, cuando las
+      // cards ya llegaron a su lugar (no desde el frame 0, apiladas).
+      gsap.set("[data-card-label]", { autoAlpha: 0, y: 8 });
 
       // Centrado base de cada tarjeta. El scroll-parallax va sobre ESTA capa.
       gsap.set(outers, { xPercent: -50, yPercent: -50 });
@@ -152,19 +162,44 @@ export function Hero() {
         // línea desde su máscara (mask-rise, sin blur) en el último tramo del
         // despliegue, y después la descripción y las acciones. Tempos del FUENTE.
         tl.to(
-          "[data-hero-headline] .hero-line > span",
-          { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.12 },
+          "[data-hero-word]",
+          {
+            opacity: 1,
+            yPercent: 0,
+            rotateX: 0,
+            duration: 0.95,
+            ease: "back.out(1.5)",
+            stagger: 0.07,
+          },
           "<",
         )
+          // Pop del acento (aprendizaje) justo cuando termina de armarse el título.
+          .to(
+            "[data-hero-accent]",
+            {
+              keyframes: [
+                { scale: 1.16, color: "#1f9a78", duration: 0.22, ease: "power2.out" },
+                { scale: 1, duration: 0.5, ease: "elastic.out(1, 0.45)" },
+              ],
+            },
+            "-=0.35",
+          )
           .to(
             "[data-hero-desc]",
             { autoAlpha: 1, y: 0, duration: 0.7 },
-            "-=0.55",
+            "-=0.6",
           )
           .to(
             "[data-hero-actions]",
             { autoAlpha: 1, y: 0, duration: 0.6 },
             "-=0.4",
+          )
+          // Carteles de las fotos: entran al final, ya con las cards en su lugar
+          // (fade-up, stagger), como remate del armado.
+          .to(
+            "[data-card-label]",
+            { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.08 },
+            "-=0.25",
           );
       };
 
@@ -301,6 +336,24 @@ export function Hero() {
                       </div>
                     )}
                   </div>
+
+                  {/* Cartel referencial (tipo web de referencia): sobresale del
+                      borde inferior para "rellenar" el hueco al scrollear. */}
+                  {c.label && (
+                    <div
+                      data-card-label
+                      className="absolute -bottom-5 left-3 z-10 max-w-[15rem] rounded-xl bg-white/85 px-3.5 py-2.5 shadow-[0_16px_36px_-18px_rgb(31_45_77_/_0.45)] ring-1 ring-azul-principal/10 backdrop-blur-md"
+                    >
+                      <p className="font-display text-verde-concepto text-[0.82rem] leading-tight font-semibold tracking-[-0.01em]">
+                        {c.label.title}
+                      </p>
+                      {c.label.desc && (
+                        <p className="text-gris-texto mt-0.5 font-sans text-[0.72rem] leading-snug">
+                          {c.label.desc}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -316,17 +369,24 @@ export function Hero() {
         <div data-hero-copy className="mx-auto max-w-xl translate-y-[5vh]">
           <h1
             data-hero-headline
-            className="font-display text-balance font-bold tracking-[-0.02em]"
+            className="font-display font-bold tracking-[-0.02em]"
             style={{ fontSize: "clamp(2rem, 1rem + 2.5vw, 2.8rem)", lineHeight: 1.12 }}
           >
-            <span className="hero-line block overflow-hidden">
-              <span className="block">
-                Potenciamos la{" "}
-                <span className="text-verde-concepto">enseñanza</span>
+            <span className="block">
+              <span data-hero-word className="inline-block">Impulsamos</span>{" "}
+              <span data-hero-word className="inline-block">el</span>{" "}
+              <span
+                data-hero-word
+                data-hero-accent
+                className="text-verde-concepto inline-block"
+              >
+                aprendizaje
               </span>
             </span>
-            <span className="hero-line block overflow-hidden">
-              <span className="block">de la matemática.</span>
+            <span className="block">
+              <span data-hero-word className="inline-block">de</span>{" "}
+              <span data-hero-word className="inline-block">la</span>{" "}
+              <span data-hero-word className="inline-block">matemática.</span>
             </span>
           </h1>
 
