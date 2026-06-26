@@ -66,18 +66,19 @@ export function Footer() {
           <Link
             href={HOME_LINK.href}
             aria-label={name}
-            className="focus-visible:outline-azul-claro inline-flex w-fit rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4"
+            className="focus-visible:outline-azul-claro inline-flex w-fit rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 md:mt-10 lg:mt-14"
           >
             {/* MISMO logo que el navbar (logotipo-principal-ed). Como está hecho
-                para fondo claro, va sobre un chip blanco para leerse en el navy. */}
-            <span className="inline-flex items-center justify-center rounded-2xl bg-white px-3 py-2.5">
+                para fondo claro, va sobre un chip blanco para leerse en el navy.
+                Más grande y bajado a la zona central de la columna → más presencia. */}
+            <span className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3.5">
               <Image
                 src="/brand/logotipo-principal-ed.png"
                 alt={name}
                 width={425}
                 height={467}
                 priority={false}
-                className="h-12 w-auto md:h-14"
+                className="h-20 w-auto md:h-24 lg:h-28"
               />
             </span>
           </Link>
