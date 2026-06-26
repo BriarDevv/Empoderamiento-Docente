@@ -22,13 +22,13 @@ const DATOS = [
   { value: 15, prefix: "+", suffix: "", label: "Años de trayectoria", nota: "Diseñando intervenciones situadas." },
   { value: 2000, prefix: "+", suffix: "", label: "Docentes", nota: "Acompañados en su práctica." },
   { value: 120, prefix: "+", suffix: "", label: "Escuelas", nota: "Transformando sus aulas." },
-  { value: 8, prefix: "", suffix: "", label: "Países", nota: "Donde dejamos huella." },
+  { value: 5, prefix: "", suffix: "", label: "Países", nota: "Donde dejamos huella." },
 ] as const;
 
 const ALIADOS = [
-  { src: "/aliados/techint.svg", alt: "Techint" },
-  { src: "/aliados/roberto-rocca.svg", alt: "Roberto Rocca" },
-  { src: "/aliados/caba.svg", alt: "Ministerio de Educación de la Ciudad de Buenos Aires" },
+  { src: "/aliados/techint.png", alt: "Techint", cls: "h-7" },
+  { src: "/aliados/roberto-rocca.svg", alt: "Roberto Rocca", cls: "h-7" },
+  { src: "/aliados/buenos-aires.png", alt: "Buenos Aires Ciudad", cls: "h-9" },
 ] as const;
 
 const fmt = (n: number) => n.toLocaleString("es-AR");
@@ -120,13 +120,13 @@ export function DatosDuros() {
         <div className="border-white/12 mt-10 border-t pt-9">
           <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 md:gap-x-20">
             {ALIADOS.map((a) => (
-              <li key={a.src} className="flex h-10 items-center">
+              <li key={a.src} className="flex h-12 items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={a.src}
                   alt={a.alt}
                   draggable={false}
-                  className="h-7 w-auto opacity-60 transition-opacity duration-300 [filter:brightness(0)_invert(1)] hover:opacity-100"
+                  className={`${a.cls} w-auto opacity-60 transition-opacity duration-300 [filter:brightness(0)_invert(1)] hover:opacity-100`}
                 />
               </li>
             ))}

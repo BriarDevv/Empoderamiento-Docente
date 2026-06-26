@@ -21,7 +21,7 @@ const PASOS = [
     resumen: "Antes de proponer, comprendemos.",
     detalle:
       "Dialogamos con la institución y los equipos docentes, observamos el contexto y relevamos necesidades reales para construir una lectura situada.",
-    foto: "/metodo/escuchamos.jpg",
+    foto: "/metodo/escuchamos.webp",
     fotoAlt: "Docentes en conversación — etapa de escucha",
   },
   {
@@ -31,7 +31,7 @@ const PASOS = [
     resumen: "A medida, no en serie.",
     detalle:
       "Co-construimos recorridos, materiales y herramientas con base en matemática educativa, pensados para cada contexto y cada comunidad.",
-    foto: "/metodo/disenamos.jpg",
+    foto: "/metodo/disenamos.webp",
     fotoAlt: "Selección de materiales educativos — etapa de diseño",
   },
   {
@@ -41,7 +41,7 @@ const PASOS = [
     resumen: "Presencia durante todo el proceso.",
     detalle:
       "Sostenemos la implementación junto a docentes y equipos, revisando la práctica y ajustando decisiones con evidencia.",
-    foto: "/metodo/acompanamos.jpg",
+    foto: "/metodo/acompanamos.webp",
     fotoAlt: "Trabajo situado junto a docentes — etapa de acompañamiento",
   },
   {
@@ -51,7 +51,7 @@ const PASOS = [
     resumen: "Para que el cambio se sostenga.",
     detalle:
       "Analizamos avances, reconocemos aprendizajes y ajustamos las propuestas para fortalecer procesos duraderos.",
-    foto: "/metodo/evaluamos.jpg",
+    foto: "/metodo/evaluamos.webp",
     fotoAlt: "Revisión de materiales y avances — etapa de evaluación",
   },
 ] as const;

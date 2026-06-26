@@ -40,18 +40,18 @@ type Card = {
 // Orden, cantidad (9) y métricas EXACTAS del hero de referencia. Slots 1, 3 y 8
 // usan cuadrado de marca hasta tener las fotos (los más chicos / sin label).
 const CARDS: Card[] = [
-  { w: 17.36, ar: "300 / 250", cx: 31.25, cy: 7.1, par: 1.027, img: "/hero/hero-1.jpg", alt: "Equipo en reunión de trabajo", label: { title: "En el aula", desc: "Acompañamos la enseñanza donde sucede." } },
-  { w: 12.73, ar: "220 / 280", cx: 81.6, cy: 16.07, par: 1.108, img: "/hero/hero-7.jpg", alt: "Encuentro de trabajo en equipo" },
-  { w: 13.89, ar: "240 / 320", cx: 93.75, cy: 26.85, par: 1.014, img: "/hero/hero-3.jpg", alt: "Investigación en equipo", label: { title: "Investigación aplicada", desc: "Conocimiento que vuelve al aula." } },
-  { w: 12.73, ar: "220 / 260", cx: 5.21, cy: 25.01, par: 1.068, img: "/hero/hero-8.jpg", alt: "Materiales educativos" },
-  { w: 16.2, ar: "280 / 240", cx: 16.2, cy: 44.61, par: 1.034, img: "/hero/hero-5.jpg", alt: "Taller en aula", label: { title: "Acompañamiento situado", desc: "Junto a cada docente y escuela." } },
-  { w: 19.68, ar: "340 / 260", cx: 72.92, cy: 55.71, par: 1.007, img: "/hero/hero-6.jpg", alt: "Encuentro de trabajo", label: { title: "Formación docente", desc: "Trayectos para quienes enseñan matemática." } },
-  { w: 14.47, ar: "250 / 320", cx: 24.59, cy: 71.16, par: 1.088, img: "/hero/hero-4.jpg", alt: "Equipo de Empoderamiento Docente" },
-  { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.jpg", alt: "Equipo con su publicación", label: { title: "Presencia regional", desc: "Chile · México · Argentina." } },
-  { w: 9.84, ar: "170 / 230", cx: 85.94, cy: 93.84, par: 1.068, img: "/hero/hero-9.jpg", alt: "Lectura de material didáctico" },
+  { w: 17.36, ar: "300 / 250", cx: 31.25, cy: 7.1, par: 1.027, img: "/hero/hero-1.webp", alt: "Equipo en reunión de trabajo", label: { title: "En el aula", desc: "Acompañamos el aprendizaje donde sucede." } },
+  { w: 12.73, ar: "220 / 280", cx: 81.6, cy: 16.07, par: 1.108, img: "/hero/hero-7.webp", alt: "Encuentro de trabajo en equipo" },
+  { w: 13.89, ar: "240 / 320", cx: 93.75, cy: 26.85, par: 1.014, img: "/hero/hero-3.webp", alt: "Investigación en equipo", label: { title: "Investigación aplicada", desc: "Conocimiento que vuelve al aula." } },
+  { w: 12.73, ar: "220 / 260", cx: 5.21, cy: 25.01, par: 1.068, img: "/hero/hero-8.webp", alt: "Materiales educativos" },
+  { w: 16.2, ar: "280 / 240", cx: 16.2, cy: 44.61, par: 1.034, img: "/hero/hero-5.webp", alt: "Taller en aula", label: { title: "Acompañamiento situado", desc: "Junto a cada docente y escuela." } },
+  { w: 19.68, ar: "340 / 260", cx: 72.92, cy: 55.71, par: 1.007, img: "/hero/hero-6.webp", alt: "Encuentro de trabajo", label: { title: "Formación docente", desc: "Trayectos para docentes de matemática." } },
+  { w: 14.47, ar: "250 / 320", cx: 24.59, cy: 71.16, par: 1.088, img: "/hero/hero-4.webp", alt: "Equipo de Empoderamiento Docente" },
+  { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.webp", alt: "Equipo con su publicación", label: { title: "Presencia regional", desc: "Chile · México · Argentina · Colombia · Brasil." } },
+  { w: 9.84, ar: "170 / 230", cx: 85.94, cy: 93.84, par: 1.068, img: "/hero/hero-9.webp", alt: "Lectura de material didáctico" },
   // Sumadas para llenar el vacío de la parte de abajo y "bajar" hacia Acerca de.
   { w: 14, ar: "300 / 210", cx: 50, cy: 64, par: 1.04, img: "/hero/hero-10.webp", alt: "Materiales de geometría en una actividad de aula" },
-  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: "/hero/hero-11.jpg", alt: "Cuadernillo de matemática con representación de números", label: { title: "Materiales propios", desc: "Recursos listos para llevar al aula." } },
+  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: "/hero/hero-11.webp", alt: "Cuadernillo de matemática con representación de números", label: { title: "Materiales propios", desc: "Recursos listos para llevar al aula." } },
 ];
 
 /**
@@ -342,13 +342,13 @@ export function Hero() {
                   {c.label && (
                     <div
                       data-card-label
-                      className="absolute -bottom-5 left-3 z-10 max-w-[15rem] rounded-xl bg-white/85 px-3.5 py-2.5 shadow-[0_16px_36px_-18px_rgb(31_45_77_/_0.45)] ring-1 ring-azul-principal/10 backdrop-blur-md"
+                      className="absolute -bottom-5 left-3 z-10 w-max max-w-[20rem] rounded-xl bg-white/85 px-3.5 py-2.5 shadow-[0_16px_36px_-18px_rgb(31_45_77_/_0.45)] ring-1 ring-azul-principal/10 backdrop-blur-md"
                     >
                       <p className="font-display text-verde-concepto text-[0.82rem] leading-tight font-semibold tracking-[-0.01em]">
                         {c.label.title}
                       </p>
                       {c.label.desc && (
-                        <p className="text-gris-texto mt-0.5 font-sans text-[0.72rem] leading-snug">
+                        <p className="text-gris-texto mt-0.5 font-sans text-[0.72rem] leading-snug whitespace-nowrap">
                           {c.label.desc}
                         </p>
                       )}
@@ -395,7 +395,7 @@ export function Hero() {
             className="text-gris-texto mx-auto mt-6 max-w-md text-balance font-sans text-[1.05rem] leading-relaxed md:text-[1.2rem]"
           >
             Acompañamos a cada docente y a cada escuela, con base en la
-            investigación, para enseñar con sentido.
+            investigación, para que el aprendizaje tenga sentido.
           </p>
 
           <div

@@ -15,7 +15,7 @@ export const siteConfig = {
   shortName: "ED",
   url: "https://empoderamientodocente.org",
   description:
-    "Empoderamiento Docente trabaja desarrollo profesional docente con presencia en Chile, México y Argentina. Trayectos formativos, asesorías y comunidad en torno a la Matemática Educativa.",
+    "Empoderamiento Docente trabaja desarrollo profesional docente con presencia en Chile, México, Argentina, Colombia y Brasil. Trayectos formativos, asesorías y comunidad en torno a la Matemática Educativa.",
 
   contacto: {
     email: "contacto@empoderamientodocente.org",
@@ -34,7 +34,7 @@ export const siteConfig = {
     },
   },
 
-  paises: ["Chile", "México", "Argentina"],
+  paises: ["Chile", "México", "Argentina", "Colombia", "Brasil"],
 
   // Personas destacadas en el sitio. El rol exacto de Raquel Ayala y su
   // vínculo con ED están pendientes de confirmar con el cliente — antes

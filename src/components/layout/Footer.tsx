@@ -40,15 +40,13 @@ const REDES = [
   Icon: typeof Instagram;
 }>;
 
-// Aliados con logo AUTORIZADO (SVG en navy → se renderizan en blanco
-// monocromo). NO agregar un aliado sin su archivo real ni sin OK.
+// Aliados con logo AUTORIZADO (negro sobre transparente → en el navy se
+// renderizan en blanco monocromo vía filtro). NO agregar un aliado sin su
+// archivo real ni sin OK.
 const ALIADOS = [
-  { src: "/aliados/techint.svg", alt: "Techint" },
-  { src: "/aliados/roberto-rocca.svg", alt: "Roberto Rocca" },
-  {
-    src: "/aliados/caba.svg",
-    alt: "Ministerio de Educación de la Ciudad de Buenos Aires",
-  },
+  { src: "/aliados/techint.png", alt: "Techint", cls: "h-7" },
+  { src: "/aliados/roberto-rocca.svg", alt: "Roberto Rocca", cls: "h-7" },
+  { src: "/aliados/buenos-aires.png", alt: "Buenos Aires Ciudad", cls: "h-9" },
 ] as const;
 
 const { name, paises } = siteConfig;
@@ -162,13 +160,13 @@ export function Footer() {
             <span className="bg-verde-concepto absolute top-0 left-1/2 h-px w-20 -translate-x-1/2" />
             <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-5">
               {ALIADOS.map((aliado) => (
-                <li key={aliado.src} className="flex h-9 items-center">
+                <li key={aliado.src} className="flex h-11 items-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={aliado.src}
                     alt={aliado.alt}
                     draggable={false}
-                    className="h-7 w-auto opacity-70 transition-opacity duration-300 hover:opacity-100 [filter:brightness(0)_invert(1)]"
+                    className={`${aliado.cls} w-auto opacity-70 transition-opacity duration-300 hover:opacity-100 [filter:brightness(0)_invert(1)]`}
                   />
                 </li>
               ))}
@@ -194,7 +192,7 @@ export function Footer() {
       <div className="bg-azul-principal w-full px-3 pt-3 md:px-5 md:pt-5">
         <div className="relative h-[clamp(190px,26vw,360px)] w-full overflow-hidden rounded-t-[1.25rem] md:rounded-t-[2rem]">
           <Image
-            src="/hero/hero-5.jpg"
+            src="/hero/hero-5.webp"
             alt=""
             fill
             sizes="100vw"

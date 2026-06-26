@@ -34,22 +34,22 @@ const NOVEDADES = [
   {
     titulo: "Encuentro docente en torno a la matemática educativa",
     meta: "Evento · Jun 2026",
-    img: "/hero/hero-3.jpg",
+    img: "/hero/hero-3.webp",
   },
   {
     titulo: "Nueva investigación sobre el aprendizaje matemático",
     meta: "Investigación · May 2026",
-    img: "/hero/hero-5.jpg",
+    img: "/hero/hero-5.webp",
   },
   {
-    titulo: "ED amplía su presencia en Chile, México y Argentina",
+    titulo: "ED amplía su presencia en Chile, México, Argentina, Colombia y Brasil",
     meta: "Institucional · Abr 2026",
-    img: "/hero/hero-7.jpg",
+    img: "/hero/hero-7.webp",
   },
   {
     titulo: "Conversatorio: las matemáticas más allá del cálculo",
     meta: "Charla · Mar 2026",
-    img: "/hero/hero-9.jpg",
+    img: "/hero/hero-9.webp",
   },
 ] as const;
 

@@ -281,8 +281,8 @@ export function LineasAccion() {
               Líneas de acción
             </h2>
             <p className="deck-caption text-gris-texto mx-auto mt-5 max-w-xl font-sans text-[0.97rem] leading-relaxed">
-              Las áreas donde acompañamos, diseñamos y transformamos la
-              enseñanza de la matemática junto a las y los docentes.
+              Las áreas donde acompañamos, diseñamos y transformamos el
+              aprendizaje de la matemática junto a las y los docentes.
             </p>
           </div>
 
