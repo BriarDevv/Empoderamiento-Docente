@@ -1,21 +1,28 @@
 /**
- * Panel "Misión": espejo de "¿Quiénes somos?" — imagen a la IZQUIERDA y el texto
- * OFICIAL del cliente (VERBATIM) a la DERECHA [[ed-copy-oficial]]. Lo revela el
- * barrido verde (lo orquesta HeroQuienes). NO parafrasear. Respeta reduced-motion.
+ * Panel "Misión": espejo de "¿Quiénes somos?" — imagen a la IZQUIERDA y, a la
+ * DERECHA, TÍTULO de sección + cuerpo OFICIAL del cliente (VERBATIM)
+ * [[ed-copy-oficial]]. El título da la jerarquía; el cuerpo (más chico) se
+ * rellena con el scroll. Lo revela el barrido verde (lo orquesta HeroQuienes).
+ * NO parafrasear. Respeta reduced-motion.
  */
 import Image from "next/image";
 import { ScrollFillText, type FillSeg } from "./ScrollFillText";
 
 // Acentos en AZUL: conceptos clave de la misión; el resto se rellena en verde.
-const MISION_SEGMENTS: FillSeg[] = [
-  { t: "Que las y los participantes de nuestros encuentros vivan un proceso de" },
-  { t: "empoderamiento,", accent: true },
-  { t: "reconocido como" },
-  { t: "cambio de relación con el saber matemático escolar,", accent: true },
-  {
-    t: "a través de estrategias basadas en la investigación y la teoría educativa, para promover la",
-  },
-  { t: "transformación y mejora educativa.", accent: true },
+// Es una sola oración → un único párrafo (no se parte) [[ed-copy-oficial]].
+const MISION_PARAGRAPHS: FillSeg[][] = [
+  [
+    {
+      t: "Que las y los participantes de nuestros encuentros vivan un proceso de",
+    },
+    { t: "empoderamiento,", accent: true },
+    { t: "reconocido como" },
+    { t: "cambio de relación con el saber matemático escolar,", accent: true },
+    {
+      t: "a través de estrategias basadas en la investigación y la teoría educativa, para promover la",
+    },
+    { t: "transformación y mejora educativa.", accent: true },
+  ],
 ];
 
 export function MisionPanel() {
@@ -36,22 +43,24 @@ export function MisionPanel() {
           />
         </div>
 
-        {/* Texto (derecha) — eyebrow arriba (absoluto) y párrafo centrado al
-            medio del alto de la foto: la columna se estira al alto de la fila. */}
-        <div className="relative flex items-center self-stretch text-left">
-          <span className="absolute top-0 left-0 inline-flex items-center gap-3">
-            <span aria-hidden="true" className="bg-verde-concepto block h-px w-8" />
-            <span className="font-mono text-gris-texto text-[0.78rem] font-medium tracking-[0.22em] uppercase">
+        {/* Texto (derecha) — TÍTULO arriba + cuerpo debajo, centrados al medio
+            del alto de la foto: la columna se estira al alto de la fila. */}
+        <div className="relative flex flex-col justify-center self-stretch gap-5 text-left md:gap-6">
+          <div>
+            <span
+              aria-hidden="true"
+              className="bg-verde-concepto mb-4 block h-px w-10"
+            />
+            <h2 className="font-display text-azul-principal font-bold leading-[1.04] tracking-[-0.02em] [font-size:clamp(2rem,3.2vw,3.1rem)]">
               Misión
-            </span>
-          </span>
+            </h2>
+          </div>
 
-          {/* Misión (verbatim) — se rellena con el scroll: verde base, acentos
-              en azul (ver MISION_SEGMENTS). */}
+          {/* Cuerpo (verbatim) — se rellena con el scroll: verde base, acentos
+              en azul (ver MISION_PARAGRAPHS). */}
           <ScrollFillText
-            segments={MISION_SEGMENTS}
-            className="font-display text-verde-concepto text-balance font-semibold leading-[1.3] tracking-[-0.01em]"
-            style={{ fontSize: "clamp(1.25rem, 1.7vw, 1.7rem)" }}
+            paragraphs={MISION_PARAGRAPHS}
+            className="font-sans text-verde-concepto font-medium leading-relaxed [font-size:clamp(1rem,1.1vw,1.15rem)]"
           />
         </div>
       </div>
