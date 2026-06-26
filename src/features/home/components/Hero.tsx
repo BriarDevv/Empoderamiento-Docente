@@ -49,6 +49,11 @@ const CARDS: Card[] = [
   { w: 14.47, ar: "250 / 320", cx: 24.59, cy: 71.16, par: 1.088, img: "/hero/hero-4.jpg", alt: "Equipo de Empoderamiento Docente" },
   { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.jpg", alt: "Equipo con su publicación", label: { title: "Chile · México · Argentina", desc: "Presencia regional" } },
   { w: 9.84, ar: "170 / 230", cx: 85.94, cy: 93.84, par: 1.068, img: "/hero/hero-9.jpg", alt: "Lectura de material didáctico" },
+  // Sumadas para llenar el vacío de la parte de abajo y "bajar" hacia Acerca de.
+  // PLACEHOLDER (img: null = cuadrado de marca): reemplazar por fotos reales en
+  // /hero/hero-10.jpg y /hero/hero-11.jpg (mismos slots).
+  { w: 14, ar: "300 / 210", cx: 50, cy: 64, par: 1.04, img: null, alt: "" },
+  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: null, alt: "" },
 ];
 
 /**
@@ -308,7 +313,7 @@ export function Hero() {
         data-hero-copy-scroll
         className="absolute inset-x-0 top-0 z-20 flex h-screen flex-col items-center justify-center px-5 text-center md:px-10"
       >
-        <div data-hero-copy className="mx-auto max-w-xl">
+        <div data-hero-copy className="mx-auto max-w-xl translate-y-[5vh]">
           <h1
             data-hero-headline
             className="font-display text-balance font-bold tracking-[-0.02em]"
@@ -316,12 +321,12 @@ export function Hero() {
           >
             <span className="hero-line block overflow-hidden">
               <span className="block">
-                Generamos escenarios de{" "}
-                <span className="text-verde-concepto">aprendizaje</span>
+                Potenciamos la{" "}
+                <span className="text-verde-concepto">enseñanza</span>
               </span>
             </span>
             <span className="hero-line block overflow-hidden">
-              <span className="block">donde la matemática cobra sentido.</span>
+              <span className="block">de la matemática.</span>
             </span>
           </h1>
 
@@ -329,8 +334,8 @@ export function Hero() {
             data-hero-desc
             className="text-gris-texto mx-auto mt-6 max-w-md text-balance font-sans text-[1.05rem] leading-relaxed md:text-[1.2rem]"
           >
-            Acompañamos a cada escuela y a cada docente, con foco en aprender y
-            no solo en enseñar.
+            Acompañamos a cada docente y a cada escuela, con base en la
+            investigación, para enseñar con sentido.
           </p>
 
           <div

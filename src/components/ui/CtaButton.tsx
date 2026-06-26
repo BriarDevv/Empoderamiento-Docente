@@ -7,19 +7,26 @@ interface CtaButtonProps {
   readonly href: string;
   readonly label: string;
   readonly className?: string;
+  /** Tamaño del pill. `md` = nav (default); `lg` = acento de conversión. */
+  readonly size?: "md" | "lg";
 }
+
+const SIZE_CLASS = {
+  md: "px-6 py-2.5 text-sm",
+  lg: "px-8 py-3.5 text-[0.98rem]",
+} as const;
 
 /**
  * CTA naranja (pill) — único acento de acción del nav. Magnético + sweep de
  * relleno en hover (clip por scaleX) + micro text-swap del label. Solo
  * transform/opacity. (Portado fiel del navbar de la rama `nuevo-frontend`.)
  */
-export function CtaButton({ href, label, className }: CtaButtonProps) {
+export function CtaButton({ href, label, className, size = "md" }: CtaButtonProps) {
   return (
     <MagneticButton strength={0.5}>
       <Link
         href={href}
-        className={`group bg-naranja-accion relative inline-flex items-center overflow-hidden rounded-full px-6 py-2.5 text-sm font-medium text-white ${className ?? ""}`}
+        className={`group bg-naranja-accion relative inline-flex items-center overflow-hidden rounded-full font-medium text-white ${SIZE_CLASS[size]} ${className ?? ""}`}
       >
         <span
           aria-hidden

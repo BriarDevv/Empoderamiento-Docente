@@ -68,7 +68,12 @@ export default function RootLayout({
         <LenisProvider>
           <Header />
           {children}
-          <Footer />
+          {/* Fondo blanco detrás del footer: la muesca de sus esquinas
+              superiores redondeadas se ve BLANCA (matchea con la sección de
+              arriba), en vez del gris-fondo del body. */}
+          <div className="bg-white">
+            <Footer />
+          </div>
         </LenisProvider>
       </body>
     </html>
