@@ -14,7 +14,7 @@ Reconstruir el sitio de ED desde cero, siguiendo el **sitemap aprobado**
 del proyecto actual (`repos/Empoderamiento-Docente`), pero ajustando el
 contenido a estas reglas:
 
-- **Copy parado desde la enseñanza** (no desde el aprendizaje). Decisión
+- **Copy parado desde el aprendizaje** (no desde la enseñanza). Decisión
   explícita del cliente-dev, anula la línea previa del material.
 - **Lenguaje sin marcar género** (neutro/abarcativo; nada de "las y los").
   La *perspectiva* de género sigue siendo un valor (aparece en Quiénes somos),
@@ -80,8 +80,8 @@ Quiénes somos · Investigación · Biblioteca · Novedades · Contacto** + CTA
 
 Orden de scroll según sitemap aprobado:
 
-1. **APERTURA · Hero** — 2 columnas. Copy: "Transformamos la **enseñanza**
-   de la matemática" (highlight verde en "enseñanza", frase pilar del manual)
+1. **APERTURA · Hero** — 2 columnas. Copy: "Transformamos el **aprendizaje**
+   de la matemática" (highlight verde en "aprendizaje", frase pilar del manual)
    + bajada corta. Visual: logo + círculo verde + dots.
    CTAs: → Contacto (naranja) · ↗ Qué hacemos (secundario).
    Anim: entrada stagger fade/blur, H1 mask-reveal, parallax del círculo en scroll.
