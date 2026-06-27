@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
 import { NAV_LINKS, CTA_LINK, HOME_LINK } from "@/config/nav";
+import { MobileNav } from "./MobileNav";
 import { hasRevealed, onReveal } from "@/lib/intro-signal";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
@@ -59,6 +60,11 @@ export function Header() {
       });
       gsap.set("[data-nav-links]", { width: 0, autoAlpha: 0 });
       gsap.set("[data-nav-item]", { autoAlpha: 0, x: -8 });
+      // Mobile: la hamburguesa arranca COLAPSADA (width 0) durante la fase del
+      // wordmark, igual que los links en desktop. Aparece cuando el wordmark se
+      // esconde → así "Empoderamiento Docente" tiene toda la píldora y entra en
+      // cualquier pantalla. En desktop la hamburguesa es display:none (inocuo).
+      gsap.set("[data-nav-burger]", { width: 0, autoAlpha: 0 });
 
       const play = () => {
         if (ran) return;
@@ -97,6 +103,13 @@ export function Header() {
               stagger: 0.07,
             },
             "<0.12",
+          )
+          // Mobile: la hamburguesa se despliega (width + fade) a la par que en
+          // desktop entran los links — es el mismo beat de "se abre el navbar".
+          .to(
+            "[data-nav-burger]",
+            { width: "auto", autoAlpha: 1, duration: 0.5, ease: "power3.out" },
+            "<",
           );
       };
 
@@ -175,7 +188,7 @@ export function Header() {
     <nav
       ref={ref}
       data-bp-nav
-      className="border-azul-principal/10 fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-[1.25rem] border bg-white/70 px-4 py-3 backdrop-blur-xl"
+      className="border-azul-principal/10 fixed top-4 right-4 left-4 z-50 flex items-center justify-between gap-3 rounded-[1.25rem] border bg-white/70 px-4 py-3 backdrop-blur-xl lg:right-auto lg:left-1/2 lg:w-max lg:max-w-[calc(100vw-2rem)] lg:-translate-x-1/2 lg:justify-start"
     >
       {/* Grupo logo + wordmark. El wordmark colapsa (width + marginLeft → 0) sin
           dejar gap residual: la separación con los links la da el gap-3 del nav. */}
@@ -194,20 +207,24 @@ export function Header() {
           unoptimized
           className="h-11 w-auto shrink-0"
         />
-        {/* Wordmark que se colapsa */}
+        {/* Wordmark que se colapsa. Aparece también en mobile (navbar full-width):
+            arranca visible "Empoderamiento Docente" y, tras el hold, colapsa —
+            misma coreografía que en desktop. Font un poco menor en mobile para
+            que entre junto al logo + hamburguesa en pantallas chicas. */}
         <span
           data-nav-word
-          className="font-display overflow-hidden text-[1.05rem] font-extrabold tracking-tight whitespace-nowrap"
+          className="font-display overflow-hidden text-[0.95rem] font-extrabold tracking-tight whitespace-nowrap lg:text-[1.05rem]"
           style={{ width: 0, opacity: 0 }}
         >
           Empoderamiento&nbsp;Docente
         </span>
       </Link>
 
-      {/* Links + CTA que se abren */}
+      {/* Links + CTA que se abren (solo desktop ≥ lg). Por debajo de lg la
+          navegación vive en <MobileNav /> (panel a pantalla completa). */}
       <div
         data-nav-links
-        className="flex items-center gap-1 whitespace-nowrap"
+        className="hidden items-center gap-1 whitespace-nowrap lg:flex"
       >
         <ul className="text-azul-principal/70 hidden items-center gap-1 pr-2 font-sans text-[14px] font-medium lg:flex">
           {NAV_LINKS.map((link) => (
@@ -229,6 +246,9 @@ export function Header() {
           {CTA_LINK.label}
         </Link>
       </div>
+
+      {/* Navegación mobile (< lg): hamburguesa + panel a pantalla completa. */}
+      <MobileNav />
     </nav>
   );
 }
