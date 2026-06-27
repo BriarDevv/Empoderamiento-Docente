@@ -54,6 +54,30 @@ const CARDS: Card[] = [
   { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: "/hero/hero-11.webp", alt: "Cuadernillo de matemática con representación de números", label: { title: "Materiales propios", desc: "Recursos listos para llevar al aula." } },
 ];
 
+// Campo CURADO para mobile/tablet (< lg). Fotos clave alrededor del texto, pero
+// ENTERAS dentro de la pantalla (no cortadas por el borde): cx hacia adentro
+// (~25/75) + ancho clampeado garantizan que cada foto entre completa de 320px a
+// 1023px. `cy` va en SVH (no en %): así la posición vertical NO depende del alto
+// total del hero y se pueden sumar fotos MÁS ABAJO.
+//
+// TODAS comparten la MISMA animación (el deploy): se combinan apiladas en el
+// centro y se acomodan a su lugar. Las 4 primeras quedan en el primer pantallazo
+// (en las BANDAS LIBRES: entre navbar y texto, y entre texto y fold — sin pisar
+// nada); las 4 de más abajo se despliegan hacia abajo y se ven al scrollear, ya
+// asentadas. La portrait (hero-3) va landscape para entrar en la banda superior.
+const MOBILE_CARDS: Card[] = [
+  // Primer pantallazo.
+  { w: 38, ar: "300 / 250", cx: 25, cy: 22, par: 1, img: "/hero/hero-1.webp", alt: "Equipo en reunión de trabajo" },
+  { w: 34, ar: "300 / 230", cx: 75, cy: 22, par: 1, img: "/hero/hero-3.webp", alt: "Investigación en equipo" },
+  { w: 38, ar: "280 / 240", cx: 25, cy: 87, par: 1, img: "/hero/hero-5.webp", alt: "Taller en aula" },
+  { w: 40, ar: "340 / 260", cx: 75, cy: 87, par: 1, img: "/hero/hero-6.webp", alt: "Encuentro de trabajo" },
+  // Más abajo (se ven al scrollear, ya asentadas tras el deploy).
+  { w: 42, ar: "340 / 250", cx: 31, cy: 112, par: 1, img: "/hero/hero-2.webp", alt: "Equipo con su publicación" },
+  { w: 34, ar: "250 / 320", cx: 73, cy: 117, par: 1, img: "/hero/hero-4.webp", alt: "Equipo de Empoderamiento Docente" },
+  { w: 38, ar: "240 / 300", cx: 28, cy: 139, par: 1, img: "/hero/hero-11.webp", alt: "Cuadernillo de matemática" },
+  { w: 42, ar: "300 / 210", cx: 72, cy: 143, par: 1, img: "/hero/hero-10.webp", alt: "Materiales de geometría en una actividad de aula" },
+];
+
 /**
  * Hero adaptado a ED: título centrado rodeado por un campo de 9 tarjetas
  * dispersas en un hero alto (~1.85 viewports), sobre el campo de nodos
@@ -108,6 +132,8 @@ export function Hero() {
       // Los carteles de las fotos arrancan ocultos: aparecen DESPUÉS, cuando las
       // cards ya llegaron a su lugar (no desde el frame 0, apiladas).
       gsap.set("[data-card-label]", { autoAlpha: 0, y: 8 });
+      // Cards mobile (capa interna) ocultas pre-paint, igual que las del desktop.
+      gsap.set("[data-mcard]", { autoAlpha: 0 });
 
       // Centrado base de cada tarjeta. El scroll-parallax va sobre ESTA capa.
       gsap.set(outers, { xPercent: -50, yPercent: -50 });
@@ -201,6 +227,38 @@ export function Hero() {
             { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.08 },
             "-=0.25",
           );
+
+        // Cards mobile (< lg): MISMO gesto stack→deploy, pero sobre [data-mcard]
+        // (capa con transform 100% de GSAP; el slot la centra por CSS → sin
+        // conflicto ni doble-centrado). Timeline propio para no tocar los tempos
+        // del desktop. En desktop estas cards están display:none → tween invisible.
+        const mcards = gsap.utils.toArray<HTMLElement>("[data-mcard]");
+        if (mcards.length) {
+          gsap.set(mcards, {
+            x: (_i, el: HTMLElement) => {
+              const r = el.getBoundingClientRect();
+              return window.innerWidth / 2 - (r.left + r.width / 2);
+            },
+            y: (_i, el: HTMLElement) => {
+              const r = el.getBoundingClientRect();
+              return window.innerHeight / 2 - (r.top + r.height / 2);
+            },
+            scale: 0.5,
+            autoAlpha: 0,
+          });
+          gsap
+            .timeline({ defaults: { ease: "power3.out" }, delay: 0.2 })
+            .to(
+              mcards,
+              { autoAlpha: 1, scale: 0.62, duration: 0.7, ease: "power2.out", stagger: 0.05 },
+              0,
+            )
+            .to(
+              mcards,
+              { x: 0, y: 0, scale: 1, duration: 1.5, ease: "power3.inOut", stagger: { each: 0.08, from: "center" } },
+              "+=0.15",
+            );
+        }
       };
 
       const runOnce = () => {
@@ -215,9 +273,12 @@ export function Hero() {
         fallback = window.setTimeout(runOnce, 6000);
       }
 
-      // Parallax de scroll por tarjeta (capa [data-card-outer]).
-      outers.forEach((outer, i) => {
-        const extra = -(CARDS[i].par - 1) * (scope.offsetHeight || 1);
+      // Parallax de scroll por tarjeta (capa [data-card-outer]). El factor `par`
+      // viaja en `data-par` para que funcione con AMBOS campos (desktop y mobile)
+      // sin depender del índice de CARDS.
+      outers.forEach((outer) => {
+        const par = parseFloat(outer.dataset.par || "1");
+        const extra = -(par - 1) * (scope.offsetHeight || 1);
         gsap.to(outer, {
           y: extra,
           ease: "none",
@@ -277,7 +338,7 @@ export function Hero() {
     <section
       ref={ref}
       data-section="hero"
-      className="text-azul-principal relative isolate min-h-[100svh] overflow-hidden lg:h-[93.75vw]"
+      className="text-azul-principal relative isolate min-h-[160svh] overflow-hidden lg:h-[93.75vw] lg:min-h-0"
       style={{ "--pnx": "0", "--pny": "0" } as CSSProperties}
     >
       {/* Sentinel del navbar: mientras está a la vista (top del viewport) el
@@ -309,6 +370,7 @@ export function Hero() {
             <div
               key={i}
               data-card-outer
+              data-par={c.par}
               className="absolute"
               style={{ left: `${c.cx}%`, top: `${c.cy}%`, width: `${c.w}vw`, transform: "translate(-50%, -50%)" }}
             >
@@ -359,6 +421,42 @@ export function Hero() {
             </div>
           );
         })}
+      </div>
+
+      {/* Campo CURADO para mobile/tablet (< lg): pocas fotos clave, ENTERAS
+          dentro de la pantalla (no asoman cortadas). DOS CAPAS para tener la
+          MISMA animación de deploy que el desktop SIN el bug de transforms:
+           · SLOT (este div): posición + centrado por CSS `translate(-50%,-50%)`.
+             GSAP NUNCA lo toca → la foto queda exacta en su cx/cy.
+           · ANIM ([data-mcard]): GSAP la anima con x/y/scale PURO (stack→deploy),
+             sin transform inline de React → sin conflicto ni doble-centrado.
+          Ancho clampeado (no se dispara en tablet) y cx hacia adentro (25/75)
+          para que cada foto entre completa. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10 block lg:hidden"
+      >
+        {MOBILE_CARDS.map((c, i) => (
+          <div
+            key={`m${i}`}
+            className="absolute"
+            style={{
+              left: `${c.cx}%`,
+              top: `${c.cy}svh`,
+              width: `clamp(6rem, ${c.w}vw, 16rem)`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <div data-mcard className="will-change-transform">
+              <div
+                className="relative w-full overflow-hidden rounded-2xl shadow-[0_28px_70px_-28px_rgb(31_45_77_/_0.5)] ring-1 ring-white/40"
+                style={{ aspectRatio: c.ar }}
+              >
+                <Image src={c.img!} alt={c.alt ?? ""} fill sizes="45vw" className="object-cover" />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Contenido CENTRADO en el primer viewport (se va con el scroll) */}
