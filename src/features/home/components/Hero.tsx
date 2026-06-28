@@ -464,6 +464,20 @@ export function Hero() {
         data-hero-copy-scroll
         className="absolute inset-x-0 top-0 z-20 flex h-screen flex-col items-center justify-center px-5 text-center md:px-10"
       >
+        {/* Halo blanco suave detrás del texto central (solo desktop ≥ lg). En
+            desktop angosto el scatter se acerca al copy; este velo difumina SOLO
+            las fotos que quedan detrás de las palabras (las de los costados se
+            ven igual) y deja el texto flotando limpio sin reubicar las cards.
+            Vive dentro del copy → se desvanece con el scroll junto al texto. En
+            mobile el scatter va en bandas que no tocan el centro → no se monta. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-1/2 -z-10 hidden h-[clamp(26rem,80vh,36rem)] w-[clamp(30rem,62vw,52rem)] -translate-x-1/2 -translate-y-[45%] lg:block"
+          style={{
+            background:
+              "radial-gradient(50% 50% at 50% 50%, #ffffff 0%, rgba(255,255,255,0.9) 46%, rgba(255,255,255,0) 78%)",
+          }}
+        />
         <div data-hero-copy className="mx-auto max-w-xl translate-y-[5vh]">
           <h1
             data-hero-headline
