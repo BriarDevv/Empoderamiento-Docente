@@ -259,33 +259,42 @@ export function MobileNav() {
                 {CTA_LINK.label}
                 <ArrowUpRight size={18} />
               </Link>
+
+              {/* Mail de contacto: centrado, justo debajo del CTA. */}
               <a
                 href={`mailto:${siteConfig.contacto.email}`}
-                className="text-gris-texto hover:text-azul-principal font-mono text-[0.78rem] tracking-wide transition-colors"
+                className="text-gris-texto hover:text-azul-principal text-center font-mono text-[0.78rem] tracking-wide transition-colors"
               >
                 {siteConfig.contacto.email}
               </a>
 
-              {/* Redes sociales (mismo patrón que el Footer). */}
-              <ul className="border-azul-principal/10 flex items-center gap-3 border-t pt-5">
-                {REDES.map(({ key, label, Icon }) => {
-                  const url = siteConfig.redes[key];
-                  return (
-                    <li key={key}>
-                      <a
-                        href={url ?? "#"}
-                        {...(url
-                          ? { target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
-                        aria-label={`Empoderamiento Docente en ${label}`}
-                        className="text-azul-principal/70 hover:bg-azul-principal/5 hover:text-azul-principal inline-flex items-center justify-center rounded-xl p-2.5 transition-colors"
-                      >
-                        <Icon size={22} />
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
+              {/* Redes sociales — visibles, con rótulo y botones circulares
+                  (buen target táctil). El href sale de siteConfig.redes; sin
+                  handle oficial cae a "#" (mismo criterio que el Footer). */}
+              <div className="border-azul-principal/10 flex items-center justify-between gap-4 border-t pt-5">
+                <span className="text-gris-texto font-mono text-[0.72rem] font-medium tracking-[0.18em] uppercase">
+                  Seguinos
+                </span>
+                <ul className="flex items-center gap-2.5">
+                  {REDES.map(({ key, label, Icon }) => {
+                    const url = siteConfig.redes[key];
+                    return (
+                      <li key={key}>
+                        <a
+                          href={url ?? "#"}
+                          {...(url
+                            ? { target: "_blank", rel: "noopener noreferrer" }
+                            : {})}
+                          aria-label={`Empoderamiento Docente en ${label}`}
+                          className="border-azul-principal/15 text-azul-principal/75 hover:border-azul-principal hover:bg-azul-principal inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors hover:text-white"
+                        >
+                          <Icon size={20} />
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           </div>,
           document.body,
