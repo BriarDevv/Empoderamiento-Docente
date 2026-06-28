@@ -4,7 +4,9 @@
 
 - **Si sos una IA** trabajando en el repo: empezá por
   [`../AGENTS.md`](../AGENTS.md), después volvé acá.
-- **Si sos humano**: empezá por [`../README.md`](../README.md).
+- **Si sos humano**: empezá por [`../AGENTS.md`](../AGENTS.md) (Quickstart)
+  + `package.json` scripts. _(Un `README.md` de onboarding humano en la raíz
+  está pendiente de crear.)_
 
 ---
 
@@ -15,11 +17,14 @@
 | Orquestación IA   | [`../AGENTS.md`](../AGENTS.md)                  | Contrato AI-neutral: hard rules, quality standards, anti-patterns, commit protocol |
 | Adapter Claude    | [`../CLAUDE.md`](../CLAUDE.md)                  | Mapeo de conceptos de `AGENTS.md` a herramientas concretas de Claude Code     |
 | Sistema de diseño | [`../DESIGN.md`](../DESIGN.md)                  | Tokens visuales: colores, tipografía, espaciado, componentes, iconografía    |
-| Onboarding humano | [`../README.md`](../README.md)                  | Quickstart, arquitectura, stack, identidad visual resumida                    |
+| Adapter Codex     | [`../CODEX.md`](../CODEX.md)                    | Mapeo de `AGENTS.md` a OpenAI Codex CLI                                       |
+| Adapter Gemini    | [`../GEMINI.md`](../GEMINI.md)                  | Mapeo de `AGENTS.md` a Gemini CLI / Code Assist                              |
 | Commits           | [`COMMITS.md`](COMMITS.md)                      | Conventional Commits + atómicos + ejemplos por categoría                      |
 | Glosario          | [`GLOSSARY.md`](GLOSSARY.md)                    | Jerga del dominio educativo de ED, vocabulario de UI, frases pilares          |
 | Mensajes de marca | [`MESSAGING.md`](MESSAGING.md)                  | Copy canónico: tagline, hero, triángulo de pilares, manifiesto, tono de voz   |
-| Código IA-friendly| [`AI_GUIDELINES.md`](AI_GUIDELINES.md)          | 18 reglas detalladas: naming, archivos chicos, TS, Tailwind, GSAP, Mongo      |
+| Estilo de código  | [`conventions/CODE-STYLE.md`](conventions/CODE-STYLE.md) | Decisiones de estilo que las tools no enforce-an + índice de configs |
+| Código IA-friendly| [`AI_GUIDELINES.md`](AI_GUIDELINES.md)          | Reglas detalladas: naming, archivos chicos, TS, Tailwind v4, GSAP            |
+| ADRs              | [`architecture/adrs/`](architecture/adrs/README.md) | Decisiones arquitectónicas (stack base, etc.)                          |
 
 ---
 
@@ -30,12 +35,10 @@
 | Maquetar un componente o sección                  | [`../DESIGN.md`](../DESIGN.md) → [`AI_GUIDELINES.md`](AI_GUIDELINES.md)              |
 | Escribir copy del sitio                           | [`MESSAGING.md`](MESSAGING.md) → [`GLOSSARY.md`](GLOSSARY.md) → `../AGENTS.md` §5.1 (lenguaje inclusivo) |
 | Trabajar con animaciones (GSAP / Lenis)           | `../AGENTS.md` §7 → §8 (anti-patterns) → [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §11  |
-| Crear endpoints / API                             | [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §8 + §12 → `../AGENTS.md` §7                  |
-| Modelar datos en MongoDB                          | [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §12 → `../AGENTS.md` §7                       |
 | Hacer commits                                     | [`COMMITS.md`](COMMITS.md) → `../AGENTS.md` §9                                       |
-| Entender la arquitectura del proyecto             | [`../README.md`](../README.md) → `../AGENTS.md` §1 + §3                              |
-| Instalar y correr local                           | [`../README.md`](../README.md) (Quickstart)                                          |
-| Ponerte al día con el estado del proyecto         | [`../README.md`](../README.md) (sección "Estado del proyecto") + `../AGENTS.md` §12  |
+| Entender la arquitectura del proyecto             | `../AGENTS.md` §1 + §3 → [`architecture/adrs/0001-stack-base.md`](architecture/adrs/0001-stack-base.md) |
+| Instalar y correr local                           | `package.json` scripts (`pnpm dev` / `build` / `start` / `lint` / `typecheck`)       |
+| Ponerte al día con el estado del proyecto         | `../AGENTS.md` §12 (Estado del proyecto)                                             |
 
 ---
 
@@ -53,10 +56,10 @@ el código en una sesión futura, va a un `.md`.**
 | Mensaje canónico, claim, tagline, pilar de marca   | `MESSAGING.md`                     |
 | Cambio en el formato de commits                    | `COMMITS.md`                       |
 | Quirk específico de Claude Code                    | `../CLAUDE.md`                     |
-| Datos institucionales, contacto, redes             | `../README.md` (resumen) + `src/config/site.ts` (canónico cuando exista) |
+| Datos institucionales, contacto, redes             | `src/config/site.ts` (fuente canónica)                       |
 
-Si una decisión arquitectónica grande aparece (ej: App Router vs Pages
-Router, Mongo Atlas vs local, agregar i18n), planteala en conversación
-con el usuario y resolvela en el doc correspondiente. Las decisiones de
-escala mayor pueden vivir como ADR si en algún momento se introduce
-`docs/adr/`.
+Si una decisión arquitectónica grande aparece (ej: sumar un backend o
+persistencia, agregar i18n, cambiar de hosting), planteala en conversación
+con el usuario y dejala registrada como ADR en
+[`architecture/adrs/`](architecture/adrs/README.md) (guía paso a paso en
+`../skills/adr-create/SKILL.md`).

@@ -10,8 +10,9 @@
 ## Quickstart (30 segundos)
 
 - **Qué es:** sitio web institucional de **Empoderamiento Docente (ED)**.
-- **Stack:** Next.js (App Router) + TypeScript strict + Tailwind + GSAP +
-  Lenis + MongoDB.
+- **Stack:** Next.js 16 (App Router) + React 19 + TypeScript strict +
+  Tailwind CSS v4 (theming en CSS) + GSAP + Lenis + Zod. **Sin backend ni
+  base de datos:** es un sitio puramente frontend/estático.
 - **Lanzamiento:** **junio 2026** (estimado).
 - **Reglas duras** (no negociables):
   1. **Lenguaje inclusivo siempre** (`las y los`), nunca "alumnos" → siempre "estudiantes".
@@ -38,15 +39,13 @@
 | Crear o modificar **componente UI**         | `DESIGN.md` → `docs/AI_GUIDELINES.md`                                                       |
 | Implementar una **página nueva**            | `DESIGN.md` → `docs/AI_GUIDELINES.md` → `docs/GLOSSARY.md`                                  |
 | **Animar** algo (GSAP / Lenis)              | §7 global rules → §8 anti-patterns GSAP → `docs/AI_GUIDELINES.md` §11                       |
-| Escribir o revisar **copy**                 | `docs/GLOSSARY.md` → §5.1 lenguaje inclusivo → §5.5 mensajes pilares                        |
-| Crear un **endpoint** / Route Handler       | `docs/AI_GUIDELINES.md` §8 + §12 → §7 global rules (API)                                    |
-| Diseñar **schema o query** de Mongo         | `docs/AI_GUIDELINES.md` §12 → §7 global rules (DB)                                          |
+| Escribir o revisar **copy**                 | `docs/GLOSSARY.md` → `docs/MESSAGING.md` → §5.1 lenguaje inclusivo → §5.5 mensajes pilares  |
 | Configurar **metadata / SEO**               | `docs/AI_GUIDELINES.md` (SEO) → §6 quality standards (contenido)                            |
 | **Refactorizar**                            | `docs/AI_GUIDELINES.md` (todo) → §8 anti-patterns → §9 commit protocol                      |
 | Hacer **commits**                           | `docs/COMMITS.md` → §9 commit protocol                                                      |
 | Hacer **review** antes de PR                | §6 quality standards → §10 pre-PR checklist                                                 |
-| Entender la **arquitectura del repo**       | `README.md` → §1 purpose → §3 project structure                                             |
-| **Instalar y correr local**                 | `README.md` quickstart                                                                      |
+| Entender la **arquitectura del repo**       | §1 purpose → §3 project structure → `docs/architecture/adrs/0001-stack-base.md`             |
+| **Instalar y correr local**                 | `package.json` scripts (`pnpm dev` / `build` / `start` / `lint` / `typecheck`)              |
 
 > Si tu tarea no entra en la tabla, pedile al usuario que la describa y
 > elegí el enfoque que consideres apropiado (trabajo directo o delegación
@@ -72,13 +71,19 @@ ED a definir con el cliente).
 
 ## 2. Stack
 
-- **Next.js** (App Router)
-- **TypeScript** (strict, sin `any` salvo justificación)
-- **Tailwind CSS**
+- **Next.js 16** (App Router) + **React 19**
+- **TypeScript 5** (strict, sin `any` salvo justificación)
+- **Tailwind CSS v4** (vía `@tailwindcss/postcss`; el tema vive en CSS,
+  en `src/app/globals.css`, no en un `tailwind.config.js`)
 - **GSAP 3** + **Lenis** (animaciones, smooth scroll)
-- **MongoDB** (driver oficial o Mongoose — pendiente decisión en init)
+- **Zod 4** (validación de datos en bordes; se usará cuando se sumen formularios)
+- **pnpm 11** (pinned vía `packageManager`), **Node ≥ 22**
 
-Versiones exactas → `package.json` cuando exista. Fijar majors, minors flotando (`^`).
+**Sin backend ni base de datos.** El sitio es puramente frontend/estático:
+no hay API routes / route handlers (`src/app/api/`), ni cliente de DB, ni
+persistencia. Si en el futuro se suma un backend, se documenta en un ADR.
+
+Versiones exactas → `package.json`. Fijar majors, minors flotando (`^`).
 
 ---
 
@@ -88,29 +93,43 @@ Versiones exactas → `package.json` cuando exista. Fijar majors, minors flotand
 /
 ├── AGENTS.md              ← este archivo (contrato AI-neutral)
 ├── CLAUDE.md              ← adapter para Claude Code
+├── CODEX.md               ← adapter para OpenAI Codex CLI
+├── GEMINI.md              ← adapter para Gemini CLI
 ├── DESIGN.md              ← sistema de diseño (tokens, tipos, reglas)
-├── README.md              ← onboarding humano
 ├── docs/
 │   ├── README.md          ← índice de documentación
 │   ├── COMMITS.md         ← convenciones de commit
 │   ├── GLOSSARY.md        ← jerga del dominio ED
+│   ├── MESSAGING.md       ← copy canónico de marca
 │   ├── AI_GUIDELINES.md   ← reglas detalladas de código IA-friendly
-│   └── adr/               ← decisiones arquitectónicas (cuando aplique)
-├── public/
+│   ├── conventions/       ← CODE-STYLE.md
+│   └── architecture/adrs/ ← decisiones arquitectónicas (ADRs)
+├── skills/                ← workflows estables (adr-create, pr-review)
+├── public/                ← assets estáticos (brand/, imágenes)
 ├── src/
-│   ├── app/               ← rutas Next.js (App Router)
+│   ├── app/               ← App Router: layout.tsx, page.tsx, globals.css
 │   ├── components/        ← UI reutilizable
+│   │   ├── brand/         ← logotipo / marca
+│   │   ├── layout/        ← Header, Footer, MobileNav, etc.
+│   │   ├── providers/     ← LenisProvider (smooth scroll)
+│   │   └── ui/            ← botones, reveals, íconos (ui/icons/)
 │   ├── features/          ← módulos por dominio
-│   ├── lib/               ← utilidades, clientes (db, etc.)
-│   ├── config/            ← site.ts (datos institucionales)
-│   ├── styles/            ← globals.css, tokens
-│   └── types/             ← tipos compartidos
-└── .claude/               ← adapter Claude (settings; opcionalmente sub-agentes y slash-commands)
+│   │   └── home/components/ ← secciones del home (Hero, LineasAccion, …)
+│   ├── config/            ← site.ts (datos institucionales) + nav.ts
+│   └── lib/               ← hooks/ y utilidades (intro-signal.ts)
+└── (config raíz)          ← tsconfig.json, eslint.config.mjs, next.config.ts,
+                              postcss.config.mjs, pnpm-workspace.yaml, .npmrc
 ```
 
+> **Nota:** el theming de Tailwind v4 vive en `src/app/globals.css` (bloque
+> `@theme`), no en `src/styles/` ni en un `tailwind.config.js`. No hay
+> `src/lib/db/` (sin base de datos) ni `src/app/api/` (sin backend). Un
+> `README.md` de onboarding humano en la raíz está **pendiente de crear**.
+
 **Golden rule:** los `.md` raíz y `docs/` son la fuente de verdad. Los
-folders `.claude/`, `.gemini/`, `.codex/` (cuando se sumen) son adaptadores
-— nunca contenido propio.
+adapters (`CLAUDE.md`, `CODEX.md`, `GEMINI.md`, y un futuro folder
+`.claude/`) solo mapean ese contrato a cada herramienta — nunca contenido
+propio.
 
 ---
 
@@ -122,7 +141,7 @@ es decisión de la IA (o del operador humano) elegir el enfoque correcto.
 
 **Delegar a un sub-agente / contexto separado** cuando:
 - La tarea requiere búsqueda extensa (>3 lecturas de archivos).
-- Hay un dominio claramente especializado (animación, schema de DB, copy).
+- Hay un dominio claramente especializado (animación GSAP, diseño, copy).
 - Conviene proteger el contexto del hilo principal.
 - La tarea es paralelizable (varias búsquedas o validaciones independientes).
 
@@ -196,7 +215,6 @@ Ninguna IA ejecuta sin confirmación explícita del usuario:
 - Agregar dependencias (`npm install`, `pnpm add`).
 - Modificar `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`,
   `DESIGN.md`.
-- Ejecutar migraciones de DB en cualquier ambiente.
 - Cualquier acción visible fuera del repo local.
 
 ### 5.7. Estrategia de merge a `main`
@@ -217,8 +235,8 @@ Ninguna IA ejecuta sin confirmación explícita del usuario:
   - `required_approving_review_count: 0` — el gate de review es
     *cultural* (CODEOWNERS + convención), no técnico. Subir a 1+
     cuando el equipo crezca.
-- **CI debe estar verde** antes de pedir review (`pnpm doctor`,
-  `pnpm check`, `pnpm build`).
+- **CI debe estar verde** antes de pedir review (`pnpm lint`,
+  `pnpm typecheck`, `pnpm build`).
 
 ---
 
@@ -244,7 +262,7 @@ Ninguna IA ejecuta sin confirmación explícita del usuario:
 
 - [ ] TypeScript strict pasa sin warnings.
 - [ ] Lint pasa.
-- [ ] Componentes < 150 líneas, hooks < 80 líneas, route handlers < 100.
+- [ ] Componentes < 150 líneas, hooks < 80 líneas, utilidades < 100.
 - [ ] Cero `any` sin comentario justificando.
 - [ ] Cero rutas relativas largas (`../../..`) — usar `@/` alias.
 
@@ -267,10 +285,8 @@ Ninguna IA ejecuta sin confirmación explícita del usuario:
 - **Imágenes:** `next/image` con `alt`, `width`, `height`, `loading="lazy"`
   excepto LCP.
 - **Fonts:** `next/font/google` con `display: 'swap'` y subset `latin`.
-- **API:** validar input con Zod, devolver `Response.json()` con status
-  correcto, no exponer detalles internos en errores.
-- **DB:** schemas en `src/lib/db/schemas/`, queries en `src/lib/db/queries/`,
-  nunca queries inline en componentes ni en handlers.
+- **Validación:** cuando se sumen formularios o datos de entrada, validar
+  los bordes con **Zod**. (Hoy no hay backend ni API: el sitio es estático.)
 - **Imports:** orden framework → externos → internos (`@/...`).
 - **Naming:** PascalCase componentes/tipos, camelCase utils/hooks
   (con prefijo `use`), SCREAMING_SNAKE_CASE constantes, kebab-case carpetas.
@@ -374,18 +390,15 @@ Antes de pedir merge a `main`:
 ## 12. Estado del proyecto
 
 - [x] Manual de marca procesado → `DESIGN.md`
-- [x] Documentación AI-neutral inicial (`AGENTS.md`, `CLAUDE.md`, `docs/`)
-- [x] Scaffold Next.js 16 (App Router + Turbopack) + TS strict + Tailwind v4 + ESLint 9
-- [x] Stack adicional instalado: GSAP, Lenis, MongoDB driver oficial, Zod
-- [x] Tooling: Prettier + `prettier-plugin-tailwindcss`
+- [x] Documentación AI-neutral (`AGENTS.md`, adapters, `docs/`)
+- [x] Scaffold Next.js 16 (App Router) + React 19 + TS strict + Tailwind v4 + ESLint 9
+- [x] Stack adicional instalado: GSAP, Lenis, Zod
 - [x] `pnpm-workspace.yaml` con `allowBuilds` aprobando sharp y unrs-resolver
-- [x] `git init` + remote `origin` (`BriarDevv/Empoderamiento-Docente`)
-- [x] Primer commit + push inicial (4 commits atómicos en `main`)
 - [x] Mapear tokens de `DESIGN.md` al Tailwind v4 (`globals.css` con `@theme`)
-- [x] Cargar fuentes Manrope + Inter (`next/font/google`)
+- [x] Cargar fuentes Manrope + Inter (+ JetBrains Mono) vía `next/font/google`
 - [x] Configurar metadata base + `lang="es"` en root layout
-- [ ] Crear `src/config/site.ts` con datos institucionales
-- [ ] Conectar MongoDB (Atlas vs local — pendiente decisión)
-- [ ] Reemplazar placeholder de `src/app/page.tsx` por home real
+- [x] `src/config/site.ts` con datos institucionales + `src/config/nav.ts`
+- [x] Home real (`src/app/page.tsx` + `src/features/home/`)
+- [ ] Crear `README.md` de onboarding humano en la raíz
 - [ ] Sitemap definitivo
 - [ ] CI/CD

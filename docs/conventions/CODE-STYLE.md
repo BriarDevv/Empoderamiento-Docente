@@ -1,10 +1,10 @@
 # CODE-STYLE.md — Estilo de código y documentación
 
-> Las reglas operativas viven en configuración (`.prettierrc`,
-> `.editorconfig`, `eslint.config.mjs`, `tsconfig.json`,
-> `commitlint.config.cjs`). Este archivo agrupa las decisiones de estilo
-> **que las herramientas no enforce-an** y sirve como índice para
-> encontrar dónde vive cada regla.
+> Las reglas operativas que sí están automatizadas viven en configuración
+> (`eslint.config.mjs`, `tsconfig.json`). Este archivo agrupa las decisiones
+> de estilo **que las herramientas no enforce-an** y sirve como índice para
+> encontrar dónde vive cada regla. No hay Prettier, commitlint ni
+> `.editorconfig` configurados por ahora.
 
 ---
 
@@ -12,17 +12,15 @@
 
 | Donde vive                | Qué regula                                  |
 | ------------------------- | ------------------------------------------- |
-| `.prettierrc`             | Format JS/TS/JSON/CSS (semi, quotes, width) |
-| `.prettierignore`         | Qué no formatea Prettier                    |
-| `.editorconfig`           | Charset, EOL (LF), indentación base         |
-| `.gitattributes`          | EOL forzado a LF; lockfiles binarios        |
 | `eslint.config.mjs`       | Reglas semánticas TS/React/Next.js          |
-| `tsconfig.json`           | TS strict + path aliases                    |
-| `commitlint.config.cjs`   | Conventional Commits, tipos válidos         |
+| `tsconfig.json`           | TS strict + path aliases (`@/*`)            |
+| `next.config.ts`          | Configuración de Next.js                     |
+| `postcss.config.mjs`      | PostCSS + `@tailwindcss/postcss` (Tailwind v4) |
+| `.gitignore`              | Qué no se versiona                           |
 | `docs/COMMITS.md`         | Convención humana de commits                |
-| `docs/AI_GUIDELINES.md`   | Reglas de código IA-friendly (18 reglas)    |
+| `docs/AI_GUIDELINES.md`   | Reglas de código IA-friendly                |
 | `docs/GLOSSARY.md`        | Vocabulario del dominio                     |
-| `DESIGN.md`               | Tokens visuales                             |
+| `DESIGN.md`               | Tokens visuales (`@theme` en globals.css)   |
 | `AGENTS.md`               | Hard rules + quality standards              |
 
 ---
@@ -34,8 +32,8 @@
 - **Sin emojis** salvo que el cliente lo pida explícito. Los badges del
   README son la excepción permitida (usan shields.io con texto, no
   pictogramas Unicode).
-- **80 columnas prose-wrap** como objetivo. Prettier ignora Markdown a
-  propósito; el wrap lo cuidás vos al escribir.
+- **80 columnas prose-wrap** como objetivo. No hay formatter de Markdown
+  configurado; el wrap lo cuidás vos al escribir.
 - **Headers ATX (`#`, `##`, `###`)**, no setext (`====`, `----`).
 - **Listas con guion `-`**, no asterisco `*`.
 - **Code fences con triple backtick y lenguaje declarado** (` ```ts `,
@@ -67,8 +65,10 @@ repite acá por visibilidad:
   partilo en 2-3 PRs encadenados.
 - **Título sigue Conventional Commits** del commit principal:
   `feat(home): integrar hero con animación de faro`.
-- **Descripción usa `.github/PULL_REQUEST_TEMPLATE.md`** sin borrar las
-  secciones de Compliance y Test plan.
+- **Descripción en español** con, al menos: resumen, cambios principales,
+  verificación local (`pnpm lint` / `typecheck` / `build`) y compliance con
+  las hard rules (`AGENTS.md` §5). _(No hay plantilla de PR en `.github/`
+  por ahora.)_
 - **Tamaño objetivo:** ≤ 400 líneas cambiadas (excluyendo lockfile y
   artifacts). Más que eso, considerá partirlo.
 
@@ -102,8 +102,9 @@ repite acá por visibilidad:
 Cuando aparezca una decisión de estilo nueva:
 
 - **Si las tools la pueden enforce-ar** → mejor sumar la regla a
-  `.prettierrc`, `eslint.config.mjs` o `.editorconfig`. Acá solo dejamos
-  la referencia al archivo donde quedó.
+  `eslint.config.mjs` o `tsconfig.json` (o sumar la tool que falte, p. ej.
+  Prettier, y documentarla). Acá solo dejamos la referencia al archivo
+  donde quedó.
 - **Si es decisión humana** (Markdown, naming de branches, idioma) →
   sumarla acá.
 - **Si es del dominio educativo / IA-friendly** → va a

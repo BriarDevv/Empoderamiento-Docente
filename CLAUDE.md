@@ -105,8 +105,8 @@ esperar OK:
 - `git commit`, `git push`, `git reset --hard`, force-push.
 - `gh pr create`, `gh pr merge`, `gh issue close`.
 - `pnpm add`, `npm install`, `npm i`.
-- Modificación de `AGENTS.md`, `CLAUDE.md`, `DESIGN.md` (los meta-docs).
-- Migraciones de DB.
+- Modificación de `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`,
+  `DESIGN.md` (los meta-docs).
 
 ---
 
