@@ -80,8 +80,11 @@ export function BibliotecaNovedades() {
     >
       <div className="relative z-10 mx-auto max-w-screen-xl px-5 md:px-10">
         <div className="grid gap-y-14 md:grid-cols-[1fr_auto_1fr] md:gap-x-16">
-          {/* ── Biblioteca ──────────────────────────────────────────── */}
-          <div className="flex flex-col">
+          {/* ── Biblioteca ──────────────────────────────────────────────
+              En mobile va SEGUNDA (Novedades arriba) vía `order`; en desktop
+              vuelve a la izquierda. El separador punteado superior es solo
+              mobile (en desktop divide la línea vertical de marca). */}
+          <div className="border-azul-medio/30 order-2 flex flex-col border-t-2 border-dotted pt-14 md:order-none md:border-t-0 md:pt-0">
             <header>
               <Link
                 href="/biblioteca"
@@ -143,8 +146,10 @@ export function BibliotecaNovedades() {
             <span className="bn-node" />
           </div>
 
-          {/* ── Novedades ───────────────────────────────────────────── */}
-          <div className="border-azul-medio/30 flex flex-col border-t-2 border-dotted pt-14 md:border-t-0 md:pt-0">
+          {/* ── Novedades ───────────────────────────────────────────────
+              En mobile va PRIMERA (arriba de Biblioteca) vía `order`; en
+              desktop vuelve a la derecha. */}
+          <div className="order-1 flex flex-col md:order-none">
             <header>
               <Link
                 href="/novedades"
