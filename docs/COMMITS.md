@@ -55,6 +55,7 @@ para alguien que no estuvo en la sesión**.
 - `header` · `footer` · `nav` · `hero` (componentes globales)
 - `ui` (componentes UI reutilizables: button, card, input)
 - `forms` (formularios — cuando se sumen: contacto, CV)
+- `db` (Supabase: cliente, schema, queries, RLS — cuando se integre)
 - `seo` (metadata, sitemap, structured data)
 - `anim` (GSAP, Lenis, transiciones)
 - `i18n` (si hay multi-idioma)

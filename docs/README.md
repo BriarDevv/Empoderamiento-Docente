@@ -4,9 +4,9 @@
 
 - **Si sos una IA** trabajando en el repo: empezá por
   [`../AGENTS.md`](../AGENTS.md), después volvé acá.
-- **Si sos humano**: empezá por [`../AGENTS.md`](../AGENTS.md) (Quickstart)
-  + `package.json` scripts. _(Un `README.md` de onboarding humano en la raíz
-  está pendiente de crear.)_
+- **Si sos humano**: empezá por [`../README.md`](../README.md) (onboarding:
+  instalación, scripts, estructura) y, para las reglas del repo, por
+  [`../AGENTS.md`](../AGENTS.md) (Quickstart).
 
 ---
 
@@ -24,7 +24,7 @@
 | Mensajes de marca | [`MESSAGING.md`](MESSAGING.md)                  | Copy canónico: tagline, hero, triángulo de pilares, manifiesto, tono de voz   |
 | Estilo de código  | [`conventions/CODE-STYLE.md`](conventions/CODE-STYLE.md) | Decisiones de estilo que las tools no enforce-an + índice de configs |
 | Código IA-friendly| [`AI_GUIDELINES.md`](AI_GUIDELINES.md)          | Reglas detalladas: naming, archivos chicos, TS, Tailwind v4, GSAP            |
-| ADRs              | [`architecture/adrs/`](architecture/adrs/README.md) | Decisiones arquitectónicas (stack base, etc.)                          |
+| ADRs              | [`architecture/adrs/`](architecture/adrs/README.md) | Decisiones arquitectónicas (stack base, backend con Supabase, etc.)   |
 
 ---
 
@@ -37,8 +37,9 @@
 | Trabajar con animaciones (GSAP / Lenis)           | `../AGENTS.md` §7 → §8 (anti-patterns) → [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §11  |
 | Hacer commits                                     | [`COMMITS.md`](COMMITS.md) → `../AGENTS.md` §9                                       |
 | Entender la arquitectura del proyecto             | `../AGENTS.md` §1 + §3 → [`architecture/adrs/0001-stack-base.md`](architecture/adrs/0001-stack-base.md) |
-| Instalar y correr local                           | `package.json` scripts (`pnpm dev` / `build` / `start` / `lint` / `typecheck`)       |
-| Ponerte al día con el estado del proyecto         | `../AGENTS.md` §12 (Estado del proyecto)                                             |
+| Instalar y correr local                           | [`../README.md`](../README.md) (getting started) → `package.json` scripts (`pnpm dev` / `build` / `start` / `lint` / `typecheck`) |
+| Entender el backend / persistencia (Supabase)     | `../AGENTS.md` §12 → [`architecture/adrs/0002-adoptar-supabase-persistencia.md`](architecture/adrs/0002-adoptar-supabase-persistencia.md) → [`AI_GUIDELINES.md`](AI_GUIDELINES.md) §12 |
+| Ponerte al día con el estado del proyecto         | `../AGENTS.md` §13 (Estado del proyecto)                                             |
 
 ---
 

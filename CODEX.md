@@ -51,6 +51,9 @@ plan y esperar OK explícito:
 - `pnpm add`, `npm install`, `npm i`.
 - Modificación de `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`,
   `DESIGN.md` (meta-docs).
+- Migraciones / cambios de schema de **Supabase** (cuando se integre):
+  confirmar el diseño antes de crear o alterar tablas o políticas RLS
+  (ver `AGENTS.md` §12).
 
 ---
 

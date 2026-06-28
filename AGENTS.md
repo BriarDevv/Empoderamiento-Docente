@@ -11,8 +11,12 @@
 
 - **Qué es:** sitio web institucional de **Empoderamiento Docente (ED)**.
 - **Stack:** Next.js 16 (App Router) + React 19 + TypeScript strict +
-  Tailwind CSS v4 (theming en CSS) + GSAP + Lenis + Zod. **Sin backend ni
-  base de datos:** es un sitio puramente frontend/estático.
+  Tailwind CSS v4 (theming en CSS) + GSAP + Lenis + Zod.
+- **Backend/persistencia:** **Supabase** (Postgres + Auth + Storage), a
+  integrar cuando haya formularios (inscripción, CV); **hoy el sitio corre
+  100% frontend** (Supabase todavía no está en el repo). Ver
+  [ADR-0002](docs/architecture/adrs/0002-adoptar-supabase-persistencia.md).
+- **Onboarding humano:** [`README.md`](README.md) (instalación, scripts, estructura).
 - **Lanzamiento:** **junio 2026** (estimado).
 - **Reglas duras** (no negociables):
   1. **Lenguaje inclusivo siempre** (`las y los`), nunca "alumnos" → siempre "estudiantes".
@@ -45,7 +49,8 @@
 | Hacer **commits**                           | `docs/COMMITS.md` → §9 commit protocol                                                      |
 | Hacer **review** antes de PR                | §6 quality standards → §10 pre-PR checklist                                                 |
 | Entender la **arquitectura del repo**       | §1 purpose → §3 project structure → `docs/architecture/adrs/0001-stack-base.md`             |
-| **Instalar y correr local**                 | `package.json` scripts (`pnpm dev` / `build` / `start` / `lint` / `typecheck`)              |
+| **Backend / datos** (Supabase, a futuro)    | §2 stack → §12 backend/datos → `docs/architecture/adrs/0002-adoptar-supabase-persistencia.md` → `docs/AI_GUIDELINES.md` §12 |
+| **Instalar y correr local**                 | `README.md` (getting started) → `package.json` scripts (`pnpm dev` / `build` / `start` / `lint` / `typecheck`) |
 
 > Si tu tarea no entra en la tabla, pedile al usuario que la describa y
 > elegí el enfoque que consideres apropiado (trabajo directo o delegación
@@ -77,11 +82,17 @@ ED a definir con el cliente).
   en `src/app/globals.css`, no en un `tailwind.config.js`)
 - **GSAP 3** + **Lenis** (animaciones, smooth scroll)
 - **Zod 4** (validación de datos en bordes; se usará cuando se sumen formularios)
+- **Supabase** (backend/persistencia elegido: Postgres + Auth + Storage) —
+  **a integrar a futuro**, todavía no está en el repo
 - **pnpm 11** (pinned vía `packageManager`), **Node ≥ 22**
 
-**Sin backend ni base de datos.** El sitio es puramente frontend/estático:
-no hay API routes / route handlers (`src/app/api/`), ni cliente de DB, ni
-persistencia. Si en el futuro se suma un backend, se documenta en un ADR.
+**Backend/persistencia: Supabase (a integrar).** Se eligió **Supabase**
+(Postgres gestionado + Auth + Storage, BaaS) como backend para cuando aparezcan
+formularios (inscripción, envío de CV). **Hoy el sitio corre 100% frontend:**
+no hay `@supabase/supabase-js` en `package.json`, ni cliente, ni tablas, ni env
+vars, ni API routes (`src/app/api/`). Detalle y alternativas en
+[ADR-0002](docs/architecture/adrs/0002-adoptar-supabase-persistencia.md);
+guías de código en §12 y en `docs/AI_GUIDELINES.md` §12.
 
 Versiones exactas → `package.json`. Fijar majors, minors flotando (`^`).
 
@@ -91,6 +102,7 @@ Versiones exactas → `package.json`. Fijar majors, minors flotando (`^`).
 
 ```
 /
+├── README.md             ← onboarding humano (instalación, scripts, estructura)
 ├── AGENTS.md              ← este archivo (contrato AI-neutral)
 ├── CLAUDE.md              ← adapter para Claude Code
 ├── CODEX.md               ← adapter para OpenAI Codex CLI
@@ -122,9 +134,10 @@ Versiones exactas → `package.json`. Fijar majors, minors flotando (`^`).
 ```
 
 > **Nota:** el theming de Tailwind v4 vive en `src/app/globals.css` (bloque
-> `@theme`), no en `src/styles/` ni en un `tailwind.config.js`. No hay
-> `src/lib/db/` (sin base de datos) ni `src/app/api/` (sin backend). Un
-> `README.md` de onboarding humano en la raíz está **pendiente de crear**.
+> `@theme`), no en `src/styles/` ni en un `tailwind.config.js`. Todavía **no
+> hay** `src/lib/supabase/` (cliente), ni tablas, ni `src/app/api/`: el backend
+> con **Supabase** es la dirección elegida pero está **por integrar** (ver
+> [ADR-0002](docs/architecture/adrs/0002-adoptar-supabase-persistencia.md)).
 
 **Golden rule:** los `.md` raíz y `docs/` son la fuente de verdad. Los
 adapters (`CLAUDE.md`, `CODEX.md`, `GEMINI.md`, y un futuro folder
@@ -286,7 +299,8 @@ Ninguna IA ejecuta sin confirmación explícita del usuario:
   excepto LCP.
 - **Fonts:** `next/font/google` con `display: 'swap'` y subset `latin`.
 - **Validación:** cuando se sumen formularios o datos de entrada, validar
-  los bordes con **Zod**. (Hoy no hay backend ni API: el sitio es estático.)
+  los bordes con **Zod** antes de tocar Supabase. (Hoy el sitio corre 100%
+  frontend; Supabase es el backend elegido a integrar — ver §12.)
 - **Imports:** orden framework → externos → internos (`@/...`).
 - **Naming:** PascalCase componentes/tipos, camelCase utils/hooks
   (con prefijo `use`), SCREAMING_SNAKE_CASE constantes, kebab-case carpetas.
@@ -387,7 +401,36 @@ Antes de pedir merge a `main`:
 
 ---
 
-## 12. Estado del proyecto
+## 12. Backend y datos (Supabase)
+
+**El backend/persistencia elegido es [Supabase](https://supabase.com)** (BaaS
+sobre Postgres gestionado + Auth + Storage). **Todavía no está integrado:** hoy
+el sitio corre 100% frontend (sin `@supabase/supabase-js`, sin cliente, sin
+tablas, sin env vars, sin `src/app/api/`). Decisión completa, consecuencias y
+alternativas en
+[ADR-0002](docs/architecture/adrs/0002-adoptar-supabase-persistencia.md).
+
+Enfoque para cuando se integre (no implementar antes de que aparezcan los
+formularios y el usuario lo confirme):
+
+- **Acceso a datos** vía el SDK oficial **`@supabase/supabase-js`**; schema,
+  queries y políticas **RLS** definidas en Supabase.
+- **Validar todos los bordes con Zod** antes de escribir/leer (formularios,
+  payloads). Nunca confiar en input externo.
+- **Env vars por contexto:** `NEXT_PUBLIC_SUPABASE_URL` y
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` son públicas (cliente); la
+  `SUPABASE_SERVICE_ROLE_KEY` es secreta y **solo server-side** (nunca
+  `NEXT_PUBLIC_`, nunca expuesta al browser). Placeholders en `.env.example`.
+- **RLS activada** en toda tabla con datos sensibles desde el día uno.
+- **Migraciones / schema:** confirmar el diseño con el humano antes de crear
+  tablas o políticas. No inventar tablas ni columnas que no estén acordadas.
+
+No describir aquí tablas concretas: el modelo de datos se define al
+implementar (y, si amerita, en un ADR de implementación).
+
+---
+
+## 13. Estado del proyecto
 
 - [x] Manual de marca procesado → `DESIGN.md`
 - [x] Documentación AI-neutral (`AGENTS.md`, adapters, `docs/`)
@@ -399,6 +442,7 @@ Antes de pedir merge a `main`:
 - [x] Configurar metadata base + `lang="es"` en root layout
 - [x] `src/config/site.ts` con datos institucionales + `src/config/nav.ts`
 - [x] Home real (`src/app/page.tsx` + `src/features/home/`)
-- [ ] Crear `README.md` de onboarding humano en la raíz
+- [x] Crear `README.md` de onboarding humano en la raíz
+- [ ] Integrar **Supabase** (cliente, schema, RLS, env vars) cuando haya formularios
 - [ ] Sitemap definitivo
 - [ ] CI/CD
