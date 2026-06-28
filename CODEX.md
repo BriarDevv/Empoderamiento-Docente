@@ -51,7 +51,6 @@ plan y esperar OK explícito:
 - `pnpm add`, `npm install`, `npm i`.
 - Modificación de `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`,
   `DESIGN.md` (meta-docs).
-- Migraciones de DB.
 
 ---
 

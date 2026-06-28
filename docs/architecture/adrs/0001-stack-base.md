@@ -1,9 +1,21 @@
 # ADR-0001: Stack base del sitio
 
-- **Status:** Accepted
+- **Status:** Accepted — **parcialmente superseded por
+  [ADR-0002](0002-descartar-persistencia-mongodb.md)** (2026-06-28)
 - **Date:** 2026-05-19
 - **Decision-makers:** @BriarDevv (resto del equipo a sumar cuando se den
   de alta en GitHub)
+
+> **Nota de actualización (2026-06-28).** La capa de **persistencia
+> (MongoDB)** descrita más abajo **se descartó**: el sitio quedó como
+> proyecto **puramente frontend/estático**, sin backend ni base de datos.
+> Ver [ADR-0002](0002-descartar-persistencia-mongodb.md). El resto del
+> stack sigue vigente, con estas precisiones respecto del texto original:
+> Tailwind v4 se usa **CSS-first** (sin `tailwind.config.js`; tema en
+> `src/app/globals.css`) y **no hay Prettier/commitlint configurados** (el
+> lint corre con ESLint vía `pnpm lint`). El stack vigente y resumido vive
+> en `AGENTS.md` §2. El cuerpo original se conserva sin reescribir, como
+> registro histórico de la decisión.
 
 ---
 

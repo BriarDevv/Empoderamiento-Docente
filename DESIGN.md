@@ -14,12 +14,15 @@ tipografías, jerarquía, espaciado e iconografía.
 
 ### Tokens
 
+> Valores canónicos = los del bloque `@theme` en `src/app/globals.css`
+> (ver §8). Esta tabla los documenta; si difieren, **gana `globals.css`**.
+
 | Token            | Hex       | RGB              | Rol                                              |
 | ---------------- | --------- | ---------------- | ------------------------------------------------ |
-| `azul-principal` | `#1F2A44` | 31, 42, 68       | Base, fondos oscuros, títulos sobre claro        |
+| `azul-principal` | `#1F2D4D` | 31, 45, 77       | Base, fondos oscuros, títulos sobre claro        |
 | `azul-medio`     | `#4A6FA5` | 74, 111, 165     | Acentos en titulares, links, subtítulos          |
 | `azul-claro`     | `#A9C5E8` | 169, 197, 232    | Fondos suaves, estados hover en superficies      |
-| `verde-concepto` | `#3E7C6D` | 62, 124, 109     | Conceptos, palabras clave, highlights de texto   |
+| `verde-concepto` | `#1F9A78` | 31, 154, 120     | Conceptos, palabras clave, highlights de texto   |
 | `naranja-accion` | `#E07A2F` | 224, 122, 47     | **Solo CTAs**: botones primarios, links de acción|
 | `gris-fondo`     | `#F2F4F7` | 242, 244, 247    | Fondo claro alternativo a blanco                 |
 | `gris-texto`     | `#6B7280` | 107, 114, 128    | Texto secundario, metadatos, captions            |
@@ -47,15 +50,18 @@ tipografías, jerarquía, espaciado e iconografía.
 
 ## 2. Tipografía
 
-| Uso        | Fuente            | Peso     |
-| ---------- | ----------------- | -------- |
-| Títulos    | **Manrope**       | 700 Bold |
-| Subtítulos | **Manrope**       | 500 Medium |
-| Cuerpo     | **Inter**         | 400 Regular |
-| UI / botones | **Inter**       | 500 Medium |
+| Uso          | Fuente             | Peso        |
+| ------------ | ------------------ | ----------- |
+| Títulos      | **Manrope**        | 700 Bold    |
+| Subtítulos   | **Manrope**        | 500 Medium  |
+| Cuerpo       | **Inter**          | 400 Regular |
+| UI / botones | **Inter**          | 500 Medium  |
+| Mono / código | **JetBrains Mono** | 400 / 500   |
 
-Ambas son fuentes variables disponibles en Google Fonts → cargar via
-`next/font/google` con `display: 'swap'` y subset `latin`.
+Las tres se cargan vía `next/font/google` con `display: 'swap'` y subset
+`latin` (ver `src/app/layout.tsx`). Manrope (`font-display`) e Inter
+(`font-sans`) son las principales; JetBrains Mono (`font-mono`) es auxiliar,
+para notación / detalles tipo código.
 
 ### Escala tipográfica recomendada
 
@@ -106,25 +112,28 @@ Tailwind v4 para el rango fluido. Valores en rem, base 16px.
 - **Estilo:** línea (outline), trazo de 1.5–2px, esquinas redondeadas suaves.
 - **Color por defecto:** `azul-principal`. Sobre fondos oscuros: blanco.
 - **Tamaño:** 20px (inline en texto), 24px (UI), 48–64px (íconos de feature).
-- **Librería sugerida:** [Lucide](https://lucide.dev/) (línea, consistente con
-  el manual de marca, MIT, tree-shakeable). Si un ícono no existe en Lucide,
-  vectorizar manualmente respetando el estilo.
+- **Set propio, sin librería externa.** Los íconos viven como componentes
+  React en `src/components/ui/icons/index.tsx` (SVG `currentColor`, stroke
+  1.5px). Se decidió **no** usar `lucide-react` para no sumar una
+  dependencia. Si falta un ícono, agregar un componente nuevo a ese archivo
+  respetando el estilo (no inventar otra librería ni redibujar el logo).
 
 ### Set canónico
 
-Cinco íconos forman el set de referencia del manual. Mapeo recomendado:
+Cinco íconos forman el set de referencia del manual. Mapeo a los
+componentes de `src/components/ui/icons/`:
 
-| Ícono              | Concepto    | Lucide         | Uso típico                              |
-| ------------------ | ----------- | -------------- | --------------------------------------- |
-| Bombilla           | Ideas       | `lightbulb`    | Reflexiones, blog, contenido editorial  |
-| Libro abierto      | Formación   | `book-open`    | Cursos, talleres, material didáctico    |
-| Dos personas       | Comunidad   | `users`        | Comunidad, testimonios, eventos         |
-| Diana con flecha   | Objetivos   | `target`       | Propósito, misión, metas                |
-| Gráfico ascendente | Crecimiento | `trending-up`  | Transformación, resultados, impacto     |
+| Ícono              | Concepto    | Componente    | Uso típico                              |
+| ------------------ | ----------- | ------------- | --------------------------------------- |
+| Bombilla           | Ideas       | `Lightbulb`   | Reflexiones, blog, contenido editorial  |
+| Libro abierto      | Formación   | `BookOpen`    | Cursos, talleres, material didáctico    |
+| Dos personas       | Comunidad   | `Users`       | Comunidad, testimonios, eventos         |
+| Diana con flecha   | Objetivos   | `Target`      | Propósito, misión, metas                |
+| Gráfico ascendente | Crecimiento | `TrendingUp`  | Transformación, resultados, impacto     |
 
-Estos cinco cubren los pilares semánticos de ED. Otros íconos de Lucide se
-pueden usar para UI accesoria (chevrons, close, search, etc.) sin pasar por
-esta tabla.
+Estos cinco cubren los pilares semánticos de ED. El archivo incluye además
+íconos de UI accesoria (`ArrowRight`, `Menu`, `X`, `Compass`, redes, etc.)
+que se usan sin pasar por esta tabla.
 
 ---
 
@@ -205,10 +214,10 @@ automáticamente a las clases utilitarias.
 ```css
 @theme {
   /* paleta */
-  --color-azul-principal: #1f2a44;
+  --color-azul-principal: #1f2d4d;
   --color-azul-medio: #4a6fa5;
   --color-azul-claro: #a9c5e8;
-  --color-verde-concepto: #3e7c6d;
+  --color-verde-concepto: #1f9a78;
   --color-naranja-accion: #e07a2f;
   --color-gris-fondo: #f2f4f7;
   --color-gris-texto: #6b7280;
@@ -216,6 +225,7 @@ automáticamente a las clases utilitarias.
   /* tipografías expuestas por next/font/google en src/app/layout.tsx */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 
   /* escala fluida mobile → desktop (con line-height pareada) */
   --text-display: clamp(2.5rem, 1rem + 5vw, 4.5rem);

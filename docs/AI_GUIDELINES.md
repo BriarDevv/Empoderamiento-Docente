@@ -14,7 +14,7 @@ repite, repetirlo igual; si una decisión es estándar, no innovar.
 - Misma estructura para todos los componentes.
 - Misma forma de exportar (`export default` para componentes/páginas,
   `export const` named para hooks/utils).
-- Misma forma de manejar errores en API routes.
+- Misma forma de manejar errores y estados (loading / vacío / error).
 - Mismo orden de imports.
 
 ---
@@ -26,8 +26,6 @@ repite, repetirlo igual; si una decisión es estándar, no innovar.
 | Componente UI       | < 150 líneas     |
 | Hook personalizado  | < 80 líneas      |
 | Utility / helper    | < 100 líneas     |
-| Route handler       | < 100 líneas     |
-| Schema/modelo       | < 80 líneas      |
 
 Si un archivo se acerca al límite, **partirlo antes** que después. Claude
 trabaja mejor cuando puede leer un archivo entero con contexto suficiente.
@@ -153,8 +151,10 @@ Comentar solo cuando:
 
 ## 8. Manejo de errores
 
-- **API routes:** validar input, capturar excepciones, devolver status
-  correcto. Loguear server-side, mensaje genérico al cliente.
+> El sitio es frontend/estático: no hay API routes ni backend. Si más
+> adelante se suman (formularios, etc.), validar input con **Zod**,
+> capturar excepciones y devolver un mensaje genérico al cliente.
+
 - **Componentes:** usar `error.tsx` y `not-found.tsx` de Next.js para
   manejo a nivel de route.
 - **Funciones puras:** preferir tipos `Result<T, E>` o devolver `null`
@@ -180,8 +180,9 @@ Comentar solo cuando:
   falta un valor nuevo, agregarlo a los tokens.
 - **Sin `@apply` extensivo.** Mantener clases en JSX, salvo casos puntuales
   (botones reutilizables vía componente, no clase compuesta).
-- **Orden de clases:** seguir convención del plugin de Prettier
-  (`prettier-plugin-tailwindcss`).
+- **Orden de clases:** mantener un orden consistente y legible (layout →
+  spacing → tipografía → color → estado). No hay formatter de Tailwind
+  configurado por ahora; cuidar el orden a mano.
 
 ---
 
@@ -201,33 +202,42 @@ Comentar solo cuando:
 
 ---
 
-## 12. MongoDB
+## 12. Backend y persistencia
 
-- **Una colección = un archivo de schema** en `src/lib/db/schemas/`.
-- **Queries en `src/lib/db/queries/`**, nunca en componentes ni en route
-  handlers directamente. Los handlers llaman a queries.
-- **No exponer `_id` directo al cliente.** Mapear a `id` string.
-- **Validar antes de guardar.** Zod en el handler, schema de Mongo como
-  segunda línea.
+**No hay backend ni base de datos por ahora.** El sitio es puramente
+frontend/estático: sin `src/app/api/`, sin cliente de DB, sin persistencia.
+Los datos institucionales son estáticos y viven en `src/config/` (§13).
+
+Cuando se sume entrada de datos (p. ej. un formulario de contacto o de
+envío de CV):
+
+- **Validar los bordes con Zod** antes de procesar cualquier input.
+- **No exponer detalles internos** en los mensajes de error al cliente.
+- **Documentar la decisión** (qué backend / dónde persiste) en un ADR
+  bajo `docs/architecture/adrs/` antes de implementarla.
 
 ---
 
 ## 13. Configuración centralizada
 
-`src/config/site.ts` exporta la config institucional:
+`src/config/site.ts` exporta la config institucional (forma real):
 
 ```ts
 export const siteConfig = {
   name: "Empoderamiento Docente",
+  shortName: "ED",
   url: "https://empoderamientodocente.org",
-  email: "contacto@empoderamientodocente.org",
-  direccion: { ... },
-  redes: { ... },
+  description: "…",
+  contacto: { email: "…", direccion: { ... } },
+  paises: ["Chile", "México", "Argentina", "Colombia", "Brasil"],
+  redes: {} as { instagram?: string; linkedin?: string; facebook?: string },
+  mensajesPilares: [ ... ],
 } as const;
 ```
 
 Cualquier valor que aparezca en más de un componente vive acá. No
-hardcodear el mail o la dirección en JSX.
+hardcodear el mail, la dirección ni los handles de redes en JSX. Los
+handles de redes siguen vacíos hasta tenerlos confirmados — no inventar URLs.
 
 ---
 
@@ -239,7 +249,8 @@ Cuando un cambio toca:
 - **Términos del dominio** → editar `docs/GLOSSARY.md`.
 - **Cómo trabajar con sub-agentes** → editar `AGENTS.md`.
 - **Estructura general / setup** → editar `CLAUDE.md`.
-- **Una decisión arquitectónica importante** → crear ADR en `docs/adr/`.
+- **Una decisión arquitectónica importante** → crear ADR en
+  `docs/architecture/adrs/` (ver `skills/adr-create/SKILL.md`).
 
 La regla: **si Claude en una sesión futura no podrá deducir esto leyendo el
 código, va en un `.md`.**

@@ -18,7 +18,7 @@ description: Revisar un PR de Empoderamiento Docente en 4 fases — git state fr
   Empoderamiento-Docente).
 - PRs draft sin commits significativos.
 - Cuando lo que se necesita es solo verificar una regla puntual (en ese
-  caso correr `pnpm doctor` o un grep específico).
+  caso correr `pnpm lint` / `pnpm typecheck` o un grep específico).
 
 ## Pre-requisitos
 
@@ -76,7 +76,7 @@ gh pr view <N> --json commits --jq '.commits[] | "\(.oid[0:7]) \(.messageHeadlin
 Verificar:
 
 - Cada header sigue `<tipo>(<scope>): <descripción>`.
-- Tipos del enum (ver `commitlint.config.cjs`).
+- Tipos del enum (ver `docs/COMMITS.md` §2).
 - Sin commits "wip", "asdf", "cambios".
 - Si hay muchos commits "fix typo" o "review fixes" → flag para squash o
   partir el PR.
@@ -91,14 +91,15 @@ gh pr checkout <N>
 > a `main` (`git checkout main`) o vas a derivar de un PR ajeno sin
 > querer.
 
-### 1.4 Leer la descripción contra el template
+### 1.4 Leer la descripción del PR
 
-`.github/PULL_REQUEST_TEMPLATE.md` define las secciones esperadas
-(Resumen, Commits, Cambios principales, Verificación local, Compliance,
-Conocido fuera de scope, Reviewer ask, Test plan, Próximo PR).
+No hay plantilla de PR en `.github/` por ahora. Igual la descripción
+debería traer, en español, al menos: **Resumen**, **Cambios principales**,
+**Verificación local** (`pnpm lint` / `typecheck` / `build`) y
+**Compliance** con las hard rules (`AGENTS.md` §5).
 
-Anotar si falta alguna sección **crítica** (Resumen, Verificación local,
-Compliance).
+Anotar si falta alguna de esas secciones **críticas** (Resumen,
+Verificación local, Compliance).
 
 ---
 
@@ -106,28 +107,26 @@ Compliance).
 
 Estas son binarias: pasa o no pasa.
 
-### 2.1 ed-doctor
+### 2.1 Higiene del repo (chequeo manual)
 
-```bash
-pnpm doctor
-```
+No hay un `pnpm doctor` por ahora; chequear a mano:
 
-Falla si:
-
-- Hay `.env*` real trackeado (riesgo de leak).
-- Hay URI de MongoDB con credenciales literales en `src/`.
-- Adapters CLAUDE/CODEX/GEMINI no referencian AGENTS.md.
-- Rama no deriva del tip de `origin/main`.
-- Falta `pnpm-lock.yaml`.
+- No hay `.env*` real trackeado (riesgo de leak) — solo `.env.example` si
+  existiera.
+- No hay secretos / credenciales literales en `src/`.
+- Los adapters CLAUDE/CODEX/GEMINI referencian `AGENTS.md`.
+- La rama deriva del tip de `origin/main`.
+- `pnpm-lock.yaml` presente y coherente con `package.json`.
 
 Warning (no falla, pero anotar):
 
-- Patterns de lenguaje no inclusivo en `src/` o `content/`.
+- Patterns de lenguaje no inclusivo en `src/`.
 
-### 2.2 Tipado + lint + format + build
+### 2.2 Lint + typecheck + build
 
 ```bash
-pnpm check        # lint + typecheck + format:check
+pnpm lint
+pnpm typecheck
 pnpm build        # next build
 ```
 
@@ -179,11 +178,12 @@ verificaron.
 
 - ¿Server Components por default? ¿`"use client"` justificado?
 - ¿Imports usan `@/`?
-- ¿Componente nuevo está en `src/components/`? ¿Página nueva en
-  `src/app/`?
-- ¿Schema de Mongo en `src/lib/db/schemas/` y query en
-  `src/lib/db/queries/`?
-- ¿Validación Zod en handlers de API?
+- ¿Componente reutilizable en `src/components/`? ¿Sección del home en
+  `src/features/home/components/`? ¿Página nueva en `src/app/`?
+- ¿Datos institucionales centralizados en `src/config/` (site.ts / nav.ts),
+  no hardcodeados en JSX?
+- (No hay backend ni DB: si el PR introduce entrada de datos, validar los
+  bordes con Zod y abrir un ADR antes de sumar persistencia.)
 
 ### 3.2 Coherencia con DESIGN.md
 
@@ -226,8 +226,8 @@ Buscar específicamente:
 Esto es lo que sube la calidad del review más fuerte. Verificar:
 
 - **Claims del PR description vs archivos reales.** Si la descripción
-  dice "agregué endpoint POST /api/inscripciones", buscar que el archivo
-  exista y tenga el handler.
+  dice "agregué la sección X al home", buscar que el componente exista
+  (p. ej. en `src/features/home/components/`) y esté montado.
 - **Doc ↔ código.** Si el PR cambia un token visual, ¿se actualizó
   `DESIGN.md`? Si suma un término nuevo del dominio, ¿se sumó a
   `GLOSSARY.md`? Si es decisión arquitectónica grande, ¿hay ADR?
@@ -266,8 +266,9 @@ Un único `gh pr comment` con:
 
 ## Mecánicas
 
-- `pnpm doctor`: ✅ 7/7 / ❌ falló (detalle)
-- `pnpm check`: ✅ / ❌
+- Higiene del repo (§2.1): ✅ / ❌ (detalle)
+- `pnpm lint`: ✅ / ❌
+- `pnpm typecheck`: ✅ / ❌
 - `pnpm build`: ✅ / ❌
 - CI: ✅ verde / ❌ jobs fallaron
 
@@ -365,9 +366,9 @@ mergear el original te quedan los commits del otro en tu rama.
 ## Checklist antes de cerrar la review
 
 - [ ] Fase 0 ejecutada (git state fresco).
-- [ ] PR description leída contra el template.
-- [ ] `pnpm doctor` corrido.
-- [ ] `pnpm check` corrido.
+- [ ] PR description leída (Resumen, Verificación local, Compliance).
+- [ ] Higiene del repo (§2.1) chequeada.
+- [ ] `pnpm lint` + `pnpm typecheck` corridos.
 - [ ] `pnpm build` corrido (o CI verificado).
 - [ ] Grep por las 4 hard rules ejecutado y resultados verificados.
 - [ ] Hallazgos citan archivo:línea + bloque verbatim.
@@ -387,7 +388,3 @@ mergear el original te quedan los commits del otro en tu rama.
 - [docs/COMMITS.md](../../docs/COMMITS.md) — convención de commits.
 - [docs/GLOSSARY.md](../../docs/GLOSSARY.md) — términos del dominio.
 - [DESIGN.md](../../DESIGN.md) — tokens visuales.
-- [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) —
-  estructura esperada del PR description.
-- [scripts/ed-doctor.sh](../../scripts/ed-doctor.sh) — health check
-  ejecutable.

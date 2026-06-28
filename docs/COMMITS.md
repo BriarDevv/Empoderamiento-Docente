@@ -54,15 +54,13 @@ para alguien que no estuvo en la sesión**.
 - `home` · `nosotros` · `formacion` · `recursos` · `contacto` (páginas)
 - `header` · `footer` · `nav` · `hero` (componentes globales)
 - `ui` (componentes UI reutilizables: button, card, input)
-- `forms` (formularios: inscripción, contacto, CV)
-- `api` (route handlers)
-- `db` · `mongo` (schemas, queries, migraciones)
+- `forms` (formularios — cuando se sumen: contacto, CV)
 - `seo` (metadata, sitemap, structured data)
 - `anim` (GSAP, Lenis, transiciones)
 - `i18n` (si hay multi-idioma)
-- `config` (site.ts, env, constants)
+- `config` (site.ts, nav.ts, constants)
 - `deps` (dependencias)
-- `tooling` (eslint, prettier, ts-config, etc.)
+- `tooling` (eslint, ts-config, etc.)
 
 Si un cambio toca varios scopes, **partirlo en commits separados**.
 
@@ -119,14 +117,14 @@ otra no.
 
 ## 6. Cambios disruptivos (`BREAKING CHANGE`)
 
-Cuando un cambio rompe contratos públicos (API, props de un componente
-exportado, esquemas de DB usados desde fuera):
+Cuando un cambio rompe un contrato público (props de un componente
+exportado, firma de un hook o utilidad compartida):
 
 ```
-feat(api)!: cambiar shape de respuesta de /api/inscripciones
+feat(ui)!: renombrar prop `label` a `children` en CtaButton
 
-BREAKING CHANGE: el endpoint ahora devuelve { data, meta } en
-lugar de un array plano. Actualizar consumidores antes de mergear.
+BREAKING CHANGE: CtaButton ya no acepta `label`; el texto va como
+children. Actualizar todos los usos antes de mergear.
 ```
 
 El `!` después del scope (o tipo) es la marca visual; el footer
@@ -156,22 +154,22 @@ todo lo pendiente pertenece al mismo commit.
 ```
 chore: inicializar proyecto next.js con typescript
 chore(deps): agregar gsap y lenis para animaciones
-chore(tooling): configurar prettier con tailwind plugin
-build(tailwind): mapear tokens de design.md al config
+chore(tooling): configurar eslint 9 con eslint-config-next
+build(tailwind): mapear tokens de design.md en globals.css (@theme)
 ```
 
 ### Features
 ```
 feat(home): agregar sección hero con título principal
-feat(formacion): listar trayectos formativos desde mongo
-feat(forms): implementar formulario de envío de cv
-feat(api): crear endpoint POST /api/inscripciones
+feat(home): integrar reparto de cartas en líneas de acción
+feat(ui): crear CtaButton primario con estado hover
+feat(nav): destacar redes en el menú mobile
 ```
 
 ### Fixes
 ```
 fix(header): corregir desbordamiento del menú en breakpoint md
-fix(api): validar email antes de guardar inscripción
+fix(home): evitar overflow del haz de luz del hero en mobile
 fix(anim): respetar prefers-reduced-motion en hero
 ```
 
@@ -185,8 +183,8 @@ content(nosotros): redactar bio de daniela reyes-gasperini
 
 ### Diseño
 ```
-design: matizar verde-concepto a #3e7c6d
-design(tokens): agregar variante azul-claro al tailwind config
+design: matizar verde-concepto a #1f9a78
+design(tokens): ajustar azul-principal en globals.css (@theme)
 ```
 
 ---
