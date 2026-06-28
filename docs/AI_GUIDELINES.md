@@ -151,9 +151,11 @@ Comentar solo cuando:
 
 ## 8. Manejo de errores
 
-> El sitio es frontend/estático: no hay API routes ni backend. Si más
-> adelante se suman (formularios, etc.), validar input con **Zod**,
-> capturar excepciones y devolver un mensaje genérico al cliente.
+> Hoy el sitio corre 100% frontend (sin API routes ni backend integrado). El
+> backend elegido a futuro es **Supabase** (ver §12). Cuando se sumen
+> formularios u operaciones contra Supabase, validar input con **Zod**,
+> capturar excepciones y devolver un mensaje genérico al cliente (sin filtrar
+> detalles internos).
 
 - **Componentes:** usar `error.tsx` y `not-found.tsx` de Next.js para
   manejo a nivel de route.
@@ -204,17 +206,30 @@ Comentar solo cuando:
 
 ## 12. Backend y persistencia
 
-**No hay backend ni base de datos por ahora.** El sitio es puramente
-frontend/estático: sin `src/app/api/`, sin cliente de DB, sin persistencia.
-Los datos institucionales son estáticos y viven en `src/config/` (§13).
+**Backend elegido: [Supabase](https://supabase.com) (Postgres gestionado +
+Auth + Storage). Todavía NO está integrado.** Hoy el sitio corre 100%
+frontend: no hay `@supabase/supabase-js` en `package.json`, ni cliente
+(`src/lib/supabase/`), ni tablas, ni env vars, ni `src/app/api/`. Los datos
+institucionales son estáticos y viven en `src/config/` (§13). La decisión
+está registrada en
+[`architecture/adrs/0002-adoptar-supabase-persistencia.md`](architecture/adrs/0002-adoptar-supabase-persistencia.md).
 
-Cuando se sume entrada de datos (p. ej. un formulario de contacto o de
-envío de CV):
+Cuando se integre (p. ej. al sumar un formulario de inscripción o de envío de
+CV) — **no antes, y confirmando con el usuario**:
 
-- **Validar los bordes con Zod** antes de procesar cualquier input.
+- **SDK oficial `@supabase/supabase-js`** para el acceso a datos; schema,
+  queries y políticas de seguridad definidas en Supabase.
+- **RLS (Row Level Security) activada** en toda tabla con datos sensibles;
+  la autorización no se delega solo a la capa de aplicación.
+- **Validar los bordes con Zod** antes de leer/escribir cualquier input.
+- **Env vars por contexto:** `NEXT_PUBLIC_SUPABASE_URL` y
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` son públicas (se exponen al cliente); la
+  `SUPABASE_SERVICE_ROLE_KEY` es secreta y **solo server-side** — nunca
+  prefijada con `NEXT_PUBLIC_` ni usada en el browser. Placeholders en
+  `.env.example`.
 - **No exponer detalles internos** en los mensajes de error al cliente.
-- **Documentar la decisión** (qué backend / dónde persiste) en un ADR
-  bajo `docs/architecture/adrs/` antes de implementarla.
+- **Migraciones / schema:** confirmar el diseño de tablas y políticas con el
+  humano antes de crearlas. No inventar tablas ni columnas no acordadas.
 
 ---
 

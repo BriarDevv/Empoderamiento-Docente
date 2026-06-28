@@ -30,7 +30,7 @@ internos (refactors).
 | #     | Título                                        | Status   |
 | ----- | --------------------------------------------- | -------- |
 | 0001  | [Stack base del sitio](0001-stack-base.md)    | Accepted (persistencia superseded por 0002) |
-| 0002  | [Descartar persistencia (MongoDB)](0002-descartar-persistencia-mongodb.md) | Accepted |
+| 0002  | [Adoptar Supabase para backend y persistencia](0002-adoptar-supabase-persistencia.md) | Accepted (reemplaza MongoDB de 0001) |
 
 ---
 
