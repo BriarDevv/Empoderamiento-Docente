@@ -17,18 +17,21 @@ if (typeof window !== "undefined") {
  * Hero de "Qué es ED" (sección 1 del sitemap: APERTURA — «ED no es una
  * capacitación más»). Coreografía propia, distinta a las del Inicio:
  *
- *  1. La frase "es una capacitación más." sube palabra por palabra en GRIS
- *     apagado — lo genérico, lo enlatado.
- *  2. …beat… y el "No" SE ESTAMPA desde la profundidad (escala 3.4 + blur →
- *     nítido) con onda expansiva, sacudida del renglón y ráfaga de partículas;
- *     la frase entera se "enciende" a navy: la oración queda afirmada.
+ *  1. El renglón entero sube palabra por palabra con el flip 3D del titular
+ *     del Inicio: el "No" entra PRIMERO y en navy (uno más del renglón); el
+ *     resto entra en GRIS apagado — lo genérico, lo enlatado.
+ *  2. Armada la frase, el "No" hace POP (la receta del acento del Inicio:
+ *     infla a 1.16, vira a verde y asienta con rebote elástico) acompañado
+ *     de un anillo y una ráfaga breve de partículas, bien suaves; la frase
+ *     se "enciende" a navy: la oración queda afirmada.
  *  3. Bajada y CTA suben con fade; todo el bloque tiene TILT 3D que sigue al
  *     mouse.
  *
  * El CTA es enlace de sección → Qué hacemos (azul; el naranja es de Contacto).
  * Sin JS / prefers-reduced-motion: TODO queda en su estado final por CSS (la
- * frase navy + "No" verde visibles, partículas y onda ocultas). El copy usa el
- * lenguaje oficial ("relación con el saber matemático escolar") [[ed-copy-oficial]].
+ * frase navy + "No" verde visibles, partículas y anillo ocultos). El copy usa
+ * el lenguaje oficial ("relación con el saber matemático escolar")
+ * [[ed-copy-oficial]].
  */
 
 const SLAM_WORDS = ["es", "una", "capacitación", "más."];
@@ -48,74 +51,95 @@ export function QueEsEdHero() {
     const ctx = gsap.context(() => {
       const words = gsap.utils.toArray<HTMLElement>("[data-slam-word]");
       const no = root.querySelector<HTMLElement>("[data-slam-no]");
-      const line = root.querySelector<HTMLElement>("[data-slam-line]");
       const shock = root.querySelector<HTMLElement>("[data-shockwave]");
       const parts = gsap.utils.toArray<HTMLElement>("[data-no-particle]");
       const sub = root.querySelector<HTMLElement>("[data-hero-sub]");
       const actions = root.querySelector<HTMLElement>("[data-hero-actions]");
       const eyebrow = root.querySelector<HTMLElement>("[data-hero-eyebrow]");
       const tilt = root.querySelector<HTMLElement>("[data-hero-tilt]");
-      if (!no || !line || !shock || !sub || !actions || !eyebrow || !tilt) return;
+      if (!no || !shock || !sub || !actions || !eyebrow || !tilt) return;
+
+      // El "No" encabeza el renglón: entra primero en el stagger.
+      const renglon = [no, ...words];
 
       // ── Estados iniciales (solo con motion: sin JS queda el estado final) ──
       gsap.set(eyebrow, { autoAlpha: 0, y: 12 });
-      gsap.set(words, { autoAlpha: 0, yPercent: 120, color: "#b6bdc9" });
-      gsap.set(no, { autoAlpha: 0, scale: 3.4, filter: "blur(14px)" });
+      // Mismo arranque que el titular del Inicio: volteado hacia abajo (flip 3D).
+      gsap.set(renglon, {
+        opacity: 0,
+        yPercent: 120,
+        rotateX: -85,
+        transformOrigin: "50% 100%",
+        transformPerspective: 700,
+      });
+      // El "No" ENTRA en navy (uno más del renglón) y vira a verde en el pop;
+      // el resto entra en gris apagado y se enciende a navy junto al pop.
+      gsap.set(no, { color: "#1f2d4d" });
+      gsap.set(words, { color: "#b6bdc9" });
       gsap.set([sub, actions], { autoAlpha: 0, y: 22 });
 
-      // ── La frase gris → el SLAM del "No" → bajada y CTA ──────────────────
+      // ── El renglón sube → POP del "No" → la frase se enciende → bajada ────
       const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.35 });
       tl.to(eyebrow, { autoAlpha: 1, y: 0, duration: 0.5 }, 0)
         .to(
-          words,
-          { autoAlpha: 1, yPercent: 0, duration: 0.8, stagger: 0.09 },
+          renglon,
+          {
+            opacity: 1,
+            yPercent: 0,
+            rotateX: 0,
+            duration: 0.95,
+            ease: "back.out(1.5)",
+            stagger: 0.07,
+          },
           0.15,
         )
-        .addLabel("slam", "+=0.45")
-        // el "No" cae desde la profundidad y se vuelve nítido al impactar
+        .addLabel("pop", "-=0.3")
+        // pop del "No": infla, vira a verde y asienta con rebote elástico
         .to(
           no,
-          { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "power4.in" },
-          "slam",
+          {
+            keyframes: [
+              { scale: 1.16, color: "#1f9a78", duration: 0.22, ease: "power2.out" },
+              { scale: 1, duration: 0.5, ease: "elastic.out(1, 0.45)" },
+            ],
+          },
+          "pop",
         )
-        // impacto: sacudida del renglón completo
-        .to(
-          line,
-          { keyframes: { x: [-7, 6, -4, 2, 0] }, duration: 0.4, ease: "power2.out" },
-          "slam+=0.5",
-        )
-        // onda expansiva
+        // anillo suave que acompaña el pop
         .fromTo(
           shock,
-          { scale: 0.4, autoAlpha: 0.9 },
-          { scale: 3.6, autoAlpha: 0, duration: 0.8, ease: "power2.out" },
-          "slam+=0.48",
+          { scale: 0.5, autoAlpha: 0.55 },
+          {
+            scale: 2.4,
+            autoAlpha: 0,
+            duration: 0.7,
+            ease: "power2.out",
+            immediateRender: false,
+          },
+          "pop+=0.04",
         )
         // la frase se ENCIENDE: de gris apagado a navy (queda afirmada)
-        .to(
-          words,
-          { color: "#1f2d4d", duration: 0.5, stagger: 0.05 },
-          "slam+=0.5",
-        )
-        .to(sub, { autoAlpha: 1, y: 0, duration: 0.7 }, "slam+=0.95")
+        .to(words, { color: "#1f2d4d", duration: 0.5, stagger: 0.05 }, "pop+=0.08")
+        .to(sub, { autoAlpha: 1, y: 0, duration: 0.7 }, "pop+=0.5")
         .to(actions, { autoAlpha: 1, y: 0, duration: 0.6 }, "-=0.4");
 
-      // ráfaga de partículas del impacto (ángulo repartido + jitter estable)
+      // ráfaga breve y suave de partículas junto al pop (jitter estable)
       parts.forEach((p, i) => {
         const ang = (i / PARTICLES) * Math.PI * 2 + (i % 3) * 0.35;
-        const dist = 46 + (i % 4) * 24;
+        const dist = 28 + (i % 4) * 13;
         tl.fromTo(
           p,
-          { x: 0, y: 0, scale: 1, autoAlpha: 1 },
+          { x: 0, y: 0, scale: 0.8, autoAlpha: 0.9 },
           {
             x: Math.cos(ang) * dist,
             y: Math.sin(ang) * dist,
             scale: 0,
             autoAlpha: 0,
-            duration: 0.65 + (i % 3) * 0.15,
+            duration: 0.45 + (i % 3) * 0.1,
             ease: "power2.out",
+            immediateRender: false,
           },
-          "slam+=0.48",
+          "pop+=0.04",
         );
       });
 
@@ -191,10 +215,10 @@ export function QueEsEdHero() {
             style={{ fontSize: "clamp(2.6rem, 1.1rem + 5.2vw, 5rem)", lineHeight: 1.04 }}
           >
             <span className="sr-only">No es una capacitación más.</span>
-            <span aria-hidden="true" data-slam-line className="block">
+            <span aria-hidden="true" className="block">
               <span data-slam-no className="text-verde-concepto relative inline-block will-change-transform">
                 No
-                {/* Onda expansiva del impacto */}
+                {/* Anillo del pop */}
                 <span
                   data-shockwave
                   aria-hidden="true"
@@ -214,10 +238,8 @@ export function QueEsEdHero() {
               </span>{" "}
               {SLAM_WORDS.map((w, i) => (
                 <Fragment key={i}>
-                  <span className="inline-block overflow-hidden align-bottom">
-                    <span data-slam-word className="inline-block will-change-transform">
-                      {w}
-                    </span>
+                  <span data-slam-word className="inline-block will-change-transform">
+                    {w}
                   </span>
                   {i < SLAM_WORDS.length - 1 ? " " : null}
                 </Fragment>
