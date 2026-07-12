@@ -79,6 +79,13 @@ export function OrigenEd() {
       if (beats.length !== 5 || !tilt) return;
 
       // ── Acople de la lámina sobre el hero (transición de sección) ────────
+      // transform-origin arriba: la lámina se ancla por su borde superior (el
+      // que toca el hero) y crece hacia abajo. Además evita que el escalado de
+      // una sección tan alta (560svh) empuje su tope fuera de vista — así deja
+      // asomar su cabecera en el hero (el "peek" que invita a scrollear).
+      // El origin se fija con un set previo: en un fromTo con scrub, GSAP no lo
+      // aplica en el frame 0 si va sólo en el objeto "to".
+      gsap.set(root, { transformOrigin: "50% 0%" });
       gsap.fromTo(
         root,
         { scale: 0.955, y: 44 },
