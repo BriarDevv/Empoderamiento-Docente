@@ -7,12 +7,12 @@ import { ImpulsanEd } from "@/features/que-es-ed/components/ImpulsanEd";
 import { DistintoEd } from "@/features/que-es-ed/components/DistintoEd";
 
 export const metadata: Metadata = {
-  title: "Qué es ED",
+  title: "Quiénes somos",
   description:
     "Empoderamiento Docente no es una capacitación más: investigación, diseño y acompañamiento para transformar la relación con el saber matemático escolar.",
 };
 
-export default function QueEsEdPage() {
+export default function QuienesSomosPage() {
   return (
     <main>
       <QueEsEdHero />
