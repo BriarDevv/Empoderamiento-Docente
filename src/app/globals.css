@@ -233,7 +233,7 @@ html.has-custom-cursor * {
      lee el ancho real para calcular el spread, así las proporciones del abanico
      se mantienen parejas al angostarse. */
   width: clamp(18rem, 25vw, 22.5rem);
-  height: 30rem;
+  height: 33rem;
   will-change: transform, opacity;
 }
 /* En el abanico, el tilt 3D por hover lo maneja GSAP sobre la capa interna. */
