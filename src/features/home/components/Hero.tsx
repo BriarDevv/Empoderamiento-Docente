@@ -40,18 +40,18 @@ type Card = {
 // Orden, cantidad (9) y métricas EXACTAS del hero de referencia. Slots 1, 3 y 8
 // usan cuadrado de marca hasta tener las fotos (los más chicos / sin label).
 const CARDS: Card[] = [
-  { w: 17.36, ar: "300 / 250", cx: 31.25, cy: 7.1, par: 1.027, img: "/hero/hero-1.webp", alt: "Equipo en reunión de trabajo", label: { title: "En el aula", desc: "Acompañamos el aprendizaje donde sucede." } },
+  { w: 17.36, ar: "300 / 250", cx: 31.25, cy: 7.1, par: 1.027, img: "/hero/hero-1.webp", alt: "Equipo en reunión de trabajo", label: { title: "En el aula", desc: "Acompañamos el aprendizaje donde sucede" } },
   { w: 12.73, ar: "220 / 280", cx: 81.6, cy: 16.07, par: 1.108, img: "/hero/hero-7.webp", alt: "Encuentro de trabajo en equipo" },
-  { w: 13.89, ar: "240 / 320", cx: 93.75, cy: 26.85, par: 1.014, img: "/hero/hero-3.webp", alt: "Investigación en equipo", label: { title: "Investigación aplicada", desc: "Conocimiento que vuelve al aula." } },
+  { w: 13.89, ar: "240 / 320", cx: 93.75, cy: 26.85, par: 1.014, img: "/hero/hero-3.webp", alt: "Investigación en equipo", label: { title: "Investigación aplicada", desc: "Conocimiento que vuelve al aula" } },
   { w: 12.73, ar: "220 / 260", cx: 5.21, cy: 25.01, par: 1.068, img: "/hero/hero-8.webp", alt: "Materiales educativos" },
-  { w: 16.2, ar: "280 / 240", cx: 16.2, cy: 44.61, par: 1.034, img: "/hero/hero-5.webp", alt: "Taller en aula", label: { title: "Acompañamiento situado", desc: "Junto a cada docente y escuela." } },
-  { w: 19.68, ar: "340 / 260", cx: 72.92, cy: 55.71, par: 1.007, img: "/hero/hero-6.webp", alt: "Encuentro de trabajo", label: { title: "Formación docente", desc: "Trayectos para docentes de matemática." } },
+  { w: 16.2, ar: "280 / 240", cx: 16.2, cy: 44.61, par: 1.034, img: "/hero/hero-5.webp", alt: "Taller en aula", label: { title: "Acompañamiento situado", desc: "Junto a cada docente y escuela" } },
+  { w: 19.68, ar: "340 / 260", cx: 72.92, cy: 55.71, par: 1.007, img: "/hero/hero-6.webp", alt: "Encuentro de trabajo", label: { title: "Formación docente", desc: "Trayectos para docentes de matemáticas" } },
   { w: 14.47, ar: "250 / 320", cx: 24.59, cy: 71.16, par: 1.088, img: "/hero/hero-4.webp", alt: "Equipo de Empoderamiento Docente" },
-  { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.webp", alt: "Equipo con su publicación", label: { title: "Presencia regional", desc: "Chile · México · Argentina · Colombia · Brasil." } },
+  { w: 19.68, ar: "340 / 250", cx: 53.24, cy: 84.82, par: 1.024, img: "/hero/hero-2.webp", alt: "Equipo con su publicación", label: { title: "Presencia regional", desc: "Chile · México · Argentina · Colombia · Brasil" } },
   { w: 9.84, ar: "170 / 230", cx: 85.94, cy: 93.84, par: 1.068, img: "/hero/hero-9.webp", alt: "Lectura de material didáctico" },
   // Sumadas para llenar el vacío de la parte de abajo y "bajar" hacia Acerca de.
   { w: 14, ar: "300 / 210", cx: 50, cy: 64, par: 1.04, img: "/hero/hero-10.webp", alt: "Materiales de geometría en una actividad de aula" },
-  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: "/hero/hero-11.webp", alt: "Cuadernillo de matemática con representación de números", label: { title: "Materiales propios", desc: "Recursos listos para llevar al aula." } },
+  { w: 13, ar: "240 / 300", cx: 11, cy: 84, par: 1.07, img: "/hero/hero-11.webp", alt: "Cuadernillo de matemática con representación de números", label: { title: "Materiales propios", desc: "Recursos listos para llevar al aula" } },
 ];
 
 // Campo CURADO para mobile/tablet (< lg). Fotos clave alrededor del texto, pero
@@ -134,6 +134,9 @@ export function Hero() {
       gsap.set("[data-card-label]", { autoAlpha: 0, y: 8 });
       // Cards mobile (capa interna) ocultas pre-paint, igual que las del desktop.
       gsap.set("[data-mcard]", { autoAlpha: 0 });
+      // Halo blanco de legibilidad oculto pre-paint: aparece RECIÉN al final del
+      // armado (fade suave) para no ensuciar la animación de entrada.
+      gsap.set("[data-hero-halo]", { autoAlpha: 0 });
 
       // Centrado base de cada tarjeta. El scroll-parallax va sobre ESTA capa.
       gsap.set(outers, { xPercent: -50, yPercent: -50 });
@@ -226,6 +229,13 @@ export function Hero() {
             "[data-card-label]",
             { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.08 },
             "-=0.25",
+          )
+          // Halo blanco de legibilidad: entra RECIÉN acá, con un fade suave, ya
+          // con las cards y el título asentados → no molesta en la entrada.
+          .to(
+            "[data-hero-halo]",
+            { autoAlpha: 1, duration: 0.9, ease: "power2.out" },
+            "-=0.15",
           );
 
         // Cards mobile (< lg): MISMO gesto stack→deploy, pero sobre [data-mcard]
@@ -471,6 +481,7 @@ export function Hero() {
             Vive dentro del copy → se desvanece con el scroll junto al texto. En
             mobile el scatter va en bandas que no tocan el centro → no se monta. */}
         <span
+          data-hero-halo
           aria-hidden="true"
           className="pointer-events-none absolute top-1/2 left-1/2 -z-10 hidden h-[clamp(26rem,80vh,36rem)] w-[clamp(30rem,62vw,52rem)] -translate-x-1/2 -translate-y-[45%] lg:block"
           style={{
@@ -478,36 +489,33 @@ export function Hero() {
               "radial-gradient(50% 50% at 50% 50%, #ffffff 0%, rgba(255,255,255,0.9) 46%, rgba(255,255,255,0) 78%)",
           }}
         />
-        <div data-hero-copy className="mx-auto max-w-xl translate-y-[5vh]">
+        <div data-hero-copy className="mx-auto max-w-2xl translate-y-[5vh]">
           <h1
             data-hero-headline
-            className="font-display font-bold tracking-[-0.02em]"
-            style={{ fontSize: "clamp(2rem, 1rem + 2.5vw, 2.8rem)", lineHeight: 1.12 }}
+            className="font-display font-bold text-balance tracking-[-0.02em]"
+            style={{ fontSize: "clamp(1.85rem, 1rem + 2.4vw, 2.7rem)", lineHeight: 1.12 }}
           >
-            <span className="block">
-              <span data-hero-word className="inline-block">Impulsamos</span>{" "}
-              <span data-hero-word className="inline-block">el</span>{" "}
-              <span
-                data-hero-word
-                data-hero-accent
-                className="text-verde-concepto inline-block"
-              >
-                aprendizaje
-              </span>
-            </span>
-            <span className="block">
-              <span data-hero-word className="inline-block">de</span>{" "}
-              <span data-hero-word className="inline-block">la</span>{" "}
-              <span data-hero-word className="inline-block">matemática.</span>
+            <span data-hero-word className="inline-block">La</span>{" "}
+            <span data-hero-word className="inline-block">transformación</span>{" "}
+            <span data-hero-word className="inline-block">educativa</span>{" "}
+            <span data-hero-word className="inline-block">comienza</span>{" "}
+            <span data-hero-word className="inline-block">en</span>{" "}
+            <span data-hero-word className="inline-block">las</span>{" "}
+            <span
+              data-hero-word
+              data-hero-accent
+              className="text-verde-concepto inline-block"
+            >
+              matemáticas.
             </span>
           </h1>
 
           <p
             data-hero-desc
-            className="text-gris-texto mx-auto mt-6 max-w-[34rem] text-balance font-sans text-[1.05rem] leading-relaxed md:text-[1.2rem]"
+            className="text-gris-texto mx-auto mt-6 max-w-[40rem] text-balance font-sans text-[1.02rem] leading-relaxed md:text-[1.12rem]"
           >
-            Acompañamos a cada docente y a cada escuela, con base en la
-            investigación, para que el aprendizaje tenga sentido.
+            Escuchamos cada realidad y diseñamos soluciones educativas a medida,
+            con base en la investigación y más de 15 años de experiencia.
           </p>
 
           <div
