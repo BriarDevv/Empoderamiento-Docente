@@ -7,7 +7,7 @@
  */
 export const NAV_LINKS = [
   { label: "Qué hacemos", href: "/que-hacemos" },
-  { label: "Qué es ED", href: "/que-es-ed" },
+  { label: "Quiénes somos", href: "/que-es-ed" },
   { label: "Investigación", href: "/investigacion" },
   { label: "Biblioteca", href: "/biblioteca" },
   { label: "Novedades", href: "/novedades" },
