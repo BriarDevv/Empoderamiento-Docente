@@ -12,56 +12,70 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// ── Datos de los 4 pasos ──────────────────────────────────────────────────
+// ── Datos de los 5 pasos ──────────────────────────────────────────────────
+// Copy oficial del cliente [[ed-copy-oficial]]. `resumen` = la frase destacada
+// (verde); `detalle` = el texto debajo. Títulos y frases sin punto final; los
+// párrafos descriptivos sí lo llevan.
 const PASOS = [
   {
     n: "01",
-    slug: "escuchamos",
-    titulo: "Escuchamos.",
-    resumen: "Antes de proponer, comprendemos.",
+    slug: "dialogamos",
+    titulo: "Dialogamos",
+    resumen: "Toda solución nace de una realidad comprendida",
     detalle:
-      "Dialogamos con la institución y los equipos docentes, observamos el contexto y relevamos necesidades reales para construir una lectura situada.",
+      "Dialogamos con las personas, comprendemos los contextos y analizamos la realidad para construir una lectura compartida que oriente cada decisión.",
     foto: "/metodo/escuchamos.webp",
-    fotoAlt: "Docentes en conversación — etapa de escucha",
+    fotoAlt: "Docentes en conversación — etapa de diálogo",
   },
   {
     n: "02",
-    slug: "diseñamos",
-    titulo: "Diseñamos.",
-    resumen: "A medida, no en serie.",
+    slug: "investigamos",
+    titulo: "Investigamos",
+    resumen: "La práctica también produce conocimiento",
     detalle:
-      "Co-construimos recorridos, materiales y herramientas con base en matemática educativa, pensados para cada contexto y cada comunidad.",
+      "Investigamos en diálogo permanente con la práctica para comprender los desafíos de cada realidad, generar evidencia y construir soluciones educativas que transformen la enseñanza y el aprendizaje de las matemáticas.",
+    foto: "/hero/hero-3.webp",
+    fotoAlt: "Equipo investigando en conjunto — etapa de investigación",
+  },
+  {
+    n: "03",
+    slug: "diseñamos",
+    titulo: "Diseñamos",
+    resumen: "Cada realidad inspira una solución distinta",
+    detalle:
+      "Diseñamos soluciones educativas que integran investigación, currículo, evaluación, materiales didácticos y desarrollo profesional docente para responder a los desafíos de cada contexto.",
     foto: "/metodo/disenamos.webp",
     fotoAlt: "Selección de materiales educativos — etapa de diseño",
   },
   {
-    n: "03",
-    slug: "acompañamos",
-    titulo: "Acompañamos.",
-    resumen: "Presencia durante todo el proceso.",
+    n: "04",
+    slug: "implementamos",
+    titulo: "Implementamos",
+    resumen: "Vivimos para hacer vivir",
     detalle:
-      "Sostenemos la implementación junto a docentes y equipos, revisando la práctica y ajustando decisiones con evidencia.",
+      "Construimos procesos donde la experiencia, la implementación y la práctica reflexiva fortalecen el desarrollo profesional y generan nuevas formas de relacionarse con las matemáticas y de fortalecer las decisiones pedagógicas.",
     foto: "/metodo/acompanamos.webp",
-    fotoAlt: "Trabajo situado junto a docentes — etapa de acompañamiento",
+    fotoAlt: "Trabajo situado junto a docentes — etapa de implementación",
   },
   {
-    n: "04",
+    n: "05",
     slug: "evaluamos",
-    titulo: "Evaluamos.",
-    resumen: "Para que el cambio se sostenga.",
+    titulo: "Evaluamos",
+    resumen: "La evidencia orienta cada nuevo paso",
     detalle:
-      "Analizamos avances, reconocemos aprendizajes y ajustamos las propuestas para fortalecer procesos duraderos.",
+      "Analizamos procesos, interpretamos evidencias y generamos conocimiento para fortalecer decisiones, consolidar aprendizajes y potenciar nuevas transformaciones.",
     foto: "/metodo/evaluamos.webp",
     fotoAlt: "Revisión de materiales y avances — etapa de evaluación",
   },
 ] as const;
 
 /**
- * Bloque sticky scroll-telling. h-[400vh] + sticky top-0 h-screen
- * (sin pin:true — compatible con Lenis). 4 pasos con fotos reales que
+ * Bloque sticky scroll-telling. h-[500vh] + sticky top-0 h-screen
+ * (sin pin:true — compatible con Lenis). 5 pasos con fotos reales que
  * se cross-fadean con el progreso del scroll. Timeline scrubbed mapea
- * 0→1 a las 4 fases. Nav lateral de puntos sincronizado. Mask reveal
- * del título de cada paso. Foto alterna izq/der por índice.
+ * 0→1 a las N fases (el número de pasos se lee de PASOS). Nav lateral de
+ * puntos sincronizado. Mask reveal del título de cada paso. Foto alterna
+ * izq/der por índice.
  */
 export function ComoTrabajamos() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -77,17 +91,18 @@ export function ComoTrabajamos() {
       const navDots = el.querySelectorAll<HTMLElement>("[data-nav-dot]");
       const glowBg = el.querySelector<HTMLElement>("[data-glow-bg]");
 
-      // ── Estado inicial: paso 0 visible, 1-3 ocultos ───────────────
-      if (pasos.length === 4) {
+      // ── Estado inicial: paso 0 visible, el resto ocultos ──────────
+      const N = pasos.length;
+      if (N >= 2) {
         gsap.set(pasos[0], { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" });
-        gsap.set([pasos[1], pasos[2], pasos[3]], {
+        gsap.set(Array.from(pasos).slice(1), {
           opacity: 0,
           y: 64,
           scale: 0.97,
           filter: "blur(8px)",
         });
 
-        // ── Timeline scrubbed — 4 fases en 0→1 ───────────────────────
+        // ── Timeline scrubbed — N fases en 0→1 ───────────────────────
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
@@ -97,12 +112,12 @@ export function ComoTrabajamos() {
           },
         });
 
-        // 3 transiciones uniformes: [0.2→0.28], [0.45→0.53], [0.7→0.78]
-        const TRANSITIONS = [
-          { outAt: 0.2, inAt: 0.26 },
-          { outAt: 0.45, inAt: 0.51 },
-          { outAt: 0.7, inAt: 0.76 },
-        ] as const;
+        // N-1 transiciones uniformes: cada una centrada en (i+1)/N (el paso
+        // saliente se va un poco antes y el entrante llega justo después).
+        const TRANSITIONS = Array.from({ length: N - 1 }, (_, i) => {
+          const outAt = (i + 1) / N - 0.05;
+          return { outAt, inAt: outAt + 0.06 };
+        });
 
         TRANSITIONS.forEach(({ outAt, inAt }, i) => {
           tl.to(
@@ -131,7 +146,7 @@ export function ComoTrabajamos() {
         });
 
         // ── Nav dots sincronizados ─────────────────────────────────
-        if (navDots.length === 4) {
+        if (navDots.length === N) {
           const dotsTl = gsap.timeline({
             scrollTrigger: {
               trigger: el,
@@ -140,14 +155,11 @@ export function ComoTrabajamos() {
               scrub: 0.6,
             },
           });
-          [
-            { from: 0, to: 1, t: 0.25 },
-            { from: 1, to: 2, t: 0.5 },
-            { from: 2, to: 3, t: 0.75 },
-          ].forEach(({ from, to, t }) => {
+          for (let i = 0; i < N - 1; i++) {
+            const t = (i + 1) / N;
             dotsTl
               .to(
-                navDots[from],
+                navDots[i],
                 {
                   height: 8,
                   backgroundColor: "rgb(31 45 77 / 0.18)",
@@ -157,7 +169,7 @@ export function ComoTrabajamos() {
                 t,
               )
               .to(
-                navDots[to],
+                navDots[i + 1],
                 {
                   height: 36,
                   backgroundColor: "var(--color-naranja-accion)",
@@ -166,7 +178,7 @@ export function ComoTrabajamos() {
                 },
                 t,
               );
-          });
+          }
         }
       }
 
@@ -200,7 +212,7 @@ export function ComoTrabajamos() {
       className="bg-grain-light relative overflow-clip bg-gradient-to-b from-white via-white to-gris-fondo/20"
       aria-label="Cómo trabajamos"
     >
-      <div className="relative h-[400vh]">
+      <div className="relative h-[500vh]">
         <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
 
           {/* Glow verde ambiental */}
@@ -323,8 +335,12 @@ export function ComoTrabajamos() {
                             {paso.titulo}
                           </h2>
 
-                          {/* Resumen — verde concepto */}
-                          <p className="text-verde-concepto mt-4 font-sans text-[1.05rem] font-semibold leading-snug md:text-[1.2rem]">
+                          {/* Resumen — verde concepto (frase destacada). Tamaño
+                              ajustado para que la más larga ("Toda solución
+                              nace de una realidad comprendida") entre en una
+                              línea en desktop; text-balance evita cortes feos
+                              cuando igual envuelve en mobile. */}
+                          <p className="text-verde-concepto mt-4 font-sans text-[1rem] font-semibold leading-snug text-balance md:text-[1.05rem]">
                             {paso.resumen}
                           </p>
 
