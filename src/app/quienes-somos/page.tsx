@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { QueEsEdHero } from "@/features/que-es-ed/components/QueEsEdHero";
-import { OrigenEd } from "@/features/que-es-ed/components/OrigenEd";
-import { MiradaEd } from "@/features/que-es-ed/components/MiradaEd";
-import { RedEd } from "@/features/que-es-ed/components/RedEd";
-import { ImpulsanEd } from "@/features/que-es-ed/components/ImpulsanEd";
-import { DistintoEd } from "@/features/que-es-ed/components/DistintoEd";
+import { QuienesSomosHero } from "@/features/quienes-somos/components/QuienesSomosHero";
+import { OrigenEd } from "@/features/quienes-somos/components/OrigenEd";
+import { MiradaEd } from "@/features/quienes-somos/components/MiradaEd";
+import { RedEd } from "@/features/quienes-somos/components/RedEd";
+import { ImpulsanEd } from "@/features/quienes-somos/components/ImpulsanEd";
+import { DistintoEd } from "@/features/quienes-somos/components/DistintoEd";
 
 export const metadata: Metadata = {
   title: "Quiénes somos",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function QuienesSomosPage() {
   return (
     <main>
-      <QueEsEdHero />
+      <QuienesSomosHero />
       <OrigenEd />
       <MiradaEd />
       <RedEd />
