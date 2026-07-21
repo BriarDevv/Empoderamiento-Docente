@@ -119,6 +119,14 @@ export function ContactoExperiencia() {
   const mailtoPerfil = `mailto:${siteConfig.contacto.email}?subject=${encodeURIComponent(
     "[Web] Comparto mi perfil",
   )}`;
+  // Segunda puerta del contacto: sumarse al equipo. Sin upload (todavía no hay
+  // backend), el mailto precarga asunto y un cuerpo-plantilla que recuerda
+  // adjuntar el CV.
+  const mailtoCV = `mailto:${siteConfig.contacto.email}?subject=${encodeURIComponent(
+    "[CV] Quiero sumarme al equipo",
+  )}&body=${encodeURIComponent(
+    "Hola, me gustaría sumarme a Empoderamiento Docente.\n\n(Acordate de adjuntar tu CV.)\n\nNombre:\nÁrea (docencia / investigación / otra):\nPor qué me interesa:\n",
+  )}`;
 
   const panel = (v: Vista) =>
     rootRef.current?.querySelector<HTMLElement>(`[data-panel="${v}"]`) ?? null;
@@ -728,12 +736,15 @@ export function ContactoExperiencia() {
               </button>
             </div>
 
-            <h2
-              data-campo
-              className="font-display text-azul-principal mt-4 text-[1.35rem] font-bold tracking-[-0.01em] md:text-[1.6rem]"
-            >
-              Contanos tu consulta
-            </h2>
+            {/* El formulario como superficie definida (panel frosted sobre los
+                nodos), en vez de campos sueltos flotando. */}
+            <div className="border-azul-claro/40 mt-4 rounded-3xl border bg-white/85 p-6 shadow-[0_30px_80px_-42px_rgb(31_45_77/0.3)] backdrop-blur-sm md:p-8">
+              <h2
+                data-campo
+                className="font-display text-azul-principal text-[1.35rem] font-bold tracking-[-0.01em] md:text-[1.6rem]"
+              >
+                Contanos tu consulta
+              </h2>
 
             <div className="mt-5 grid gap-3.5 md:grid-cols-2">
               <div data-campo>
@@ -802,6 +813,38 @@ export function ContactoExperiencia() {
               <p className="text-gris-texto font-sans text-[0.83rem]">
                 Se abre tu correo con la consulta lista para enviar.
               </p>
+            </div>
+            </div>
+
+            {/* ── Segunda puerta: sumate al equipo (CV). Cierra el círculo del
+                selector ("del otro lado hay personas que investigan y
+                enseñan") invitando a estar de ESTE lado. ─────────────────── */}
+            <div
+              data-campo
+              className="bg-azul-principal mt-4 flex flex-col gap-4 rounded-3xl p-6 md:flex-row md:items-center md:justify-between md:p-7"
+            >
+              <div className="flex items-start gap-3.5">
+                <Users size={24} className="text-verde-concepto mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-verde-concepto font-mono text-[0.68rem] font-medium tracking-[0.18em] uppercase">
+                    Sumate al equipo
+                  </p>
+                  <p className="mt-1.5 max-w-[46ch] font-sans text-[0.98rem] leading-relaxed text-white">
+                    ¿Y si querés estar de este lado? Somos quienes investigan y
+                    enseñan — mandanos tu CV y contanos por qué.
+                  </p>
+                </div>
+              </div>
+              <a
+                href={mailtoCV}
+                className="group border-white/30 hover:border-verde-concepto hover:text-verde-concepto inline-flex shrink-0 items-center gap-2 rounded-lg border px-5 py-2.5 font-sans text-[0.9rem] font-medium text-white transition-colors"
+              >
+                Enviar mi CV
+                <ArrowUpRight
+                  size={15}
+                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </a>
             </div>
           </form>
         </div>
