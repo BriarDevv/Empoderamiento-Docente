@@ -4,7 +4,14 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import gsap from "gsap";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MathField } from "@/components/ui/MathField";
-import { ArrowUpRight } from "@/components/ui/icons";
+import {
+  ArrowUpRight,
+  Users,
+  Lightbulb,
+  School,
+  TrendingUp,
+  Compass,
+} from "@/components/ui/icons";
 import { siteConfig } from "@/config/site";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
@@ -60,26 +67,31 @@ const TEMAS = [
     key: "formacion",
     titulo: "Formación y acompañamiento",
     detalle: "Trayectos, asesorías y trabajo con escuelas.",
+    Icon: Users,
   },
   {
     key: "investigacion",
     titulo: "Investigación",
     detalle: "Líneas de estudio y colaboración académica.",
+    Icon: Lightbulb,
   },
   {
     key: "alianzas",
     titulo: "Alianzas institucionales",
     detalle: "Convenios con organizaciones y gobiernos.",
+    Icon: School,
   },
   {
     key: "prensa",
     titulo: "Prensa y difusión",
     detalle: "Entrevistas, notas y comunicación.",
+    Icon: TrendingUp,
   },
   {
     key: "otra",
     titulo: "Otra consulta",
     detalle: "Todo lo que no entra en las anteriores.",
+    Icon: Compass,
   },
 ] as const;
 
@@ -644,17 +656,43 @@ export function ContactoExperiencia() {
             </p>
 
             <div className="mt-9 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5" role="group" aria-label="Tema de la consulta">
-              {TEMAS.map((t) => (
+              {TEMAS.map((t, i) => (
                 <button
                   key={t.key}
                   type="button"
                   data-tema-card
                   onClick={(e) => elegirTema(t.key, e.currentTarget)}
-                  className="group border-azul-claro/50 text-azul-principal hover:border-verde-concepto/60 focus-visible:outline-verde-concepto rounded-2xl border bg-white p-5 text-left transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="group border-azul-claro/50 hover:border-verde-concepto/60 focus-visible:outline-verde-concepto relative flex min-h-[9.75rem] flex-col overflow-hidden rounded-2xl border bg-white p-5 text-left transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_-22px_rgb(31_45_77/0.28)] focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
-                  <span className="font-display block text-[1rem] leading-snug font-semibold">{t.titulo}</span>
-                  <span className="text-gris-texto mt-2 block font-sans text-[0.83rem] leading-relaxed">
+                  {/* Wash verde que sube desde abajo en hover (scaleY → compositor-friendly). */}
+                  <span
+                    aria-hidden="true"
+                    className="from-verde-concepto/[0.10] via-verde-concepto/[0.04] pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-gradient-to-t to-transparent transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-y-100"
+                  />
+
+                  {/* Número + ícono de marca */}
+                  <div className="relative flex items-center justify-between">
+                    <span className="text-azul-principal/30 font-mono text-[0.7rem] font-medium tracking-[0.14em] tabular-nums">
+                      0{i + 1}
+                    </span>
+                    <t.Icon
+                      size={26}
+                      className="text-azul-principal/35 transition-colors duration-300 group-hover:text-verde-concepto"
+                    />
+                  </div>
+
+                  {/* Título + detalle */}
+                  <span className="font-display text-azul-principal relative mt-5 block text-[1.02rem] leading-snug font-semibold">
+                    {t.titulo}
+                  </span>
+                  <span className="text-gris-texto relative mt-2 block font-sans text-[0.82rem] leading-relaxed">
                     {t.detalle}
+                  </span>
+
+                  {/* "Elegir →" que entra en hover, anclado abajo */}
+                  <span className="text-verde-concepto relative mt-auto flex translate-y-1 items-center gap-1.5 pt-4 font-mono text-[0.66rem] tracking-[0.16em] uppercase opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    Elegir
+                    <ArrowUpRight size={13} />
                   </span>
                 </button>
               ))}
