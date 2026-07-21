@@ -9,25 +9,28 @@
 import Image from "next/image";
 import { ScrollFillText, type FillSeg } from "./ScrollFillText";
 
-// Acentos en AZUL: marca + conceptos clave; el resto se rellena en verde.
-// Verbatim del cliente, dividido en dos párrafos (qué somos / cómo lo somos)
-// para que el cuerpo respire — no es el título [[ed-copy-oficial]].
+// Acentos en AZUL: conceptos clave; el resto se rellena en verde. Copy del
+// cliente condensado a ~la mitad [[ed-copy-oficial]].
 const QS_PARAGRAPHS: FillSeg[][] = [
   [
-    { t: "Empoderamiento Docente", accent: true },
+    { t: "Somos una manera distinta de comprender" },
     {
-      t: "es una consultora en educación, especializada en Matemáticas, que diseña e implementa intervenciones educativas que propicien la",
-    },
-    { t: "transformación escolar.", accent: true },
-  ],
-  [
-    { t: "Creemos en la singularidad. Nos enorgullece ser" },
-    {
-      t: "artesanas de soluciones, arquitectas de sueños y diseñadoras de posibilidades.",
+      t: "las matemáticas, la educación y el desarrollo profesional docente.",
       accent: true,
     },
+    { t: "Una convicción hecha acción." },
+  ],
+  [
     {
-      t: "Sabemos que cada desafío es único y merece una atención personalizada.",
+      t: "Partimos de lo construido para seguir construyendo, junto a las comunidades educativas. Empoderamiento Docente",
+    },
+    { t: "instituye lo instituido:", accent: true },
+    {
+      t: "parte de los saberes existentes y los resignifica, desde la experiencia compartida, en",
+    },
+    {
+      t: "nuevos modos de comprender, enseñar y construir conocimiento.",
+      accent: true,
     },
   ],
 ];
@@ -35,12 +38,12 @@ const QS_PARAGRAPHS: FillSeg[][] = [
 export function Manifiesto() {
   return (
     <section
-      className="relative flex h-full w-full items-center overflow-hidden py-16 motion-reduce:h-auto motion-reduce:py-24"
+      className="relative flex h-full w-full items-center overflow-hidden py-8 md:py-16 motion-reduce:h-auto motion-reduce:py-24"
       aria-label="Quiénes somos"
     >
       <div
         data-wipe-bounds
-        className="mx-auto grid w-full max-w-[88rem] grid-cols-1 items-start gap-10 px-5 md:px-10 lg:grid-cols-2 lg:gap-16"
+        className="mx-auto grid w-full max-w-[88rem] grid-cols-1 items-start gap-6 px-5 md:px-10 lg:grid-cols-2 lg:gap-16"
       >
         {/* Texto (izquierda) — TÍTULO arriba + cuerpo debajo, centrados al medio
             del alto de la foto: la columna se estira al alto de la fila. */}
@@ -59,12 +62,12 @@ export function Manifiesto() {
               en azul (ver QS_PARAGRAPHS). */}
           <ScrollFillText
             paragraphs={QS_PARAGRAPHS}
-            className="font-sans text-verde-concepto font-medium leading-relaxed [font-size:clamp(1rem,1.1vw,1.15rem)]"
+            className="font-sans text-verde-concepto font-medium leading-relaxed [font-size:clamp(0.92rem,1.1vw,1.15rem)]"
           />
         </div>
 
         {/* Imagen (derecha) */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-[0_24px_60px_-28px_rgba(15,32,64,0.4)] lg:aspect-[5/4]">
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-[0_24px_60px_-28px_rgba(15,32,64,0.4)] lg:aspect-[5/4]">
           <Image
             src="/hero/hero-3.webp"
             alt="Equipo de Empoderamiento Docente en un encuentro de trabajo"
