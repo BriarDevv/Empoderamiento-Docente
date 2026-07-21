@@ -72,15 +72,15 @@ const PREGUNTA = "¿Qué hicimos exactamente?";
 // reduced-motion el panel no se muestra (la experiencia actual se preserva).
 const FOTOS = [
   {
-    src: "/que-es-ed/origen-01-aulas.webp",
+    src: "/quienes-somos/origen-01-aulas.webp",
     alt: "Trabajo con estudiantes en el patio de una escuela",
   },
   {
-    src: "/que-es-ed/origen-02-inflexion.webp",
+    src: "/quienes-somos/origen-02-inflexion.webp",
     alt: "Encuentro de formación docente frente a la pizarra",
   },
   {
-    src: "/que-es-ed/origen-03-pregunta.webp",
+    src: "/quienes-somos/origen-03-pregunta.webp",
     alt: "Exposición ante la comunidad educativa en un auditorio",
   },
 ] as const;

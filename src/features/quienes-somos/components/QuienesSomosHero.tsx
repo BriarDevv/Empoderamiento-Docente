@@ -49,7 +49,7 @@ const clipStyle = (gradient: string) =>
     WebkitTextFillColor: "transparent",
   }) as const;
 
-export function QueEsEdHero() {
+export function QuienesSomosHero() {
   const rootRef = useRef<HTMLElement | null>(null);
   const reduced = useReducedMotion();
 
