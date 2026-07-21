@@ -14,13 +14,24 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
  * TRANSFORMA. Los estados viven apilados en el mismo viewport y morfean uno
  * en otro, en cadena y de ida:
  *
- *  0 · HERO — "Hablemos." gigante rodeado de piezas flotantes con contenido
- *      institucional real (países, pilares de marca, mail). El gesto de
- *      scroll (o "Empezar") lo DESARMA: las letras se dispersan y las cinco
- *      piezas VUELAN y se transforman en las cinco tarjetas de tema. Mientras
- *      el hero está activo el scroll real queda bloqueado — el gesto dispara
- *      la transformación, no un desplazamiento. Viaje de ida: no se vuelve.
- *  1 · APERTURA — "Empecemos una conversación." + las 5 tarjetas de tema.
+ *  0 · HERO — "Hablemos." gigante y EDITORIAL (izquierda, ancho total, en el
+ *      lenguaje del hero de Qué es ED). La palabra sola: nada de eyebrow,
+ *      bajada, botón ni hint. NO es una pantalla que haya que descartar: no
+ *      pide ningún gesto, dura ~1,4s y se desarma SOLA. Antes era un peaje
+ *      (scroll o "Empezar" para pasar) que cobraba un gesto y no entregaba
+ *      nada nuevo — el titular repetía lo que decía la pantalla siguiente.
+ *
+ *      Tampoco hay ya piezas flotantes con contenido institucional que VOLABAN
+ *      y se convertían en las tarjetas de tema: era un truco lindo pero
+ *      mentiroso — "Presencia · Chile, México…" no se transforma en "Formación
+ *      y acompañamiento", es otro contenido disfrazado de la misma materia. Y
+ *      cinco cajas iguales alrededor de una palabra son un tablero de
+ *      post-its, no una composición. Quedan solo las tarjetas que son.
+ *  1 · APERTURA — el desarme: "Hablemos." NO se dispersa: VIAJA. Se achica
+ *      hasta su lugar definitivo como titular del selector, y las tarjetas de
+ *      tema entran en cascada a su alrededor. Por eso hay un solo titular
+ *      acomodándose y no dos diciendo lo mismo — la palabra es la semilla del
+ *      layout, no un cartel previo.
  *  2 · FORMULARIO — al elegir tema, la tarjeta elegida viaja (ghost FLIP)
  *      hasta el chip del formulario y los campos suben en cascada. "Cambiar
  *      tema" vuelve al selector sin perder lo tipeado.
@@ -29,12 +40,19 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
  * Lo secundario del sitemap (otros canales + compartir perfil, menor
  * jerarquía) es la BARRA fija de abajo, presente en todos los estados.
  *
+ * Durante la intro el scroll queda quieto (los ghosts son position:fixed y un
+ * scroll a mitad de vuelo los despega de su destino), pero NO con
+ * `body.overflow = hidden`: eso saca la barra, ensancha el viewport y hace
+ * saltar todo el contenido centrado al soltarlo. Lo frenan los handlers en
+ * captura. Y si alguien no la quiere mirar, el gesto la SALTEA (saltarIntro)
+ * en vez de quedar tragado — la intro se muestra, no se impone.
+ *
  * Envío sin backend todavía: arma un mailto: con asunto y cuerpo precargados.
  * Cuando se integre Supabase se reemplaza por un insert (confirmar schema
  * antes — AGENTS.md §12).
  *
- * Reduced-motion: los cambios de estado son instantáneos (sin vuelos ni
- * dispersión). El fondo de nodos (MathField) queda vivo detrás siempre.
+ * Reduced-motion: se entra directo al selector, sin intro ni vuelos. El fondo
+ * de nodos (MathField) queda vivo detrás siempre.
  */
 
 const TEMAS = [
@@ -68,28 +86,9 @@ const TEMAS = [
 type TemaKey = (typeof TEMAS)[number]["key"];
 type Vista = "hero" | "apertura" | "formulario" | "cierre";
 
-const TITULO_HERO = "Hablemos.";
-
-// Piezas flotantes del hero: contenido institucional REAL (siteConfig +
-// frases pilares verbatim). En el desarme, la pieza i se transforma en la
-// tarjeta de tema i.
-const PIEZAS = [
-  { label: "Presencia", texto: "Chile · México · Argentina · Colombia · Brasil" },
-  { label: "Comunidad", texto: "Comunidad docente en torno a la Matemática Educativa" },
-  { label: "Cómo trabajamos", texto: "Investigación · diseño · acompañamiento" },
-  { label: "Mail directo", texto: siteConfig.contacto.email },
-  { label: "Nuestra brújula", texto: "Potenciamos fortalezas, fortalecemos potencialidades" },
-] as const;
-
-// Posición de cada pieza alrededor del titular (solo desktop; en mobile las
-// piezas se ocultan y el desarme cae al pop directo de las tarjetas).
-const PIEZA_POS = [
-  "left-[4%] top-[17%]",
-  "right-[5%] top-[20%]",
-  "left-[7%] bottom-[26%]",
-  "right-[8%] bottom-[19%]",
-  "right-[2%] top-[47%]",
-] as const;
+// Un solo titular para toda la experiencia: nace gigante en el hero y aterriza
+// como encabezado del selector. No hay un segundo titular.
+const TITULO = "Hablemos.";
 
 export function ContactoExperiencia() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -97,7 +96,12 @@ export function ContactoExperiencia() {
   const [vista, setVista] = useState<Vista>("hero");
   const [tema, setTema] = useState<TemaKey | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [introListo, setIntroListo] = useState(false);
   const animando = useRef(false);
+  const introVivo = useRef(true);
+  const introTl = useRef<gsap.core.Timeline | null>(null);
+  const desarmeTl = useRef<gsap.core.Timeline | null>(null);
+  const ghosts = useRef<HTMLElement[]>([]);
 
   const temaActivo = TEMAS.find((t) => t.key === tema);
   const mailtoPerfil = `mailto:${siteConfig.contacto.email}?subject=${encodeURIComponent(
@@ -107,99 +111,23 @@ export function ContactoExperiencia() {
   const panel = (v: Vista) =>
     rootRef.current?.querySelector<HTMLElement>(`[data-panel="${v}"]`) ?? null;
 
-  // ── Scroll real bloqueado mientras el hero está activo ──────────────────
-  // El desbloqueo NO va atado al estado: lo hace desarmar() recién cuando la
-  // transición termina — si se libera al instante, el impulso de la rueda
-  // (que Lenis también escucha) empuja la página en pleno desarme.
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
+  // Los ghosts viven en <body> (position:fixed), fuera del ctx de GSAP: si la
+  // intro se saltea o el componente se desmonta a mitad de vuelo, nadie más
+  // los saca.
+  const limpiarGhosts = () => {
+    ghosts.current.forEach((g) => g.remove());
+    ghosts.current = [];
+  };
 
-  // ── Entrada inicial: el hero se arma ────────────────────────────────────
-  useIsomorphicLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-
-    let raf = 0;
-    let removeMove: (() => void) | undefined;
-
-    const ctx = gsap.context(() => {
-      // estado base: solo el hero visible
-      gsap.set('[data-panel="apertura"]', { autoAlpha: 0 });
-      gsap.set('[data-panel="formulario"]', { autoAlpha: 0 });
-      gsap.set('[data-panel="cierre"]', { autoAlpha: 0 });
-      if (reduced) return;
-
-      const chars = gsap.utils.toArray<HTMLElement>("[data-hero-char]");
-      const piezas = gsap.utils.toArray<HTMLElement>("[data-pieza]");
-
-      const tl = gsap.timeline({ delay: 0.3, defaults: { ease: "power3.out" } });
-      tl.fromTo(
-        "[data-hero-bit]",
-        { autoAlpha: 0, y: 18 },
-        { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.09 },
-        0,
-      )
-        .fromTo(
-          chars,
-          { autoAlpha: 0, yPercent: 105, rotateX: -70, transformOrigin: "50% 100%", transformPerspective: 600 },
-          { autoAlpha: 1, yPercent: 0, rotateX: 0, duration: 0.85, ease: "back.out(1.5)", stagger: 0.05 },
-          0.15,
-        )
-        .fromTo(
-          piezas,
-          { autoAlpha: 0, y: 24, scale: 0.92 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.65, ease: "back.out(1.7)", stagger: 0.09 },
-          0.55,
-        )
-        .fromTo("[data-barra]", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 1.0);
-
-      // deriva perpetua de las piezas (solo translate: nada se descuelga)
-      piezas.forEach((p, i) => {
-        gsap.to(p, {
-          y: `+=${8 + (i % 3) * 4}`,
-          duration: 2.6 + (i % 3) * 0.7,
-          ease: "sine.inOut",
-          yoyo: true,
-          repeat: -1,
-          delay: 1.2 + i * 0.2,
-        });
-      });
-
-      // parallax de mouse sobre las piezas (pointer fino)
-      if (window.matchMedia("(pointer: fine)").matches) {
-        let tx = 0;
-        let ty = 0;
-        let cx = 0;
-        let cy = 0;
-        const onMove = (e: MouseEvent) => {
-          tx = (e.clientX / window.innerWidth) * 2 - 1;
-          ty = (e.clientY / window.innerHeight) * 2 - 1;
-        };
-        const loop = () => {
-          cx += (tx - cx) * 0.06;
-          cy += (ty - cy) * 0.06;
-          piezas.forEach((p, i) => {
-            const depth = 0.6 + (i % 3) * 0.35;
-            gsap.set(p, { x: cx * 14 * depth });
-          });
-          raf = requestAnimationFrame(loop);
-        };
-        window.addEventListener("mousemove", onMove);
-        raf = requestAnimationFrame(loop);
-        removeMove = () => window.removeEventListener("mousemove", onMove);
-      }
-    }, root);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      removeMove?.();
-      ctx.revert();
-    };
-  }, [reduced]);
+  // Fin de la intro (por completarse o por salteo): se sueltan los listeners
+  // que retenían el scroll. NO se toca `body.overflow` ni se fuerza el top —
+  // ver el porqué en el efecto de entrada.
+  const finIntro = () => {
+    introVivo.current = false;
+    animando.current = false;
+    limpiarGhosts();
+    setIntroListo(true);
+  };
 
   // ── HERO → APERTURA: el desarme (viaje de ida) ──────────────────────────
   const desarmar = () => {
@@ -211,19 +139,16 @@ export function ContactoExperiencia() {
     if (reduced) {
       gsap.set(panel("hero"), { autoAlpha: 0 });
       gsap.set(panel("apertura"), { autoAlpha: 1 });
-      window.scrollTo(0, 0);
-      document.body.style.overflow = "";
+      finIntro();
       return;
     }
 
     animando.current = true;
-    const chars = gsap.utils.toArray<HTMLElement>("[data-hero-char]");
-    const piezas = gsap.utils.toArray<HTMLElement>("[data-pieza]");
     const cards = gsap.utils.toArray<HTMLElement>("[data-tema-card]");
     const head = gsap.utils.toArray<HTMLElement>("[data-ap-head]");
 
-    // preparar la apertura: visible como capa pero con TODO oculto (cada
-    // pieza que aterriza enciende su tarjeta)
+    // preparar la apertura: visible como capa pero con TODO oculto, para que
+    // el desarme la vaya encendiendo por partes
     gsap.set(panel("apertura"), { autoAlpha: 1 });
     gsap.set(cards, { autoAlpha: 0 });
     gsap.set(head, { autoAlpha: 0 });
@@ -233,153 +158,194 @@ export function ContactoExperiencia() {
       defaults: { ease: "power3.inOut" },
       onComplete: () => {
         gsap.set(panel("hero"), { autoAlpha: 0 });
-        // recién acá se libera el scroll (el impulso de la rueda ya murió) y
-        // se asegura el top por si Lenis alcanzó a arrastrar algo
-        window.scrollTo(0, 0);
-        document.body.style.overflow = "";
-        animando.current = false;
+        finIntro();
       },
     });
+    desarmeTl.current = tl;
 
-    // las letras de "Hablemos." se dispersan (ángulo áureo + deriva arriba)
-    chars.forEach((c, i) => {
-      const ang = i * 2.399;
-      tl.to(
-        c,
-        {
-          x: Math.cos(ang) * (120 + (i % 4) * 60),
-          y: Math.sin(ang) * 70 - 90,
-          rotation: ((i % 5) - 2) * 24,
-          autoAlpha: 0,
-          filter: "blur(7px)",
-          duration: 0.6,
-          ease: "power2.in",
-        },
-        i * 0.02,
-      );
-    });
+    // ── "Hablemos." VIAJA (no se dispersa) ────────────────────────────────
+    // Es el mismo titular: se achica y se acomoda arriba del selector. El
+    // ghost se anima por SCALE (no por font-size, que es layout) desde el
+    // tamaño del hero hasta el del encabezado; con la misma familia, peso,
+    // tracking y line-height en los dos, la razón de font-size alcanza para
+    // que el ghost calce clavado sobre ambos.
+    const srcTit = root.querySelector<HTMLElement>("[data-hero-titulo]");
+    const dstTit = root.querySelector<HTMLElement>("[data-ap-titulo]");
+    const h2 = root.querySelector<HTMLElement>("[data-ap-h2]");
 
-    // eyebrow, bajada, CTA y hint se van rápido
-    tl.to("[data-hero-bit]", { autoAlpha: 0, y: -14, duration: 0.35, ease: "power2.in" }, 0);
+    if (srcTit && dstTit && h2) {
+      const s = srcTit.getBoundingClientRect();
+      const d = dstTit.getBoundingClientRect();
+      const cs = getComputedStyle(dstTit);
+      const fsSrc = parseFloat(getComputedStyle(srcTit).fontSize);
+      const fsDst = parseFloat(cs.fontSize);
+      const ratio = fsDst > 0 ? fsSrc / fsDst : 1;
 
-    // cada pieza VUELA y se transforma en su tarjeta de tema
-    piezas.forEach((p, i) => {
-      const card = cards[i];
-      if (!card) return;
-      const o = p.getBoundingClientRect();
-      const d = card.getBoundingClientRect();
-
-      // pieza oculta en mobile (sin rect): la tarjeta hace pop directo
-      if (!o.width || !d.width) {
-        tl.fromTo(
-          card,
-          { autoAlpha: 0, y: 20, scale: 0.94 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" },
-          0.45 + i * 0.06,
-        );
-        return;
-      }
-
-      // ghost: cáscara blanca con el texto de la pieza, que viaja y toma el
-      // lugar exacto de la tarjeta
-      const ghost = document.createElement("div");
-      ghost.textContent = p.querySelector("[data-pieza-texto]")?.textContent ?? "";
-      ghost.setAttribute("aria-hidden", "true");
-      Object.assign(ghost.style, {
+      const gt = document.createElement("div");
+      gt.textContent = TITULO;
+      gt.setAttribute("aria-hidden", "true");
+      Object.assign(gt.style, {
         position: "fixed",
-        left: `${o.left}px`,
-        top: `${o.top}px`,
-        width: `${o.width}px`,
-        height: `${o.height}px`,
-        display: "flex",
-        alignItems: "center",
-        padding: "0.9rem 1.1rem",
-        background: "#ffffff",
-        color: "#1f2d4d",
-        border: "1px solid rgb(169 197 232 / 0.5)",
-        borderRadius: "1rem",
-        fontFamily: "var(--font-inter), sans-serif",
-        fontSize: "0.8rem",
-        lineHeight: "1.35",
-        overflow: "hidden",
-        zIndex: "45",
+        left: `${d.left}px`,
+        top: `${d.top}px`,
+        margin: "0",
+        whiteSpace: "nowrap",
+        fontFamily: cs.fontFamily,
+        fontWeight: cs.fontWeight,
+        fontSize: `${fsDst}px`,
+        lineHeight: cs.lineHeight,
+        letterSpacing: cs.letterSpacing,
+        color: cs.color,
+        zIndex: "46",
         pointerEvents: "none",
-        boxShadow: "0 10px 30px -18px rgb(31 45 77 / 0.35)",
-      } as CSSStyleDeclaration);
-      document.body.appendChild(ghost);
+        transformOrigin: "left top",
+      } as unknown as CSSStyleDeclaration);
+      document.body.appendChild(gt);
+      ghosts.current.push(gt);
 
-      const at = 0.12 + i * 0.06;
-      tl.set(p, { autoAlpha: 0 }, at)
-        .to(
-          ghost,
-          {
-            left: d.left,
-            top: d.top,
-            width: d.width,
-            height: d.height,
-            duration: 0.68,
-            ease: "power3.inOut",
-          },
-          at,
-        )
-        // al acoplarse: la tarjeta real enciende con un asentado y el ghost
-        // se funde (la materia "cambia de contenido" al aterrizar)
+      gsap.set(h2, { autoAlpha: 0 });
+      tl.set(srcTit, { autoAlpha: 0 }, 0)
         .fromTo(
-          card,
-          { autoAlpha: 0, scale: 1.05 },
-          { autoAlpha: 1, scale: 1, duration: 0.3, ease: "power2.out" },
-          at + 0.6,
+          gt,
+          { x: s.left - d.left, y: s.top - d.top, scale: ratio },
+          { x: 0, y: 0, scale: 1, duration: 0.8 },
+          0,
         )
-        .to(
-          ghost,
-          {
-            autoAlpha: 0,
-            duration: 0.2,
-            onComplete: () => ghost.remove(),
-          },
-          at + 0.62,
-        );
-    });
+        .set(h2, { autoAlpha: 1 }, 0.78)
+        .to(gt, { autoAlpha: 0, duration: 0.12, onComplete: () => gt.remove() }, 0.78);
+    } else {
+      // sin medida (titular no montado): corte simple, sin viaje
+      tl.to(srcTit, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, 0);
+    }
 
-    // el encabezado de la apertura sube al final del desarme
+    // las tarjetas entran en cascada mientras el titular todavía viaja: el
+    // layout se arma ALREDEDOR de la palabra que se acomoda
+    tl.fromTo(
+      cards,
+      { autoAlpha: 0, y: 20, scale: 0.94 },
+      { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)", stagger: 0.06 },
+      0.35,
+    );
+
+    // eyebrow y bajada
     tl.fromTo(
       head,
       { autoAlpha: 0, y: 18 },
-      { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.08 },
-      0.85,
+      { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.08 },
+      0.5,
     );
-    tl.to("[data-ap-under]", { scaleX: 1, duration: 0.6, ease: "power3.inOut" }, 1.1);
+    tl.to("[data-ap-under]", { scaleX: 1, duration: 0.55, ease: "power3.inOut" }, 0.8);
   };
 
-  // el gesto de scroll dispara el desarme (no hay scroll real en el hero).
-  // Captura + stopPropagation: el evento se consume ANTES de que le llegue a
-  // Lenis — si no, Lenis acumula el impulso y arrastra la página en pleno
-  // desarme (o al liberar el lock).
-  useEffect(() => {
-    if (vista !== "hero") return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.deltaY > 4) desarmar();
+  // ── Saltear la intro ────────────────────────────────────────────────────
+  // El gesto de scroll ya NO paga un peaje (la intro se desarma sola): saltea.
+  // Se lo traga en captura para que no le llegue a Lenis — si no, acumula el
+  // impulso y arrastra la página en pleno vuelo, con los ghosts fixed clavados
+  // en su destino viejo.
+  const saltarIntro = () => {
+    if (!introVivo.current) return;
+    introTl.current?.kill();
+    desarmeTl.current?.kill();
+    setVista("apertura");
+
+    gsap.set(panel("hero"), { autoAlpha: 0 });
+    gsap.set(panel("apertura"), { autoAlpha: 1 });
+    gsap.set("[data-ap-h2]", { autoAlpha: 1 });
+    gsap.set("[data-ap-head]", { autoAlpha: 1, y: 0 });
+    gsap.set("[data-tema-card]", { autoAlpha: 1, x: 0, y: 0, scale: 1 });
+    gsap.set("[data-ap-under]", { scaleX: 1 });
+    gsap.set("[data-barra]", { autoAlpha: 1, y: 0 });
+    finIntro();
+  };
+
+  // ── Entrada inicial: el hero se arma y se desarma SOLO ──────────────────
+  // Sin piezas, el hero es solo la palabra: las letras suben y listo. Se fueron
+  // con ellas la deriva perpetua y el parallax de mouse, que no tenían a quién
+  // moverle nada.
+  useIsomorphicLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const ctx = gsap.context(() => {
+      // estado base: solo el hero visible
+      gsap.set('[data-panel="apertura"]', { autoAlpha: 0 });
+      gsap.set('[data-panel="formulario"]', { autoAlpha: 0 });
+      gsap.set('[data-panel="cierre"]', { autoAlpha: 0 });
+      if (reduced) return;
+
+      const chars = gsap.utils.toArray<HTMLElement>("[data-hero-char]");
+
+      const tl = gsap.timeline({ delay: 0.25, defaults: { ease: "power3.out" } });
+      introTl.current = tl;
+      tl.fromTo(
+        chars,
+        { autoAlpha: 0, yPercent: 105, rotateX: -70, transformOrigin: "50% 100%", transformPerspective: 600 },
+        { autoAlpha: 1, yPercent: 0, rotateX: 0, duration: 0.7, ease: "back.out(1.5)", stagger: 0.04 },
+        0,
+      )
+        .fromTo("[data-barra]", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.55)
+        // …y acá está el punto: NADIE tiene que hacer nada. La intro no pide un
+        // gesto para pagar el peaje — se desarma sola apenas terminó de armarse
+        // y de darse un beat para leerse.
+        .call(() => desarmar(), undefined, 1.2);
+    }, root);
+
+    // sin intro: se entra directo al selector, ya armado
+    if (reduced) desarmar();
+
+    // NADA de `body.overflow = "hidden"` para quieto el scroll durante la
+    // intro: al soltarlo reaparece la barra, el viewport se ensancha y TODO el
+    // contenido centrado pega un salto de media barra (~7px) justo cuando
+    // termina la intro. La barra se queda siempre; al scroll lo frenan los
+    // handlers en captura de abajo, que además saltean la intro.
+    return () => {
+      ctx.revert();
+      limpiarGhosts();
     };
-    const onTouch = (e: TouchEvent) => {
+  }, [reduced]);
+
+  // Mientras la intro corre, cualquier intento de scroll la saltea. Estos
+  // handlers son los que reemplazan al lock: en captura, el evento se consume
+  // ANTES de llegarle a Lenis (si no, acumula el impulso y arrastra la página
+  // en pleno vuelo, con los ghosts fixed clavados en su destino viejo).
+  //
+  // El `scroll` va aparte y sin preventDefault (no es cancelable): es la red
+  // para lo que wheel/touch no cubren — arrastrar la barra, autoscroll del
+  // botón del medio. Ahí no se puede evitar el desplazamiento, así que la
+  // intro se saltea y el usuario sigue scrolleando, que es lo que pidió.
+  //
+  // Apenas termina (introListo) los listeners se van y el scroll vuelve a ser
+  // scroll: el peaje no se reemplaza por otro peaje.
+  useEffect(() => {
+    if (reduced || introListo) return;
+    const saltar = (e: Event) => {
+      if (!introVivo.current) return;
       e.preventDefault();
       e.stopPropagation();
-      desarmar();
+      saltarIntro();
+    };
+    const onScroll = () => {
+      if (introVivo.current) saltarIntro();
     };
     const onKey = (e: KeyboardEvent) => {
-      if (["ArrowDown", "PageDown", " "].includes(e.key)) desarmar();
+      if (!introVivo.current) return;
+      if (["ArrowDown", "PageDown", "End", " "].includes(e.key)) {
+        e.preventDefault();
+        saltarIntro();
+      }
     };
-    window.addEventListener("wheel", onWheel, { capture: true, passive: false });
-    window.addEventListener("touchmove", onTouch, { capture: true, passive: false });
+    window.addEventListener("wheel", saltar, { capture: true, passive: false });
+    window.addEventListener("touchmove", saltar, { capture: true, passive: false });
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("keydown", onKey);
     return () => {
-      window.removeEventListener("wheel", onWheel, { capture: true });
-      window.removeEventListener("touchmove", onTouch, { capture: true });
+      window.removeEventListener("wheel", saltar, { capture: true });
+      window.removeEventListener("touchmove", saltar, { capture: true });
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("keydown", onKey);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vista, reduced]);
+  }, [reduced, introListo]);
 
   // ── APERTURA → FORMULARIO: la tarjeta elegida viaja hasta el chip ───────
   const elegirTema = (key: TemaKey, cardEl: HTMLElement) => {
@@ -453,7 +419,7 @@ export function ContactoExperiencia() {
       tl.set(cardEl, { autoAlpha: 0 }, 0)
         // el resto de la apertura se disuelve
         .to(otras, { autoAlpha: 0, scale: 0.92, y: 10, duration: 0.4, stagger: 0.03 }, 0)
-        .to("[data-ap-head]", { autoAlpha: 0, y: -16, duration: 0.4 }, 0)
+        .to("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -16, duration: 0.4 }, 0)
         .set(panel("apertura"), { autoAlpha: 0 }, 0.42)
         // el ghost VIAJA: posición + tamaño de card → chip…
         .to(
@@ -504,7 +470,7 @@ export function ContactoExperiencia() {
     });
     tl.to(panel("formulario"), { autoAlpha: 0, duration: 0.35, ease: "power2.in" })
       .set(panel("apertura"), { autoAlpha: 1 })
-      .fromTo("[data-ap-head]", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.5 })
+      .fromTo("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.5 })
       .fromTo(
         "[data-tema-card]",
         { autoAlpha: 0, scale: 0.92, y: 10 },
@@ -571,7 +537,7 @@ export function ContactoExperiencia() {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
     tl.to(panel("cierre"), { autoAlpha: 0, duration: 0.3, ease: "power2.in" })
       .set(panel("apertura"), { autoAlpha: 1 })
-      .fromTo("[data-ap-head]", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.5 })
+      .fromTo("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.5 })
       .fromTo(
         "[data-tema-card]",
         { autoAlpha: 0, scale: 0.92 },
@@ -613,123 +579,86 @@ export function ContactoExperiencia() {
           inert={vista !== "hero"}
           className="absolute inset-x-5 top-0 bottom-16 md:inset-x-10"
         >
-          {/* Piezas flotantes (contenido institucional real) */}
-          {PIEZAS.map((p, i) => (
-            <div
-              key={p.label + i}
-              data-pieza
-              className={`border-azul-claro/50 absolute hidden w-56 rounded-2xl border bg-white p-4 shadow-[0_10px_30px_-18px_rgb(31_45_77/0.35)] md:block ${PIEZA_POS[i]}`}
-            >
-              <p className="text-verde-concepto font-mono text-[0.62rem] tracking-[0.14em] uppercase">
-                {p.label}
-              </p>
-              <p data-pieza-texto className="text-azul-principal mt-1.5 font-sans text-[0.82rem] leading-relaxed">
-                {p.texto}
-              </p>
-            </div>
-          ))}
-
-          {/* Titular + bajada + CTA, centrados */}
-          <div className="flex h-full flex-col items-center justify-center text-center">
-            <div data-hero-bit>
-              <Eyebrow>Contacto</Eyebrow>
-            </div>
+          {/* Titular editorial: izquierda y a ancho total, en el lenguaje del
+              hero de Qué es ED. Nada más: sin eyebrow, sin bajada, sin botón,
+              sin hint de scroll y sin piezas flotando alrededor. Solo la
+              palabra — no hay nada que decidir todavía. */}
+          <div className="flex h-full flex-col justify-center">
             <h1
-              className="font-display text-azul-principal mt-6 font-extrabold tracking-[-0.03em]"
+              className="font-display text-azul-principal font-extrabold tracking-[-0.03em]"
               style={{ fontSize: "clamp(3.4rem, 1rem + 10vw, 9rem)", lineHeight: 0.95 }}
             >
-              <span className="sr-only">{TITULO_HERO}</span>
-              <span aria-hidden="true">
-                {TITULO_HERO.split("").map((c, i) => (
+              <span className="sr-only">{TITULO}</span>
+              <span data-hero-titulo aria-hidden="true" className="inline-block whitespace-nowrap">
+                {TITULO.split("").map((c, i) => (
                   <span key={i} data-hero-char className="inline-block will-change-transform">
                     {c}
                   </span>
                 ))}
               </span>
             </h1>
-            <p
-              data-hero-bit
-              className="text-gris-texto mt-6 max-w-[44ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.1rem]"
-            >
-              Del otro lado hay personas que investigan y enseñan. Consultas
-              profesionales, propuestas y alianzas.
-            </p>
-            <button
-              data-hero-bit
-              type="button"
-              onClick={desarmar}
-              className="border-azul-principal/25 text-azul-principal hover:border-verde-concepto hover:text-verde-concepto mt-9 inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-sans text-[0.95rem] font-medium transition-colors"
-            >
-              Empezar
-            </button>
-
-            {/* hint: el gesto de scroll transforma */}
-            <div data-hero-bit className="text-gris-texto absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-3">
-              <svg
-                width="18"
-                height="28"
-                viewBox="0 0 22 34"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                aria-hidden="true"
-                className="shrink-0"
-              >
-                <rect x="1" y="1" width="20" height="32" rx="10" />
-                <line x1="11" y1="8" x2="11" y2="13" strokeLinecap="round" className="animate-pulse" />
-              </svg>
-              <span className="font-mono text-[0.68rem] tracking-[0.14em] uppercase">
-                Scrolleá para empezar
-              </span>
-            </div>
           </div>
         </div>
 
         {/* 1 · APERTURA */}
+        {/* my-auto (y no justify-center en el padre): con 5 tarjetas apiladas
+            el contenido no entra en mobile, y justify-center lo recorta de los
+            DOS lados — el titular se iba arriba del navbar y las tarjetas se
+            metían abajo de la barra. Así se centra si entra, y si no entra
+            arranca del tope y se scrollea. Mismo patrón que el formulario.
+            overflow-x-hidden porque overflow-y solo ya hace que overflow-x
+            compute a `auto`: en reposo no desborda nada, pero el back.out con
+            que entran las tarjetas pasa apenas de scale 1 y eso alcanza para
+            que parpadee un scrollbar horizontal en pleno desarme. */}
         <div
           data-panel="apertura"
           aria-hidden={vista !== "apertura"}
           inert={vista !== "apertura"}
-          className="absolute inset-x-5 top-0 bottom-16 flex flex-col justify-center md:inset-x-10"
+          className="absolute inset-x-5 top-0 bottom-16 flex overflow-x-hidden overflow-y-auto pt-24 pb-4 md:inset-x-10 md:pt-28"
         >
-          <div data-ap-head>
-            <Eyebrow>Contacto</Eyebrow>
-          </div>
-          <h2
-            data-ap-head
-            className="font-display text-azul-principal mt-5 max-w-[16ch] font-bold tracking-[-0.02em]"
-            style={{ fontSize: "clamp(2.2rem, 1rem + 4vw, 4.2rem)", lineHeight: 1.06 }}
-          >
-            Empecemos una{" "}
-            <span className="relative inline-block whitespace-nowrap">
-              conversación.
-              <span
-                data-ap-under
-                aria-hidden="true"
-                className="bg-verde-concepto/70 absolute right-0 -bottom-[0.06em] left-0 block h-[0.05em] origin-left rounded-full"
-              />
-            </span>
-          </h2>
-          <p data-ap-head className="text-gris-texto mt-5 max-w-[46ch] font-sans text-[1.02rem] leading-relaxed">
-            Elegí el tema y contanos qué tenés en mente. Consultas
-            profesionales, propuestas y alianzas — sin vueltas.
-          </p>
+          <div className="my-auto w-full">
+            <div data-ap-head>
+              <Eyebrow>Contacto</Eyebrow>
+            </div>
+            {/* Acá ATERRIZA el titular del hero (destino del viaje). Misma
+                familia, peso, tracking y line-height que el h1: el ghost es un
+                scale exacto entre los dos. */}
+            <h2
+              data-ap-h2
+              className="font-display text-azul-principal mt-5 font-extrabold tracking-[-0.03em]"
+              style={{ fontSize: "clamp(2.2rem, 1rem + 4vw, 4.2rem)", lineHeight: 0.95 }}
+            >
+              <span className="sr-only">{TITULO}</span>
+              <span data-ap-titulo aria-hidden="true" className="relative inline-block whitespace-nowrap">
+                {TITULO}
+                <span
+                  data-ap-under
+                  aria-hidden="true"
+                  className="bg-verde-concepto/70 absolute right-0 -bottom-[0.06em] left-0 block h-[0.05em] origin-left rounded-full"
+                />
+              </span>
+            </h2>
+            <p data-ap-head className="text-gris-texto mt-5 max-w-[46ch] font-sans text-[1.02rem] leading-relaxed">
+              Del otro lado hay personas que investigan y enseñan. Elegí el tema
+              y contanos qué tenés en mente.
+            </p>
 
-          <div className="mt-9 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5" role="group" aria-label="Tema de la consulta">
-            {TEMAS.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                data-tema-card
-                onClick={(e) => elegirTema(t.key, e.currentTarget)}
-                className="group border-azul-claro/50 text-azul-principal hover:border-verde-concepto/60 focus-visible:outline-verde-concepto rounded-2xl border bg-white p-5 text-left transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2"
-              >
-                <span className="font-display block text-[1rem] leading-snug font-semibold">{t.titulo}</span>
-                <span className="text-gris-texto mt-2 block font-sans text-[0.83rem] leading-relaxed">
-                  {t.detalle}
-                </span>
-              </button>
-            ))}
+            <div className="mt-9 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5" role="group" aria-label="Tema de la consulta">
+              {TEMAS.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  data-tema-card
+                  onClick={(e) => elegirTema(t.key, e.currentTarget)}
+                  className="group border-azul-claro/50 text-azul-principal hover:border-verde-concepto/60 focus-visible:outline-verde-concepto rounded-2xl border bg-white p-5 text-left transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                  <span className="font-display block text-[1rem] leading-snug font-semibold">{t.titulo}</span>
+                  <span className="text-gris-texto mt-2 block font-sans text-[0.83rem] leading-relaxed">
+                    {t.detalle}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
