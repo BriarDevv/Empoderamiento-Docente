@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useRef } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitChars } from "@/components/ui/SplitChars";
@@ -31,6 +32,13 @@ if (typeof window !== "undefined") {
  * Además: TILT 3D del panel siguiendo el mouse e indicador de progreso de 5
  * puntos (cápsula naranja = beat activo, mismo idioma que el home).
  *
+ * PANEL DE FOTOS (beats 0–2, solo desktop + motion): lámina redondeada
+ * acoplada a la derecha con una foto real por beat. Se cruzan dentro de la
+ * máscara (fade + blur + leve desplazamiento) en sincronía con el texto, con
+ * deriva vertical continua (profundidad). Una muesca navy en el borde
+ * izquierdo recorre el panel con el scroll (referencia editorial). El panel
+ * despega antes del beat 3 para devolverle todo el ancho a la constelación.
+ *
  * Contenido basado en los videos del cliente (resumen videos.txt §1–3). La
  * redacción exacta de la cita es una dramatización del testimonio del video 2
  * — VALIDAR con el cliente antes de publicar.
@@ -58,6 +66,24 @@ const PATH_D =
   "M 60 150 C 133 150 207 90 280 90 C 353 90 427 140 500 140 C 573 140 647 80 720 80 C 793 80 867 120 940 120";
 
 const PREGUNTA = "¿Qué hicimos exactamente?";
+
+// Fotos del recorrido (una por beat 0–2). Viven en el panel derecho tipo
+// "dock" y se cruzan en sincronía con el cambio de texto. En mobile y con
+// reduced-motion el panel no se muestra (la experiencia actual se preserva).
+const FOTOS = [
+  {
+    src: "/que-es-ed/origen-01-aulas.webp",
+    alt: "Trabajo con estudiantes en el patio de una escuela",
+  },
+  {
+    src: "/que-es-ed/origen-02-inflexion.webp",
+    alt: "Encuentro de formación docente frente a la pizarra",
+  },
+  {
+    src: "/que-es-ed/origen-03-pregunta.webp",
+    alt: "Exposición ante la comunidad educativa en un auditorio",
+  },
+] as const;
 
 export function OrigenEd() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -102,7 +128,9 @@ export function OrigenEd() {
       gsap.set(beats.slice(1), { autoAlpha: 0 });
 
       const q = (sel: string) => root.querySelector<HTMLElement>(sel);
-      const qa = (sel: string) => gsap.utils.toArray<HTMLElement>(sel);
+      // Scope a root: sin él, toArray barre todo el documento y cualquier
+      // data-attr homónimo de otra sección se colaría en silencio.
+      const qa = (sel: string) => gsap.utils.toArray<HTMLElement>(sel, root);
 
       const chars0 = qa("[data-beat='0'] [data-char]");
       const quoteCard = q("[data-quote-card]");
@@ -115,6 +143,11 @@ export function OrigenEd() {
       const finWords = qa("[data-fin-word]");
       const finRule = q("[data-fin-rule]");
       const finSub = q("[data-fin-sub]");
+      const panel = q("[data-photo-panel]");
+      const lamina = q("[data-photo-lamina]");
+      const photoFrames = qa("[data-photo]");
+      const photoImgs = qa("[data-photo-img]");
+      const notchRail = q("[data-notch-rail]");
 
       // Estados iniciales de piezas internas (solo con motion)
       if (quoteCard) {
@@ -138,6 +171,28 @@ export function OrigenEd() {
       gsap.set(finWords, { autoAlpha: 0, scale: 1.7, filter: "blur(10px)" });
       if (finRule) gsap.set(finRule, { scaleX: 0 });
       if (finSub) gsap.set(finSub, { autoAlpha: 0, y: 18 });
+
+      // ── Panel de fotos: se acopla a la derecha junto con la lámina ──────
+      // La ENTRADA anima el wrapper externo (panel) y la SALIDA —dentro del
+      // timeline maestro— anima la lámina interna (lamina). Cada ScrollTrigger
+      // es dueño exclusivo de su elemento: no dependemos del orden de render
+      // de GSAP cuando ambos escriben las mismas propiedades.
+      if (panel) {
+        gsap.set(photoFrames.slice(1), { autoAlpha: 0 });
+        if (notchRail) gsap.set(notchRail, { yPercent: 8 });
+        gsap.fromTo(
+          panel,
+          { autoAlpha: 0, y: 170, x: 46, rotate: 1.4 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            x: 0,
+            rotate: 0,
+            ease: "none",
+            scrollTrigger: { trigger: root, start: "top 82%", end: "top top", scrub: true },
+          },
+        );
+      }
 
       // ── Indicador de 5 puntos (definido ANTES del timeline: su onUpdate
       //    puede dispararse apenas se crea el ScrollTrigger) ─────────────────
@@ -222,6 +277,61 @@ export function OrigenEd() {
       tl.to({}, { duration: 0.6 }, 10.9); // respiro final antes de soltar el pin
       setDot(0);
 
+      // ── PANEL DE FOTOS (beats 0–2) ───────────────────────────────────────
+      // Las fotos se revelan DENTRO de la máscara (fade + blur + leve
+      // desplazamiento), en sincronía con las transiciones de texto. La
+      // muesca del borde izquierdo recorre el panel con el progreso de la
+      // historia. El panel despega antes de la constelación (beat 3).
+      if (panel && photoFrames.length === 3) {
+        const SWAPS = [
+          { out: 0, entra: 1, at: 1.35 }, // con la transición beat 0 → 1
+          { out: 1, entra: 2, at: 3.65 }, // con la transición beat 1 → 2
+        ] as const;
+        SWAPS.forEach(({ out, entra, at }) => {
+          tl.to(
+            photoFrames[out],
+            {
+              autoAlpha: 0,
+              yPercent: -6,
+              scale: 1.04,
+              filter: "blur(9px)",
+              duration: 0.5,
+              ease: "power2.in",
+            },
+            at,
+          ).fromTo(
+            photoFrames[entra],
+            { autoAlpha: 0, yPercent: 8, scale: 1.06, filter: "blur(9px)" },
+            {
+              autoAlpha: 1,
+              yPercent: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 0.6,
+              ease: "power3.out",
+            },
+            at + 0.18,
+          );
+        });
+        // Deriva vertical continua de la foto activa (profundidad sutil).
+        // Cada deriva arranca cuando su frame empieza a entrar (at + 0.18).
+        tl.fromTo(photoImgs[0], { yPercent: 2.6 }, { yPercent: -2.6, ease: "none", duration: 1.85 }, 0);
+        tl.fromTo(photoImgs[1], { yPercent: 2.6 }, { yPercent: -2.6, ease: "none", duration: 2.3 }, 1.53);
+        tl.fromTo(photoImgs[2], { yPercent: 2.6 }, { yPercent: -2.6, ease: "none", duration: 2.4 }, 3.83);
+        // Muesca deslizante (guiño editorial de la referencia). El rail mide
+        // la altura del panel, así que yPercent 8→74 = top 8%→74% pero por
+        // transform (composited): sin reflow por frame y a prueba de resize.
+        if (notchRail) {
+          tl.fromTo(notchRail, { yPercent: 8 }, { yPercent: 74, ease: "none", duration: 5.3 }, 0.7);
+        }
+        // Salida del panel antes del beat 3 (la constelación usa todo el
+        // ancho). Anima la lámina interna: la entrada es dueña del wrapper
+        // externo y acá nadie pisa propiedades de nadie.
+        if (lamina) {
+          tl.to(lamina, { autoAlpha: 0, x: 80, y: 46, scale: 0.965, duration: 0.55, ease: "power2.in" }, 6.05);
+        }
+      }
+
       // ── TILT 3D del panel con el mouse (suave, solo pointer fino) ────────
       if (window.matchMedia("(pointer: fine)").matches) {
         let tx = 0;
@@ -275,10 +385,91 @@ export function OrigenEd() {
             data-story-tilt
             className="relative h-full w-full will-change-transform [transform-style:preserve-3d] motion-reduce:h-auto"
           >
+            {/* ── Panel de fotos (beats 0–2): lámina acoplada a la derecha.
+                Las fotos se revelan dentro de la máscara y la muesca del
+                borde izquierdo viaja con el scroll (reinterpretación sobria
+                de la referencia editorial). Solo desktop + motion. ── */}
+            <div
+              data-photo-panel
+              className="absolute top-[13svh] right-[4vw] z-0 hidden h-[74svh] w-[42vw] will-change-transform md:block motion-reduce:hidden"
+            >
+              <div
+                data-photo-lamina
+                className="relative h-full w-full overflow-hidden rounded-[1.75rem] bg-white/[0.04] shadow-[0_60px_140px_-50px_rgb(0_0_0/0.7)] will-change-transform"
+              >
+                {FOTOS.map((f, i) => (
+                  <div
+                    key={f.src}
+                    data-photo={i}
+                    className={`absolute inset-0 will-change-transform ${i === 0 ? "" : "opacity-0"}`}
+                  >
+                    {/* Bleed del 7% para la deriva vertical sin descubrir bordes */}
+                    <div data-photo-img className="absolute -inset-[7%]">
+                      <Image
+                        src={f.src}
+                        alt={f.alt}
+                        fill
+                        sizes="(max-width: 767px) 1px, 48vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    {/* Velos navy: integran la foto al sistema visual de la lámina */}
+                    <div
+                      aria-hidden="true"
+                      className="bg-azul-principal/25 absolute inset-0 mix-blend-multiply"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="from-azul-principal/30 absolute inset-0 bg-gradient-to-r via-transparent to-transparent"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="from-azul-principal/55 absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t to-transparent"
+                    />
+                  </div>
+                ))}
+                {/* Muesca deslizante del borde izquierdo (chaflán suave).
+                    Filo de luz + tick naranja para que se lea sobre la foto
+                    (navy puro desaparecía contra los velos). El rail mide la
+                    altura del panel: GSAP lo desliza con yPercent (transform
+                    composited, sin reflow) y el % sigue al panel en resize. */}
+                <div
+                  data-notch-rail
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 -left-px z-10 w-[22px] will-change-transform"
+                >
+                  <svg
+                    viewBox="0 0 18 144"
+                    preserveAspectRatio="none"
+                    className="text-azul-principal absolute top-0 left-0 h-36 w-[22px]"
+                  >
+                    <path
+                      d="M0 0 C 0 14, 13 18, 13 34 L 13 110 C 13 126, 0 130, 0 144 Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M0 0 C 0 14, 13 18, 13 34 L 13 110 C 13 126, 0 130, 0 144"
+                      fill="none"
+                      stroke="rgb(255 255 255 / 0.16)"
+                      strokeWidth="1.25"
+                    />
+                    <rect
+                      x="4"
+                      y="56"
+                      width="3"
+                      height="32"
+                      rx="1.5"
+                      fill="var(--color-naranja-accion)"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
             {/* ── BEAT 0: "No nacimos de una teoría." ─────────────────────── */}
             <div
               data-beat="0"
-              className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24"
+              className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24 md:items-start md:pl-[7vw] md:pr-[50vw] md:text-left"
             >
               <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
                 Origen, sentido y evolución
@@ -298,7 +489,7 @@ export function OrigenEd() {
             {/* ── BEAT 1: la cita de la profesora (tarjeta 3D) ────────────── */}
             <div
               data-beat="1"
-              className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24"
+              className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24 md:items-start md:pl-[7vw] md:pr-[50vw] md:text-left"
             >
               <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
                 El punto de inflexión
@@ -339,7 +530,7 @@ export function OrigenEd() {
             {/* ── BEAT 2: la pregunta fundacional (typewriter por scroll) ─── */}
             <div
               data-beat="2"
-              className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24"
+              className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24 md:items-start md:pl-[7vw] md:pr-[50vw] md:text-left"
             >
               <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
                 Esa reacción se repetía
