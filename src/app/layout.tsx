@@ -31,13 +31,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default:
-      "Empoderamiento Docente — Transformamos el aprendizaje de la matemática",
+      "Empoderamiento Docente — Transformamos el aprendizaje de las matemáticas",
     template: "%s | Empoderamiento Docente",
   },
   description:
     "Consultora en educación especializada en Matemáticas. Acompañamos a equipos docentes con investigación, formación y acompañamiento situado.",
   keywords: [
-    "aprendizaje de la matemática",
+    "aprendizaje de las matemáticas",
     "desarrollo profesional docente",
     "matemática educativa",
     "consultora educativa",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     title:
-      "Empoderamiento Docente — Transformamos el aprendizaje de la matemática",
+      "Empoderamiento Docente — Transformamos el aprendizaje de las matemáticas",
     description:
       "Consultora en educación especializada en Matemáticas. Investigación, formación y acompañamiento para equipos docentes.",
     siteName: siteConfig.name,
