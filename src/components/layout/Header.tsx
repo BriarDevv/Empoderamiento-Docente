@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { NAV_LINKS, CTA_LINK, HOME_LINK } from "@/config/nav";
 import { MobileNav } from "./MobileNav";
@@ -40,10 +41,16 @@ const SCROLLED_HOLD_MS = 900;
 export function Header() {
   const ref = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
+  // El intro coreografiado del navbar (wordmark que se sostiene y colapsa a los
+  // links) está temporizado al hero grande del INICIO. En páginas internas el
+  // hero es más rápido, así que ese hold largo llega tarde y desfasado: ahí el
+  // navbar arranca ya ABIERTO (el JSX por defecto es el estado abierto), sin
+  // replay del intro. El intro es un momento de bienvenida del Inicio.
+  const isHome = usePathname() === "/";
 
   useIsomorphicLayoutEffect(() => {
     const nav = ref.current;
-    if (!nav || reducedMotion) return;
+    if (!nav || reducedMotion || !isHome) return;
     let cleanupReveal: (() => void) | undefined;
     let fallback: number | undefined;
     let openTimer: number | undefined;
