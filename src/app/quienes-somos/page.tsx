@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { QuienesSomosHero } from "@/features/quienes-somos/components/QuienesSomosHero";
 import { OrigenEd } from "@/features/quienes-somos/components/OrigenEd";
 import { MiradaEd } from "@/features/quienes-somos/components/MiradaEd";
-import { RedEd } from "@/features/quienes-somos/components/RedEd";
 import { ImpulsanEd } from "@/features/quienes-somos/components/ImpulsanEd";
-import { DistintoEd } from "@/features/quienes-somos/components/DistintoEd";
 
 export const metadata: Metadata = {
   title: "Quiénes somos",
@@ -18,9 +16,9 @@ export default function QuienesSomosPage() {
       <QuienesSomosHero />
       <OrigenEd />
       <MiradaEd />
-      <RedEd />
       <ImpulsanEd />
-      <DistintoEd />
+      {/* RedEd y DistintoEd removidos del render (página muy larga) — los
+          componentes siguen en features/quienes-somos por si se reincorporan. */}
       {/* Próximas secciones (sitemap): Trayectoria y alianzas · Cierre. */}
     </main>
   );
