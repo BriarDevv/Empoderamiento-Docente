@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MathField } from "@/components/ui/MathField";
 import {
+  ArrowRight,
   ArrowUpRight,
+  ChevronDown,
   Users,
   Lightbulb,
   School,
@@ -39,13 +42,14 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
  *      tema entran en cascada a su alrededor. Por eso hay un solo titular
  *      acomodándose y no dos diciendo lo mismo — la palabra es la semilla del
  *      layout, no un cartel previo.
- *  2 · FORMULARIO — al elegir tema, la tarjeta elegida viaja (ghost FLIP)
- *      hasta el chip del formulario y los campos suben en cascada. "Cambiar
- *      tema" vuelve al selector sin perder lo tipeado.
+ *  2 · FORMULARIO — al elegir tema, el TÍTULO de la fila elegida viaja (ghost
+ *      tipográfico) hasta el rail navy del formulario y los campos suben en
+ *      cascada. "Cambiar tema" vuelve al selector sin perder lo tipeado.
  *  3 · CIERRE — al enviar: «Cada propuesta empieza con una conversación.»
  *
- * Lo secundario del sitemap (otros canales + compartir perfil, menor
- * jerarquía) es la BARRA fija de abajo, presente en todos los estados.
+ * Lo secundario del sitemap (mail directo + sumarse al equipo) ya no vive en
+ * una barra fija aparte: acompaña al contenido de cada estado (línea al pie
+ * del índice en la apertura; fila al pie del contenedor en el formulario).
  *
  * Durante la intro el scroll queda quieto (los ghosts son position:fixed y un
  * scroll a mitad de vuelo los despega de su destino), pero NO con
@@ -98,6 +102,23 @@ const TEMAS = [
 type TemaKey = (typeof TEMAS)[number]["key"];
 type Vista = "hero" | "apertura" | "formulario" | "cierre";
 
+// "Del otro lado hay personas": caras REALES del equipo (mismas fotos que la
+// página de equipo), no un claim abstracto. Cuatro alcanzan para la fila de
+// avatares del cartel; el resto lo dice el "+8".
+const EQUIPO_FOTOS = [
+  "/equipo/gabriela-buendia.jpg",
+  "/equipo/ivan-perez.jpg",
+  "/equipo/daniela-reyes.jpg",
+  "/equipo/karla-gomez.jpg",
+];
+const EQUIPO_RESTO = 8;
+
+// Grid de puntos del manual (DESIGN.md §6) para superficies navy: EXACTAMENTE
+// la misma textura que la banda de stats de la home (DatosDuros), para que el
+// navy del contacto sea el mismo navy y no un primo.
+const DOTS_NAVY =
+  "opacity-[0.06] [background-image:radial-gradient(circle,#fff_1.1px,transparent_1.6px)] [background-size:22px_22px]";
+
 // Un solo titular para toda la experiencia: nace gigante en el hero y aterriza
 // como encabezado del selector. No hay un segundo titular.
 const TITULO = "Hablemos.";
@@ -116,9 +137,7 @@ export function ContactoExperiencia() {
   const ghosts = useRef<HTMLElement[]>([]);
 
   const temaActivo = TEMAS.find((t) => t.key === tema);
-  const mailtoPerfil = `mailto:${siteConfig.contacto.email}?subject=${encodeURIComponent(
-    "[Web] Comparto mi perfil",
-  )}`;
+  const temaIdx = Math.max(0, TEMAS.findIndex((t) => t.key === tema));
   // Segunda puerta del contacto: sumarse al equipo. Sin upload (todavía no hay
   // backend), el mailto precarga asunto y un cuerpo-plantilla que recuerda
   // adjuntar el CV.
@@ -238,12 +257,13 @@ export function ContactoExperiencia() {
       tl.to(srcTit, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, 0);
     }
 
-    // las tarjetas entran en cascada mientras el titular todavía viaja: el
-    // layout se arma ALREDEDOR de la palabra que se acomoda
+    // las filas del índice entran en cascada mientras el titular todavía
+    // viaja: el layout se arma ALREDEDOR de la palabra que se acomoda. Slide
+    // editorial (sin bounce): son renglones de un índice, no fichas.
     tl.fromTo(
       cards,
-      { autoAlpha: 0, y: 20, scale: 0.94 },
-      { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)", stagger: 0.06 },
+      { autoAlpha: 0, y: 26 },
+      { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.07 },
       0.35,
     );
 
@@ -274,7 +294,6 @@ export function ContactoExperiencia() {
     gsap.set("[data-ap-head]", { autoAlpha: 1, y: 0 });
     gsap.set("[data-tema-card]", { autoAlpha: 1, x: 0, y: 0, scale: 1 });
     gsap.set("[data-ap-under]", { scaleX: 1 });
-    gsap.set("[data-barra]", { autoAlpha: 1, y: 0 });
     finIntro();
   };
 
@@ -303,7 +322,6 @@ export function ContactoExperiencia() {
         { autoAlpha: 1, yPercent: 0, rotateX: 0, duration: 0.7, ease: "back.out(1.5)", stagger: 0.04 },
         0,
       )
-        .fromTo("[data-barra]", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.55)
         // …y acá está el punto: NADIE tiene que hacer nada. La intro no pide un
         // gesto para pagar el peaje — se desarma sola apenas terminó de armarse
         // y de darse un beat para leerse.
@@ -380,10 +398,11 @@ export function ContactoExperiencia() {
     }
 
     animando.current = true;
-    const cardRect = cardEl.getBoundingClientRect();
     const titulo = TEMAS.find((t) => t.key === key)?.titulo ?? "";
+    const srcTitulo = cardEl.querySelector<HTMLElement>("[data-row-titulo]");
+    const srcRect = (srcTitulo ?? cardEl).getBoundingClientRect();
 
-    // esperar el re-render (el chip ya tiene el texto final) y medir en vivo
+    // esperar el re-render (el destino ya tiene el texto final) y medir en vivo
     requestAnimationFrame(() => {
       const root = rootRef.current;
       const chip = root?.querySelector<HTMLElement>("[data-chip-tema]");
@@ -395,33 +414,40 @@ export function ContactoExperiencia() {
       }
       const chipRect = chip.getBoundingClientRect();
 
-      // ghost: nace como la tarjeta y aterriza como el chip navy
+      // Ghost TIPOGRÁFICO (mismo truco que el viaje de "Hablemos."): el título
+      // de la fila elegida viaja como texto y aterriza convertido en el titular
+      // del rail navy. Escala por scale (no font-size) usando la razón entre
+      // los dos tamaños; el color vira de azul a blanco durante el vuelo.
+      //
+      // El ghost vuela en UNA línea (nowrap, como el renglón de origen) y al
+      // llegar se CROSSFADEA con el titular real del chip (que puede quebrar
+      // en dos líneas). Antes el ghost nacía con el ancho del chip: quebraba
+      // en el despegue mientras el renglón de origen era una línea — ese
+      // reflow instantáneo era lo que descosía la transición.
+      const csDst = getComputedStyle(chip);
+      const fsSrc = srcTitulo ? parseFloat(getComputedStyle(srcTitulo).fontSize) : 16;
+      const fsDst = parseFloat(csDst.fontSize);
+      const ratio = fsDst > 0 ? fsSrc / fsDst : 1;
+
       const ghost = document.createElement("div");
       ghost.textContent = titulo;
       ghost.setAttribute("aria-hidden", "true");
       Object.assign(ghost.style, {
         position: "fixed",
-        left: `${cardRect.left}px`,
-        top: `${cardRect.top}px`,
-        width: `${cardRect.width}px`,
-        height: `${cardRect.height}px`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0 1.1rem",
-        textAlign: "center",
-        background: "#ffffff",
+        left: `${chipRect.left}px`,
+        top: `${chipRect.top}px`,
+        whiteSpace: "nowrap",
+        margin: "0",
+        fontFamily: csDst.fontFamily,
+        fontWeight: csDst.fontWeight,
+        fontSize: `${fsDst}px`,
+        lineHeight: csDst.lineHeight,
+        letterSpacing: csDst.letterSpacing,
         color: "#1f2d4d",
-        border: "1px solid rgb(169 197 232 / 0.5)",
-        borderRadius: "1rem",
-        fontFamily: "var(--font-manrope), sans-serif",
-        fontWeight: "600",
-        fontSize: "0.95rem",
-        lineHeight: "1.2",
         zIndex: "45",
         pointerEvents: "none",
-        boxShadow: "0 10px 30px -18px rgb(31 45 77 / 0.35)",
-      } as CSSStyleDeclaration);
+        transformOrigin: "left top",
+      } as unknown as CSSStyleDeclaration);
       document.body.appendChild(ghost);
 
       const otras = gsap.utils.toArray<HTMLElement>("[data-tema-card]").filter((c) => c !== cardEl);
@@ -430,43 +456,44 @@ export function ContactoExperiencia() {
       const tl = gsap.timeline({
         defaults: { ease: "power3.inOut" },
         onComplete: () => {
-          gsap.to(ghost, { autoAlpha: 0, duration: 0.14, onComplete: () => ghost.remove() });
+          ghost.remove();
           animando.current = false;
           root.querySelector<HTMLInputElement>("#ct-nombre")?.focus({ preventScroll: true });
         },
       });
 
+      // el titular real del chip arranca oculto: entra en crossfade con el
+      // ghost cuando este aterriza (así el posible quiebre de línea del chip
+      // no aparece de golpe)
+      gsap.set(chip, { autoAlpha: 0 });
+
       tl.set(cardEl, { autoAlpha: 0 }, 0)
-        // el resto de la apertura se disuelve
-        .to(otras, { autoAlpha: 0, scale: 0.92, y: 10, duration: 0.4, stagger: 0.03 }, 0)
+        // el resto del índice se disuelve
+        .to(otras, { autoAlpha: 0, y: 10, duration: 0.4, stagger: 0.03 }, 0)
         .to("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -16, duration: 0.4 }, 0)
         .set(panel("apertura"), { autoAlpha: 0 }, 0.42)
-        // el ghost VIAJA: posición + tamaño de card → chip…
-        .to(
-          ghost,
-          {
-            left: chipRect.left,
-            top: chipRect.top,
-            width: chipRect.width,
-            height: chipRect.height,
-            borderRadius: "999px",
-            fontSize: "0.8rem",
-            boxShadow: "none",
-            duration: 0.6,
-          },
-          0.08,
-        )
-        // …y recién al acoplarse vira a navy (interpolar todo el viaje
-        // ensuciaba el color con un gris intermedio)
-        .to(ghost, { background: "#1f2d4d", color: "#ffffff", duration: 0.22, ease: "power1.inOut" }, 0.46)
-        // el formulario se arma alrededor del chip que aterriza
-        .set(panel("formulario"), { autoAlpha: 1 }, 0.5)
+        // el contenedor aparece TEMPRANO y el rail entra primero en la
+        // cascada: el título aterriza sobre una superficie que ya existe, no
+        // sobre un panel que se está armando debajo de él
+        .set(panel("formulario"), { autoAlpha: 1 }, 0.28)
         .fromTo(
           campos,
           { autoAlpha: 0, y: 18 },
           { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.06 },
-          0.55,
-        );
+          0.34,
+        )
+        // el título VIAJA: de su renglón del índice al rail del formulario…
+        .fromTo(
+          ghost,
+          { x: srcRect.left - chipRect.left, y: srcRect.top - chipRect.top, scale: ratio },
+          { x: 0, y: 0, scale: 1, duration: 0.65 },
+          0.08,
+        )
+        // …vira a blanco mientras cruza hacia el navy…
+        .to(ghost, { color: "#ffffff", duration: 0.25, ease: "power1.inOut" }, 0.5)
+        // …y al aterrizar se crossfadea con el titular real
+        .to(chip, { autoAlpha: 1, duration: 0.2, ease: "power1.out" }, 0.66)
+        .to(ghost, { autoAlpha: 0, duration: 0.2, ease: "power1.in" }, 0.7);
     });
   };
 
@@ -493,8 +520,8 @@ export function ContactoExperiencia() {
       .fromTo("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.5 })
       .fromTo(
         "[data-tema-card]",
-        { autoAlpha: 0, scale: 0.92, y: 10 },
-        { autoAlpha: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.7)", stagger: 0.05 },
+        { autoAlpha: 0, y: 18 },
+        { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.05 },
         "-=0.3",
       );
   };
@@ -560,8 +587,8 @@ export function ContactoExperiencia() {
       .fromTo("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.5 })
       .fromTo(
         "[data-tema-card]",
-        { autoAlpha: 0, scale: 0.92 },
-        { autoAlpha: 1, scale: 1, duration: 0.55, ease: "back.out(1.7)", stagger: 0.05 },
+        { autoAlpha: 0, y: 18 },
+        { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.05 },
         "-=0.3",
       );
   };
@@ -576,8 +603,13 @@ export function ContactoExperiencia() {
     }
   };
 
+  // Campos editoriales: solo subrayado (nada de cajas), label mono arriba.
+  // El foco se marca engrosando el subrayado a verde vía box-shadow (no mueve
+  // layout) + caret verde.
   const inputBase =
-    "w-full rounded-xl border border-azul-claro/50 bg-white px-4 py-2.5 font-sans text-[0.95rem] text-azul-principal placeholder:text-gris-texto/60 transition-colors focus:border-verde-concepto focus:outline-none focus:ring-2 focus:ring-verde-concepto/25";
+    "w-full border-0 border-b border-azul-claro/60 bg-transparent px-0 py-2 font-sans text-[1.02rem] text-azul-principal caret-verde-concepto placeholder:text-gris-texto/50 transition-[border-color,box-shadow] focus:border-verde-concepto focus:shadow-[0_1px_0_0_var(--color-verde-concepto)] focus:outline-none";
+  const labelBase =
+    "text-gris-texto mb-1 block font-mono text-[0.66rem] font-medium tracking-[0.14em] uppercase";
 
   return (
     <section
@@ -597,7 +629,7 @@ export function ContactoExperiencia() {
           data-panel="hero"
           aria-hidden={vista !== "hero"}
           inert={vista !== "hero"}
-          className="absolute inset-x-5 top-0 bottom-16 md:inset-x-10"
+          className="absolute inset-x-5 top-0 bottom-0 md:inset-x-10"
         >
           {/* Titular editorial: izquierda y a ancho total, en el lenguaje del
               hero de Qué es ED. Nada más: sin eyebrow, sin bajada, sin botón,
@@ -634,76 +666,171 @@ export function ContactoExperiencia() {
           data-panel="apertura"
           aria-hidden={vista !== "apertura"}
           inert={vista !== "apertura"}
-          className="absolute inset-x-5 top-0 bottom-16 flex overflow-x-hidden overflow-y-auto pt-24 pb-4 md:inset-x-10 md:pt-28"
+          className="absolute inset-x-5 top-0 bottom-0 flex overflow-x-hidden overflow-y-auto pt-24 pb-4 md:inset-x-10 md:pt-28"
         >
-          <div className="my-auto w-full">
-            <div data-ap-head>
-              <Eyebrow>Contacto</Eyebrow>
-            </div>
-            {/* Acá ATERRIZA el titular del hero (destino del viaje). Misma
-                familia, peso, tracking y line-height que el h1: el ghost es un
-                scale exacto entre los dos. */}
-            <h2
-              data-ap-h2
-              className="font-display text-azul-principal mt-5 font-extrabold tracking-[-0.03em]"
-              style={{ fontSize: "clamp(2.2rem, 1rem + 4vw, 4.2rem)", lineHeight: 0.95 }}
-            >
-              <span className="sr-only">{TITULO}</span>
-              <span data-ap-titulo aria-hidden="true" className="relative inline-block whitespace-nowrap">
-                {TITULO}
-                <span
-                  data-ap-under
-                  aria-hidden="true"
-                  className="bg-verde-concepto/70 absolute right-0 -bottom-[0.06em] left-0 block h-[0.05em] origin-left rounded-full"
-                />
-              </span>
-            </h2>
-            <p data-ap-head className="text-gris-texto mt-5 max-w-[46ch] font-sans text-[1.02rem] leading-relaxed">
-              Del otro lado hay personas que investigan y enseñan. Elegí el tema
-              y contanos qué tenés en mente.
-            </p>
+          {/* Composición editorial asimétrica (idioma de la home): columna de
+              identidad a la izquierda (titular + equipo real) y el ÍNDICE de
+              temas a la derecha — renglones numerados, no un grid de fichas. */}
+          <div className="my-auto w-full lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-x-16 xl:gap-x-24">
+            <div>
+              <div data-ap-head>
+                <Eyebrow>Contacto</Eyebrow>
+              </div>
+              {/* Acá ATERRIZA el titular del hero (destino del viaje). Misma
+                  familia, peso, tracking y line-height que el h1: el ghost es
+                  un scale exacto entre los dos. */}
+              <h2
+                data-ap-h2
+                className="font-display text-azul-principal mt-5 font-extrabold tracking-[-0.03em]"
+                style={{ fontSize: "clamp(2.2rem, 1rem + 4vw, 4.2rem)", lineHeight: 0.95 }}
+              >
+                <span className="sr-only">{TITULO}</span>
+                <span data-ap-titulo aria-hidden="true" className="relative inline-block whitespace-nowrap">
+                  {TITULO}
+                  <span
+                    data-ap-under
+                    aria-hidden="true"
+                    className="bg-verde-concepto/70 absolute right-0 -bottom-[0.06em] left-0 block h-[0.05em] origin-left rounded-full"
+                  />
+                </span>
+              </h2>
+              <p data-ap-head className="text-gris-texto mt-5 max-w-[38ch] font-sans text-[1.02rem] leading-relaxed">
+                Elegí el tema y contanos qué tenés en mente.
+              </p>
 
-            <div className="mt-9 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5" role="group" aria-label="Tema de la consulta">
+              {/* Foto real + cartel flotante: el idioma EXACTO de las tarjetas
+                  del hero de la home (rounded-2xl + ring + sombra profunda +
+                  cartel frosted con título verde) traído al contacto. Es la
+                  prueba visual de "del otro lado hay personas": aula real y
+                  caras reales del equipo, no un claim tipográfico. Solo
+                  desktop ancho — en mobile la columna ya va apilada y la foto
+                  empujaría el índice fuera del viewport. */}
+              <div data-ap-head className="mt-9 hidden max-w-[24rem] lg:block">
+                <div className="relative">
+                  <div className="relative aspect-[7/5] w-full overflow-hidden rounded-2xl shadow-[0_28px_70px_-28px_rgb(31_45_77_/_0.5)] ring-1 ring-white/40">
+                    <Image
+                      src="/metodo/escuchamos.webp"
+                      alt="Sesión de trabajo con docentes"
+                      fill
+                      sizes="(min-width: 1024px) 24rem, 0px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="ring-azul-principal/10 absolute -bottom-6 left-4 z-10 flex items-center gap-3 rounded-xl bg-white/85 px-3.5 py-2.5 shadow-[0_16px_36px_-18px_rgb(31_45_77_/_0.45)] ring-1 backdrop-blur-md">
+                    <div className="flex shrink-0 -space-x-2">
+                      {EQUIPO_FOTOS.map((src) => (
+                        <Image
+                          key={src}
+                          src={src}
+                          alt=""
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 rounded-full border-2 border-white object-cover"
+                        />
+                      ))}
+                      <span className="bg-azul-principal flex h-8 w-8 items-center justify-center rounded-full border-2 border-white font-mono text-[0.6rem] font-medium text-white">
+                        +{EQUIPO_RESTO}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-display text-verde-concepto text-[0.82rem] leading-tight font-semibold tracking-[-0.01em]">
+                        Del otro lado, personas
+                      </p>
+                      <p className="text-gris-texto mt-0.5 font-sans text-[0.72rem] leading-snug whitespace-nowrap">
+                        Investigan y enseñan matemáticas
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* En mobile el equipo queda como fila compacta (la foto grande
+                  no entra sin desalojar el índice). */}
+              <div data-ap-head className="mt-7 flex items-center gap-3 lg:hidden">
+                <div className="flex shrink-0 -space-x-2">
+                  {EQUIPO_FOTOS.map((src) => (
+                    <Image
+                      key={src}
+                      src={src}
+                      alt=""
+                      width={36}
+                      height={36}
+                      className="h-9 w-9 rounded-full border-2 border-white object-cover"
+                    />
+                  ))}
+                  <span className="bg-azul-principal flex h-9 w-9 items-center justify-center rounded-full border-2 border-white font-mono text-[0.62rem] font-medium text-white">
+                    +{EQUIPO_RESTO}
+                  </span>
+                </div>
+                <p className="text-gris-texto font-sans text-[0.85rem] leading-snug">
+                  Del otro lado, personas que investigan y enseñan.
+                </p>
+              </div>
+            </div>
+
+            {/* Índice de temas: renglones editoriales numerados */}
+            <div className="mt-10 lg:mt-0" role="group" aria-label="Tema de la consulta">
               {TEMAS.map((t, i) => (
                 <button
                   key={t.key}
                   type="button"
                   data-tema-card
                   onClick={(e) => elegirTema(t.key, e.currentTarget)}
-                  className="group border-azul-claro/50 hover:border-verde-concepto/60 focus-visible:outline-verde-concepto relative flex min-h-[9.75rem] flex-col overflow-hidden rounded-2xl border bg-white p-5 text-left transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_-22px_rgb(31_45_77/0.28)] focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="group border-azul-claro/40 focus-visible:outline-verde-concepto hover:bg-azul-claro/15 relative -ml-4 flex w-[calc(100%+1rem)] items-center gap-5 border-b py-4 pl-4 text-left transition-colors duration-300 first:border-t focus-visible:outline-2 focus-visible:-outline-offset-2 md:gap-7 md:py-[1.15rem]"
                 >
-                  {/* Wash verde que sube desde abajo en hover (scaleY → compositor-friendly). */}
-                  <span
-                    aria-hidden="true"
-                    className="from-verde-concepto/[0.10] via-verde-concepto/[0.04] pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-gradient-to-t to-transparent transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-y-100"
-                  />
-
-                  {/* Número + ícono de marca */}
-                  <div className="relative flex items-center justify-between">
-                    <span className="text-azul-principal/30 font-mono text-[0.7rem] font-medium tracking-[0.14em] tabular-nums">
-                      0{i + 1}
+                  <span className="text-verde-concepto shrink-0 font-mono text-[0.75rem] font-medium tabular-nums">
+                    0{i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span
+                      data-row-titulo
+                      className="font-display text-azul-principal block text-[1.25rem] leading-snug font-bold tracking-[-0.01em] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 md:text-[1.45rem]"
+                    >
+                      {t.titulo}
                     </span>
+                    <span className="text-gris-texto mt-0.5 block font-sans text-[0.85rem] leading-relaxed">
+                      {t.detalle}
+                    </span>
+                  </span>
+                  {/* Baldosa de ícono (idioma de tarjeta de la home): en reposo
+                      el ícono de marca sobre superficie clara; en hover la
+                      baldosa se llena de verde y el ícono cede a la flecha. Un
+                      solo gesto, nada de grises apagados que parecen disabled. */}
+                  <span
+                    className="border-azul-claro/50 group-hover:border-verde-concepto group-hover:bg-verde-concepto relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-white/70 transition-colors duration-300"
+                    aria-hidden="true"
+                  >
                     <t.Icon
-                      size={26}
-                      className="text-azul-principal/35 transition-colors duration-300 group-hover:text-verde-concepto"
+                      size={22}
+                      className="text-azul-medio transition-opacity duration-300 group-hover:opacity-0"
                     />
-                  </div>
-
-                  {/* Título + detalle */}
-                  <span className="font-display text-azul-principal relative mt-5 block text-[1.02rem] leading-snug font-semibold">
-                    {t.titulo}
-                  </span>
-                  <span className="text-gris-texto relative mt-2 block font-sans text-[0.82rem] leading-relaxed">
-                    {t.detalle}
-                  </span>
-
-                  {/* "Elegir →" que entra en hover, anclado abajo */}
-                  <span className="text-verde-concepto relative mt-auto flex translate-y-1 items-center gap-1.5 pt-4 font-mono text-[0.66rem] tracking-[0.16em] uppercase opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    Elegir
-                    <ArrowUpRight size={13} />
+                    <ArrowRight
+                      size={20}
+                      className="absolute -translate-x-1.5 text-white opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+                    />
                   </span>
                 </button>
               ))}
+
+              {/* Canal directo (antes en la barra fija): al pie del índice,
+                  jerarquía menor */}
+              <p data-ap-head className="text-gris-texto mt-5 font-sans text-[0.85rem]">
+                ¿Preferís escribir directo?{" "}
+                <a
+                  href={`mailto:${siteConfig.contacto.email}`}
+                  className="text-azul-principal hover:text-verde-concepto font-medium transition-colors"
+                >
+                  {siteConfig.contacto.email}
+                </a>
+                <span aria-hidden="true"> · </span>
+                <button
+                  type="button"
+                  onClick={copiarMail}
+                  className="text-verde-concepto font-mono text-[0.68rem] font-medium tracking-[0.12em] uppercase transition-colors hover:text-azul-principal"
+                >
+                  {copiado ? "Copiado ✓" : "Copiar"}
+                </button>
+              </p>
             </div>
           </div>
         </div>
@@ -713,77 +840,99 @@ export function ContactoExperiencia() {
           data-panel="formulario"
           aria-hidden={vista !== "formulario"}
           inert={vista !== "formulario"}
-          className="absolute inset-x-5 top-0 bottom-16 flex overflow-y-auto pt-28 pb-4 md:inset-x-10"
+          className="absolute inset-x-5 top-0 bottom-0 flex overflow-y-auto pt-28 pb-4 md:inset-x-10"
         >
           {/* my-auto (y no justify-center en el padre): si el contenido no
               entra, se scrollea desde arriba sin que el tope quede recortado
               bajo el navbar */}
-          <form onSubmit={enviar} className="mx-auto my-auto w-full max-w-3xl">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Acá ATERRIZA la tarjeta elegida (destino del vuelo) */}
-              <span
+          {/* UNA sola pieza: el rail navy y el panel claro de campos son el
+              MISMO contenedor (sin gap). El panel claro "sale" del navy: no
+              tiene borde a la izquierda (el navy es su borde) y sí en los
+              otros tres lados. En mobile la fusión es vertical (navy arriba,
+              panel abajo, sin borde superior). */}
+          <form
+            onSubmit={enviar}
+            className="mx-auto my-auto w-full max-w-5xl lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:items-stretch"
+          >
+            {/* ── Rail navy (idioma de la banda de stats de la home) ─────── */}
+            <aside
+              data-campo
+              className="bg-azul-principal relative flex flex-col overflow-hidden rounded-t-3xl p-6 md:p-8 lg:rounded-l-3xl lg:rounded-tr-none"
+            >
+              <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${DOTS_NAVY}`} />
+
+              <p className="text-verde-concepto relative font-mono text-[0.7rem] font-medium tracking-[0.18em] uppercase">
+                Tema · 0{temaIdx + 1}
+              </p>
+              {/* Acá ATERRIZA el título de la fila elegida (destino del vuelo) */}
+              <h2
                 data-chip-tema
-                className="bg-azul-principal inline-flex items-center rounded-full px-4 py-2 font-sans text-[0.8rem] font-semibold text-white"
+                className="font-display relative mt-3 text-[1.5rem] leading-tight font-bold tracking-[-0.01em] text-white md:text-[1.75rem]"
               >
                 {temaActivo?.titulo ?? "Consulta"}
-              </span>
+              </h2>
+              <p className="text-azul-claro/80 relative mt-2 font-sans text-[0.9rem] leading-relaxed">
+                {temaActivo?.detalle}
+              </p>
               <button
                 type="button"
                 onClick={cambiarTema}
-                className="text-gris-texto hover:text-verde-concepto font-mono text-[0.72rem] tracking-[0.12em] uppercase transition-colors"
+                className="text-azul-claro hover:text-verde-concepto relative mt-4 self-start font-mono text-[0.7rem] tracking-[0.14em] uppercase transition-colors"
               >
-                Cambiar tema
+                ← Cambiar tema
               </button>
-            </div>
 
-            {/* El formulario como superficie definida (panel frosted sobre los
-                nodos), en vez de campos sueltos flotando. */}
-            <div className="border-azul-claro/40 mt-4 rounded-3xl border bg-white/85 p-6 shadow-[0_30px_80px_-42px_rgb(31_45_77/0.3)] backdrop-blur-sm md:p-8">
-              <h2
-                data-campo
-                className="font-display text-azul-principal text-[1.35rem] font-bold tracking-[-0.01em] md:text-[1.6rem]"
-              >
-                Contanos tu consulta
-              </h2>
+              {/* La presencia (que vivía en la barra fija) ancla el pie del
+                  rail: dato institucional real, no relleno */}
+              <p className="text-azul-claro/70 relative mt-auto hidden border-t border-white/15 pt-5 font-mono text-[0.65rem] tracking-[0.16em] uppercase lg:block">
+                Santiago de Chile · {siteConfig.paises.length} países
+              </p>
+            </aside>
 
-            <div className="mt-5 grid gap-3.5 md:grid-cols-2">
+            {/* ── Panel claro de campos: emerge del navy (sin borde izq.) ── */}
+            <div className="border-azul-claro/50 grid content-center gap-x-8 gap-y-6 rounded-b-3xl border border-t-0 bg-white/80 p-6 backdrop-blur-sm md:grid-cols-2 md:p-8 lg:rounded-r-3xl lg:rounded-bl-none lg:border-t lg:border-l-0">
               <div data-campo>
-                <label htmlFor="ct-nombre" className="text-azul-principal mb-1.5 block font-sans text-sm font-medium">
+                <label htmlFor="ct-nombre" className={labelBase}>
                   Nombre y apellido *
                 </label>
                 <input id="ct-nombre" name="nombre" required autoComplete="name" className={inputBase} />
               </div>
               <div data-campo>
-                <label htmlFor="ct-email" className="text-azul-principal mb-1.5 block font-sans text-sm font-medium">
+                <label htmlFor="ct-email" className={labelBase}>
                   Email *
                 </label>
                 <input id="ct-email" name="email" type="email" required autoComplete="email" className={inputBase} />
               </div>
               <div data-campo>
-                <label
-                  htmlFor="ct-institucion"
-                  className="text-azul-principal mb-1.5 block font-sans text-sm font-medium"
-                >
+                <label htmlFor="ct-institucion" className={labelBase}>
                   Institución u organización
                 </label>
                 <input id="ct-institucion" name="institucion" autoComplete="organization" className={inputBase} />
               </div>
               <div data-campo>
-                <label htmlFor="ct-pais" className="text-azul-principal mb-1.5 block font-sans text-sm font-medium">
+                <label htmlFor="ct-pais" className={labelBase}>
                   País
                 </label>
-                <select id="ct-pais" name="pais" defaultValue="" className={inputBase}>
-                  <option value="">Elegir…</option>
-                  {siteConfig.paises.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                  <option value="Otro">Otro</option>
-                </select>
+                {/* appearance-none + chevron propio: la flecha nativa del
+                    select desentona con el resto de los campos */}
+                <div className="relative">
+                  <select id="ct-pais" name="pais" defaultValue="" className={`${inputBase} appearance-none pr-8`}>
+                    <option value="">Elegir…</option>
+                    {siteConfig.paises.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                    <option value="Otro">Otro</option>
+                  </select>
+                  <ChevronDown
+                    size={16}
+                    className="text-azul-principal/50 pointer-events-none absolute top-1/2 right-1 -translate-y-1/2"
+                  />
+                </div>
               </div>
               <div data-campo className="md:col-span-2">
-                <label htmlFor="ct-mensaje" className="text-azul-principal mb-1.5 block font-sans text-sm font-medium">
+                <label htmlFor="ct-mensaje" className={labelBase}>
                   Mensaje *
                 </label>
                 <textarea
@@ -795,54 +944,61 @@ export function ContactoExperiencia() {
                   className={`${inputBase} resize-none`}
                 />
               </div>
+
+              <div data-campo className="flex flex-wrap items-center gap-4 pt-1 md:col-span-2">
+                {/* Espejo de ButtonPrimary como <button> de submit (el componente
+                    solo acepta href). Único naranja en pantalla. */}
+                <button
+                  type="submit"
+                  className="group bg-naranja-accion hover:bg-naranja-accion/90 hover:shadow-naranja-accion/30 focus-visible:outline-naranja-accion inline-flex items-center gap-2 rounded-lg px-6 py-3 font-sans text-[0.95rem] font-medium text-white transition-all hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                  <span>Enviar consulta</span>
+                  <ArrowUpRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </button>
+                <p className="text-gris-texto font-sans text-[0.83rem]">
+                  Se abre tu correo con la consulta lista para enviar.
+                </p>
+              </div>
             </div>
 
-            <div data-campo className="mt-5 flex flex-wrap items-center gap-4">
-              {/* Espejo de ButtonPrimary como <button> de submit (el componente
-                  solo acepta href). Único naranja en pantalla. */}
-              <button
-                type="submit"
-                className="group bg-naranja-accion hover:bg-naranja-accion/90 hover:shadow-naranja-accion/30 focus-visible:outline-naranja-accion inline-flex items-center gap-2 rounded-lg px-6 py-3 font-sans text-[0.95rem] font-medium text-white transition-all hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2"
-              >
-                <span>Enviar consulta</span>
-                <ArrowUpRight
-                  size={16}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </button>
-              <p className="text-gris-texto font-sans text-[0.83rem]">
-                Se abre tu correo con la consulta lista para enviar.
-              </p>
-            </div>
-            </div>
-
-            {/* ── Segunda puerta: sumate al equipo (CV). Cierra el círculo del
-                selector ("del otro lado hay personas que investigan y
-                enseñan") invitando a estar de ESTE lado. ─────────────────── */}
+            {/* ── Pie del contenedor: lo secundario que antes vivía en la
+                barra fija (mail directo) y en el rail (CV), ahora al pie de
+                la pieza, con jerarquía menor. ─────────────────────────────── */}
             <div
               data-campo
-              className="bg-azul-principal mt-4 flex flex-col gap-4 rounded-3xl p-6 md:flex-row md:items-center md:justify-between md:p-7"
+              className="mt-4 flex flex-col gap-2 px-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-2"
             >
-              <div className="flex items-start gap-3.5">
-                <Users size={24} className="text-verde-concepto mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-verde-concepto font-mono text-[0.68rem] font-medium tracking-[0.18em] uppercase">
-                    Sumate al equipo
-                  </p>
-                  <p className="mt-1.5 max-w-[46ch] font-sans text-[0.98rem] leading-relaxed text-white">
-                    ¿Y si querés estar de este lado? Somos quienes investigan y
-                    enseñan — mandanos tu CV y contanos por qué.
-                  </p>
-                </div>
-              </div>
+              <p className="text-gris-texto font-sans text-[0.85rem]">
+                ¿Preferís escribir directo?{" "}
+                <a
+                  href={`mailto:${siteConfig.contacto.email}`}
+                  className="text-azul-principal hover:text-verde-concepto font-medium transition-colors"
+                >
+                  {siteConfig.contacto.email}
+                </a>
+                <span aria-hidden="true"> · </span>
+                <button
+                  type="button"
+                  onClick={copiarMail}
+                  className="text-verde-concepto font-mono text-[0.68rem] font-medium tracking-[0.12em] uppercase transition-colors hover:text-azul-principal"
+                >
+                  {copiado ? "Copiado ✓" : "Copiar"}
+                </button>
+              </p>
               <a
                 href={mailtoCV}
-                className="group border-white/30 hover:border-verde-concepto hover:text-verde-concepto inline-flex shrink-0 items-center gap-2 rounded-lg border px-5 py-2.5 font-sans text-[0.9rem] font-medium text-white transition-colors"
+                className="group text-gris-texto hover:text-azul-principal inline-flex items-center gap-1.5 font-sans text-[0.85rem] transition-colors"
               >
-                Enviar mi CV
+                ¿Querés estar de este lado?{" "}
+                <span className="text-azul-principal group-hover:text-verde-concepto font-medium transition-colors">
+                  Sumate al equipo
+                </span>
                 <ArrowUpRight
-                  size={15}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  size={13}
+                  className="text-verde-concepto transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 />
               </a>
             </div>
@@ -854,16 +1010,23 @@ export function ContactoExperiencia() {
           data-panel="cierre"
           aria-hidden={vista !== "cierre"}
           inert={vista !== "cierre"}
-          className="absolute inset-x-5 top-0 bottom-16 flex flex-col items-center justify-center text-center md:inset-x-10"
+          className="absolute inset-x-5 top-0 bottom-0 flex flex-col items-center justify-center text-center md:inset-x-10"
         >
           <span
             data-fin-rule
             aria-hidden="true"
             className="bg-verde-concepto block h-[2px] w-24 origin-center rounded-full"
           />
+          {/* Eco del tema elegido: el cierre confirma QUÉ conversación empezó */}
           <p
             data-fin-bit
-            className="font-display text-azul-principal mt-8 max-w-[20ch] font-bold tracking-[-0.02em]"
+            className="text-verde-concepto mt-6 font-mono text-[0.7rem] font-medium tracking-[0.18em] uppercase"
+          >
+            {temaActivo?.titulo ?? "Consulta"}
+          </p>
+          <p
+            data-fin-bit
+            className="font-display text-azul-principal mt-4 max-w-[20ch] font-bold tracking-[-0.02em]"
             style={{ fontSize: "clamp(1.9rem, 1rem + 3vw, 3.2rem)", lineHeight: 1.12 }}
           >
             Cada propuesta empieza con una conversación.
@@ -890,36 +1053,6 @@ export function ContactoExperiencia() {
         </div>
       </div>
 
-      {/* ── Barra fija: otros canales + perfil (menor jerarquía) ─────────── */}
-      <div
-        data-barra
-        className="border-azul-claro/30 absolute inset-x-0 bottom-0 z-20 border-t bg-white/70 backdrop-blur-sm"
-      >
-        <div className="text-gris-texto mx-auto flex h-16 w-full max-w-screen-xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 font-mono text-[0.7rem] tracking-[0.12em] uppercase md:px-10">
-          <span className="flex items-center gap-3">
-            <a
-              href={`mailto:${siteConfig.contacto.email}`}
-              className="hover:text-verde-concepto normal-case transition-colors"
-            >
-              {siteConfig.contacto.email}
-            </a>
-            <button
-              type="button"
-              onClick={copiarMail}
-              className="text-verde-concepto hover:text-azul-principal transition-colors"
-            >
-              {copiado ? "Copiado ✓" : "Copiar"}
-            </button>
-          </span>
-          <span className="hidden lg:block">
-            Santiago de Chile · Presencia en {siteConfig.paises.length} países
-          </span>
-          <a href={mailtoPerfil} className="hover:text-verde-concepto flex items-center gap-1.5 transition-colors">
-            ¿Querés compartir tu perfil?
-            <ArrowUpRight size={12} />
-          </a>
-        </div>
-      </div>
     </section>
   );
 }
