@@ -22,13 +22,13 @@ if (typeof window !== "undefined") {
  *     dispersan (cada char vuela con rotación propia).
  *  1. El punto de inflexión: la CITA de la profesora entra como tarjeta que
  *     se LEVANTA EN 3D (flip desde el plano) y sus líneas suben por máscara.
- *  2. "¿Qué hicimos exactamente?" — se TIPEA carácter por carácter con el
+ *  2. "¿Cómo fue tomando forma ED?" — se TIPEA carácter por carácter con el
  *     scroll (retroceder la des-tipea), con caret latiendo.
- *  3. «De una pregunta a un movimiento.» — título grande (puente narrativo)
- *     + frase de apoyo; después la trayectoria se dibuja sola (línea SVG por
- *     dash-offset) y sus 5 hitos se activan al llegar el trazo: Maestría →
- *     Doctorado → México → Argentina → Hoy. En mobile la cronología es
- *     vertical (la línea crece hacia abajo con el scroll).
+ *  3. Qué es ED: «Una convicción convertida en investigación y acción.» —
+ *     título grande + definición institucional; después la trayectoria se
+ *     dibuja sola (línea SVG por dash-offset) y sus 5 hitos se activan al
+ *     llegar el trazo: Maestría → Doctorado → México → Argentina → Hoy. En
+ *     mobile la cronología es vertical (la línea crece hacia abajo).
  *  4. Remate: «Vivir para hacer vivir» — las palabras convergen desde el blur.
  *
  * Además: TILT 3D del panel siguiendo el mouse e indicador de progreso de 5
@@ -48,11 +48,11 @@ if (typeof window !== "undefined") {
  */
 
 const HITOS = [
-  { t: "Maestría", d: "Observar y caracterizar lo que pasaba con los docentes." },
-  { t: "Doctorado", d: "Explicaciones propias y una intervención de años en el aula." },
-  { t: "México", d: "Parte del desarrollo profesional docente a nivel nacional." },
-  { t: "Argentina", d: "La expansión regional, con la filosofía intacta." },
-  { t: "Hoy", d: "Una línea de investigación viva y una organización que transforma." },
+  { t: "Maestría", d: "El comienzo: observar y comprender lo que ocurría con las y los docentes." },
+  { t: "Doctorado", d: "Explicaciones propias y años de investigación e intervención." },
+  { t: "México", d: "Parte de procesos de desarrollo profesional docente a nivel nacional." },
+  { t: "Argentina", d: "La expansión regional, sosteniendo la misma filosofía de trabajo." },
+  { t: "Hoy", d: "Una línea de investigación viva y una consultora que impulsa transformación educativa." },
 ] as const;
 
 // Coordenadas de los hitos sobre el viewBox 1000×220 (misma curva del path).
@@ -67,7 +67,7 @@ const NODOS = [
 const PATH_D =
   "M 60 150 C 133 150 207 90 280 90 C 353 90 427 140 500 140 C 573 140 647 80 720 80 C 793 80 867 120 940 120";
 
-const PREGUNTA = "¿Qué hicimos exactamente?";
+const PREGUNTA = "¿Cómo fue tomando forma ED?";
 
 // Fotos del recorrido (una por beat 0–2). Viven en el panel derecho tipo
 // "dock" y se cruzan en sincronía con el cambio de texto. En mobile y con
@@ -263,7 +263,7 @@ export function OrigenEd() {
       if (sub2) tl.to(sub2, { autoAlpha: 1, y: 0, duration: 0.5 }, 5.6);
       tl.to(beats[2], { autoAlpha: 0, y: -50, scale: 0.96, duration: 0.6 }, 6.2);
 
-      // BEAT 3 — «De una pregunta a un movimiento.»
+      // BEAT 3 — qué es ED (definición institucional)
       // Secuencia: título grande → frase de apoyo → la línea se dibuja y cada
       // hito se activa cuando el trazo llega a su posición. Todo scrubbed:
       // avanza y retrocede con el usuario, sin estados one-shot.
@@ -529,7 +529,7 @@ export function OrigenEd() {
               className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24 md:items-start md:pl-[7vw] md:pr-[50vw] md:text-left"
             >
               <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-                Origen, sentido y evolución
+                Origen
               </span>
               <h2
                 className="font-display mt-6 max-w-[16ch] font-bold tracking-[-0.02em] text-white"
@@ -549,7 +549,7 @@ export function OrigenEd() {
               className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24 md:items-start md:pl-[7vw] md:pr-[50vw] md:text-left"
             >
               <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-                El punto de inflexión
+                Sentido
               </span>
               {/* Dramatización del testimonio (video 2) — validar con cliente */}
               <figure
@@ -590,7 +590,7 @@ export function OrigenEd() {
               className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24 md:items-start md:pl-[7vw] md:pr-[50vw] md:text-left"
             >
               <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-                Esa reacción se repetía
+                Evolución
               </span>
               <h3
                 data-type
@@ -608,34 +608,39 @@ export function OrigenEd() {
                 data-sub
                 className="text-azul-claro/85 mt-6 max-w-[52ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.15rem]"
               >
-                ¿Por qué este cuerpo docente sentía, de repente, el impulso de
-                volver y transformar su entorno? Esa pregunta —nacida en plena
-                maestría— fundó Empoderamiento Docente.
+                Lo que comenzó en el aula como una convicción se convirtió en
+                maestría, doctorado, investigación y trabajo sostenido con
+                docentes. Con los años, ese recorrido se expandió a procesos de
+                desarrollo profesional en México y luego en Argentina.
               </p>
             </div>
 
-            {/* ── BEAT 3: «De una pregunta a un movimiento.» ──────────────────
-                El puente narrativo central: título grande (≈70% del titular de
-                apertura), frase de apoyo y la trayectoria con protagonismo.
-                Desktop: recorrido horizontal. Mobile: cronología vertical. ── */}
+            {/* ── BEAT 3: qué es ED (definición institucional) ────────────────
+                Título grande (≈70% del titular de apertura), definición y la
+                trayectoria con protagonismo. Desktop: recorrido horizontal.
+                Mobile: cronología vertical. ── */}
             <div
               data-beat="3"
               className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24"
             >
+              <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
+                Qué es Empoderamiento Docente
+              </span>
               <h3
                 data-const-title
-                className="font-display max-w-[24ch] text-balance font-bold tracking-[-0.02em] text-white"
-                style={{ fontSize: "clamp(1.9rem, 1.1rem + 2.2vw, 3rem)", lineHeight: 1.12 }}
+                className="font-display mt-5 max-w-[26ch] text-balance font-bold tracking-[-0.02em] text-white"
+                style={{ fontSize: "clamp(1.7rem, 1rem + 2vw, 2.75rem)", lineHeight: 1.12 }}
               >
-                De una pregunta a un{" "}
-                <span className="text-verde-concepto">movimiento</span>.
+                Una convicción convertida en{" "}
+                <span className="text-verde-concepto">investigación y acción</span>.
               </h3>
               <p
                 data-const-sub
-                className="text-azul-claro/85 mt-5 max-w-[52ch] font-sans text-[1rem] leading-relaxed md:text-[1.08rem]"
+                className="text-azul-claro/85 mt-5 max-w-[58ch] font-sans text-[1rem] leading-relaxed md:text-[1.08rem]"
               >
-                Una trayectoria construida desde las aulas, la investigación y
-                el trabajo colectivo.
+                Empoderamiento Docente es una línea de investigación y una
+                consultora dedicada a construir escenarios de aprendizaje para
+                la transformación educativa.
               </p>
 
               {/* Recorrido horizontal (desktop) */}
@@ -681,7 +686,11 @@ export function OrigenEd() {
                       style={{
                         left: `${(NODOS[i].x / 1000) * 100}%`,
                         top: `${(NODOS[i].y / 220) * 100}%`,
-                        transform: `translate(-50%, ${i % 2 === 0 ? "20px" : "calc(-100% - 20px)"})`,
+                        // Los hitos extremos se descentran para no cortarse
+                        // contra los bordes del viewport (Maestría / Hoy).
+                        transform: `translate(${
+                          i === 0 ? "-28%" : i === HITOS.length - 1 ? "-72%" : "-50%"
+                        }, ${i % 2 === 0 ? "20px" : "calc(-100% - 20px)"})`,
                       }}
                     >
                       <div data-const-label>
@@ -765,9 +774,10 @@ export function OrigenEd() {
                 data-fin-sub
                 className="text-azul-claro/85 mt-7 max-w-[50ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.15rem]"
               >
-                Para construir escenarios de aprendizaje diversos, el cuerpo
-                docente necesita primero vivir una nueva relación con la
-                matemática. Ese es nuestro pilar desde el primer día.
+                Empoderamiento Docente parte de una convicción: para
+                transformar la enseñanza, el cuerpo docente necesita primero
+                vivir una nueva relación con la matemática. Desde ahí se
+                construye todo lo demás.
               </p>
             </div>
 
