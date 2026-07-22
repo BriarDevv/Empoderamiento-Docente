@@ -24,9 +24,11 @@ if (typeof window !== "undefined") {
  *     se LEVANTA EN 3D (flip desde el plano) y sus líneas suben por máscara.
  *  2. "¿Qué hicimos exactamente?" — se TIPEA carácter por carácter con el
  *     scroll (retroceder la des-tipea), con caret latiendo.
- *  3. Evolución: una CONSTELACIÓN se dibuja sola (línea SVG por dash-offset)
- *     y sus 5 hitos laten al llegar la línea: Maestría → Doctorado → México →
- *     Argentina → Hoy. Los nodos tienen hover (crecen).
+ *  3. «De una pregunta a un movimiento.» — título grande (puente narrativo)
+ *     + frase de apoyo; después la trayectoria se dibuja sola (línea SVG por
+ *     dash-offset) y sus 5 hitos se activan al llegar el trazo: Maestría →
+ *     Doctorado → México → Argentina → Hoy. En mobile la cronología es
+ *     vertical (la línea crece hacia abajo con el scroll).
  *  4. Remate: «Vivir para hacer vivir» — las palabras convergen desde el blur.
  *
  * Además: TILT 3D del panel siguiendo el mouse e indicador de progreso de 5
@@ -143,6 +145,11 @@ export function OrigenEd() {
       const finWords = qa("[data-fin-word]");
       const finRule = q("[data-fin-rule]");
       const finSub = q("[data-fin-sub]");
+      const constTitle = q("[data-const-title]");
+      const constSub = q("[data-const-sub]");
+      const constvLine = q("[data-constv-line]");
+      const constvNodes = qa("[data-constv-node]");
+      const constvCopies = qa("[data-constv-copy]");
       const panel = q("[data-photo-panel]");
       const lamina = q("[data-photo-lamina]");
       const photoFrames = qa("[data-photo]");
@@ -167,7 +174,8 @@ export function OrigenEd() {
         gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
       }
       nodos.forEach((n) => gsap.set(n, { attr: { r: 0 } }));
-      gsap.set(labels, { autoAlpha: 0, y: 14 });
+      // Hitos futuros: presentes como expectativa (tenues), no invisibles.
+      gsap.set(labels, { autoAlpha: 0.16, y: 14 });
       gsap.set(finWords, { autoAlpha: 0, scale: 1.7, filter: "blur(10px)" });
       if (finRule) gsap.set(finRule, { scaleX: 0 });
       if (finSub) gsap.set(finSub, { autoAlpha: 0, y: 18 });
@@ -199,7 +207,7 @@ export function OrigenEd() {
       let lastIdx = -1;
       const setDot = (p: number) => {
         // umbrales = inicio de cada beat sobre la duración total (11.5)
-        const bounds = [0.13, 0.35, 0.57, 0.83];
+        const bounds = [0.13, 0.35, 0.57, 0.85];
         let idx = 0;
         for (let i = 0; i < bounds.length; i++) if (p >= bounds[i]) idx = i + 1;
         if (idx === lastIdx) return;
@@ -255,25 +263,74 @@ export function OrigenEd() {
       if (sub2) tl.to(sub2, { autoAlpha: 1, y: 0, duration: 0.5 }, 5.6);
       tl.to(beats[2], { autoAlpha: 0, y: -50, scale: 0.96, duration: 0.6 }, 6.2);
 
-      // BEAT 3 — la constelación se dibuja
-      tl.to(beats[3], { autoAlpha: 1, duration: 0.3 }, 6.6);
-      if (path) tl.to(path, { strokeDashoffset: 0, duration: 2.2, ease: "none" }, 6.8);
+      // BEAT 3 — «De una pregunta a un movimiento.»
+      // Secuencia: título grande → frase de apoyo → la línea se dibuja y cada
+      // hito se activa cuando el trazo llega a su posición. Todo scrubbed:
+      // avanza y retrocede con el usuario, sin estados one-shot.
+      tl.to(beats[3], { autoAlpha: 1, duration: 0.3 }, 6.55);
+      if (constTitle) {
+        tl.fromTo(
+          constTitle,
+          { autoAlpha: 0, y: 26, filter: "blur(6px)" },
+          { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" },
+          6.6,
+        );
+      }
+      if (constSub) {
+        tl.fromTo(
+          constSub,
+          { autoAlpha: 0, y: 16 },
+          { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out" },
+          6.9,
+        );
+      }
+      // Trazo: horizontal (desktop) y vertical (mobile) comparten timing.
+      const DRAW_AT = 7.1;
+      const DRAW_DUR = 2.05;
+      if (path) tl.to(path, { strokeDashoffset: 0, duration: DRAW_DUR, ease: "none" }, DRAW_AT);
+      if (constvLine) {
+        tl.fromTo(
+          constvLine,
+          { scaleY: 0 },
+          { scaleY: 1, duration: DRAW_DUR, ease: "none" },
+          DRAW_AT,
+        );
+      }
       nodos.forEach((n, i) => {
-        const at = 6.8 + (i / (nodos.length - 1)) * 2.0;
-        tl.to(n, { attr: { r: 7 }, duration: 0.25, ease: "back.out(3)" }, at);
+        const at = DRAW_AT + (i / (nodos.length - 1)) * (DRAW_DUR - 0.2);
+        tl.to(n, { attr: { r: 8 }, duration: 0.25, ease: "back.out(3)" }, at);
         if (labels[i]) tl.to(labels[i], { autoAlpha: 1, y: 0, duration: 0.35 }, at + 0.08);
       });
-      tl.to(beats[3], { autoAlpha: 0, y: -40, scale: 0.97, duration: 0.5 }, 9.2);
+      constvNodes.forEach((n, i) => {
+        const at = DRAW_AT + (i / Math.max(constvNodes.length - 1, 1)) * (DRAW_DUR - 0.2);
+        // Futuros tenues y chicos (expectativa) → activos plenos al llegar.
+        tl.fromTo(
+          n,
+          { scale: 0.35, autoAlpha: 0.35 },
+          { scale: 1, autoAlpha: 1, duration: 0.25, ease: "back.out(3)" },
+          at,
+        );
+        if (constvCopies[i]) {
+          tl.fromTo(
+            constvCopies[i],
+            { autoAlpha: 0.16, x: -10 },
+            { autoAlpha: 1, x: 0, duration: 0.35 },
+            at + 0.08,
+          );
+        }
+      });
+      tl.to(beats[3], { autoAlpha: 0, y: -40, scale: 0.97, duration: 0.5 }, 9.45);
 
-      // BEAT 4 — «Vivir para hacer vivir»
-      tl.to(beats[4], { autoAlpha: 1, duration: 0.3 }, 9.5);
+      // BEAT 4 — «Vivir para hacer vivir» (corrido +0.25: el beat 3 ahora
+      // respira al completarse; el respiro final del pin no cambia)
+      tl.to(beats[4], { autoAlpha: 1, duration: 0.3 }, 9.75);
       tl.to(
         finWords,
         { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.55, stagger: 0.16, ease: "power3.out" },
-        9.6,
+        9.85,
       );
-      if (finRule) tl.to(finRule, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 10.2);
-      if (finSub) tl.to(finSub, { autoAlpha: 1, y: 0, duration: 0.5 }, 10.35);
+      if (finRule) tl.to(finRule, { scaleX: 1, duration: 0.5, ease: "power2.out" }, 10.4);
+      if (finSub) tl.to(finSub, { autoAlpha: 1, y: 0, duration: 0.5 }, 10.55);
       tl.to({}, { duration: 0.6 }, 10.9); // respiro final antes de soltar el pin
       setDot(0);
 
@@ -557,15 +614,32 @@ export function OrigenEd() {
               </p>
             </div>
 
-            {/* ── BEAT 3: la evolución (constelación que se dibuja) ───────── */}
+            {/* ── BEAT 3: «De una pregunta a un movimiento.» ──────────────────
+                El puente narrativo central: título grande (≈70% del titular de
+                apertura), frase de apoyo y la trayectoria con protagonismo.
+                Desktop: recorrido horizontal. Mobile: cronología vertical. ── */}
             <div
               data-beat="3"
               className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24"
             >
-              <span className="text-azul-claro/80 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-                De una pregunta a un movimiento
-              </span>
-              <div className="relative mt-10 w-full max-w-5xl">
+              <h3
+                data-const-title
+                className="font-display max-w-[24ch] text-balance font-bold tracking-[-0.02em] text-white"
+                style={{ fontSize: "clamp(1.9rem, 1.1rem + 2.2vw, 3rem)", lineHeight: 1.12 }}
+              >
+                De una pregunta a un{" "}
+                <span className="text-verde-concepto">movimiento</span>.
+              </h3>
+              <p
+                data-const-sub
+                className="text-azul-claro/85 mt-5 max-w-[52ch] font-sans text-[1rem] leading-relaxed md:text-[1.08rem]"
+              >
+                Una trayectoria construida desde las aulas, la investigación y
+                el trabajo colectivo.
+              </p>
+
+              {/* Recorrido horizontal (desktop) */}
+              <div className="relative mt-12 hidden w-full max-w-6xl md:mt-14 md:block">
                 <svg viewBox="0 0 1000 220" className="h-auto w-full" aria-hidden="true">
                   <path
                     d={PATH_D}
@@ -579,46 +653,83 @@ export function OrigenEd() {
                     d={PATH_D}
                     fill="none"
                     stroke="#1f9a78"
-                    strokeWidth="2.5"
+                    strokeWidth="3"
                     strokeLinecap="round"
                   />
                   {NODOS.map((n, i) => (
                     <Fragment key={i}>
-                      <circle cx={n.x} cy={n.y} r="12" fill="rgba(31,154,120,0.15)" />
+                      <circle cx={n.x} cy={n.y} r="13" fill="rgba(31,154,120,0.15)" />
                       <circle
                         data-const-node
                         cx={n.x}
                         cy={n.y}
-                        r="7"
+                        r="8"
                         fill={i === NODOS.length - 1 ? "#e07a2f" : "#1f9a78"}
-                        className="origin-center cursor-pointer transition-transform duration-300 [transform-box:fill-box] hover:scale-150"
+                        className="origin-center [transform-box:fill-box]"
                       />
                     </Fragment>
                   ))}
                 </svg>
-                {/* Etiquetas HTML sobre la misma grilla del viewBox. El div
+                {/* Etiquetas HTML sobre la misma grilla del viewBox. El <li>
                     EXTERNO posiciona (transform estático); el interno anima
                     (así GSAP no pisa el offset de posicionamiento). */}
-                {HITOS.map((h, i) => (
-                  <div
-                    key={h.t}
-                    className="absolute w-40 md:w-48"
-                    style={{
-                      left: `${(NODOS[i].x / 1000) * 100}%`,
-                      top: `${(NODOS[i].y / 220) * 100}%`,
-                      transform: `translate(-50%, ${i % 2 === 0 ? "16px" : "calc(-100% - 16px)"})`,
-                    }}
-                  >
-                    <div data-const-label>
-                      <p className="font-display text-[0.95rem] font-bold text-white md:text-[1.05rem]">
-                        {h.t}
-                      </p>
-                      <p className="text-azul-claro/75 mt-1 hidden font-sans text-[0.78rem] leading-snug md:block">
-                        {h.d}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                <ol className="absolute inset-0 m-0 list-none p-0">
+                  {HITOS.map((h, i) => (
+                    <li
+                      key={h.t}
+                      className="absolute w-44 md:w-52"
+                      style={{
+                        left: `${(NODOS[i].x / 1000) * 100}%`,
+                        top: `${(NODOS[i].y / 220) * 100}%`,
+                        transform: `translate(-50%, ${i % 2 === 0 ? "20px" : "calc(-100% - 20px)"})`,
+                      }}
+                    >
+                      <div data-const-label>
+                        <p className="font-display text-[1.02rem] font-bold text-white md:text-[1.12rem]">
+                          {h.t}
+                        </p>
+                        <p className="text-azul-claro/80 mt-1 font-sans text-[0.85rem] leading-snug">
+                          {h.d}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              {/* Cronología vertical (mobile): misma historia, recorrido de
+                  arriba hacia abajo. La línea verde crece con el scroll. */}
+              <div className="relative mt-10 w-full max-w-[26rem] text-left md:hidden">
+                <span
+                  aria-hidden="true"
+                  className="bg-azul-claro/20 absolute top-1 bottom-1 left-[7px] w-[2px] rounded-full"
+                />
+                <span
+                  data-constv-line
+                  aria-hidden="true"
+                  className="bg-verde-concepto absolute top-1 bottom-1 left-[7px] w-[2px] origin-top rounded-full"
+                />
+                <ol className="m-0 list-none p-0">
+                  {HITOS.map((h, i) => (
+                    <li key={h.t} className="relative flex gap-4 pb-6 last:pb-0">
+                      <span
+                        data-constv-node
+                        aria-hidden="true"
+                        className={`mt-[3px] block h-4 w-4 shrink-0 rounded-full ${
+                          i === HITOS.length - 1 ? "bg-naranja-accion" : "bg-verde-concepto"
+                        }`}
+                      />
+                      <div data-constv-copy>
+                        <p className="font-display text-[1.02rem] font-bold text-white">
+                          {h.t}
+                        </p>
+                        <p className="text-azul-claro/80 mt-0.5 font-sans text-[0.84rem] leading-snug">
+                          {h.d}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
 
