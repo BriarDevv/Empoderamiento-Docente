@@ -146,6 +146,15 @@ export function ArrowUpRight({ size = 24, ...rest }: IconProps) {
   );
 }
 
+/** Chevron ∨ para selects e indicadores de despliegue. */
+export function ChevronDown({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
 export function Menu({ size = 24, ...rest }: IconProps) {
   return (
     <svg width={size} height={size} {...baseProps} {...rest}>
