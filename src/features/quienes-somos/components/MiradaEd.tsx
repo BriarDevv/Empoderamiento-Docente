@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ButtonSecondary } from "@/components/ui/ButtonSecondary";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
@@ -21,11 +20,14 @@ if (typeof window !== "undefined") {
  * como un ojo, desde orígenes distintos) conducido por el scroll. Micro-
  * coreografías por panel:
  *
- *  0. Pensamiento matemático — el remate de la frase ROTA en loop:
- *     «tomar decisiones» → «crear estrategias» → «argumentar con otros».
+ *  0. Pensamiento matemático — frase destacada en verde (el antiguo loop
+ *     rotador quedó sin contenido al fijarse la oración; el guard de
+ *     rotWords lo saltea solo).
  *  1. Empoderamiento — un TACHADO se dibuja sobre "sobre otras personas" y un
  *     SUBRAYADO verde bajo "transformar", ambos al ritmo del scroll.
- *  2. Educación como derecho — CHIPS que explotan con resorte + CTA.
+ *  2. Transformación educativa — CHIPS que explotan con resorte + síntesis y
+ *     puente narrativo hacia «La red tiene nombres» (reusa el reveal del
+ *     antiguo CTA).
  *
  * Interactivo: un ANILLO-LENTE verde sigue al cursor dentro de la sección
  * (lerp), y el indicador de 3 puntos (cápsula naranja) marca la idea activa.
@@ -261,37 +263,29 @@ export function MiradaEd() {
               01
             </span>
             <span data-bit className="text-gris-texto font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-              Nuestra mirada · Pensamiento matemático
+              Pensamiento matemático
             </span>
             <h2
               data-bit
-              className="font-display text-azul-principal mt-6 max-w-[18ch] font-bold tracking-[-0.02em]"
+              className="font-display text-azul-principal mt-6 max-w-[20ch] font-bold tracking-[-0.02em]"
               style={{ fontSize: "clamp(2.1rem, 1rem + 4.2vw, 4rem)", lineHeight: 1.08 }}
             >
-              La matemática no es <span className="text-gris-texto/60 line-through decoration-2">resolver cuentas</span>.
+              La matemática no es solo{" "}
+              <span className="text-gris-texto/60 line-through decoration-2">resolver cuentas</span>.
             </h2>
             <p
               data-bit
-              className="font-display text-azul-principal mt-5 font-semibold"
+              className="font-display text-azul-principal mt-5 max-w-[26ch] text-balance font-semibold"
               style={{ fontSize: "clamp(1.4rem, 0.8rem + 2.2vw, 2.4rem)", lineHeight: 1.2 }}
             >
-              Es una manera de actuar en el mundo:{" "}
-              <span className="relative inline-grid overflow-hidden align-bottom text-left">
-                {ROTATOR.map((w, i) => (
-                  <span
-                    key={w}
-                    data-rot-word
-                    className={`text-verde-concepto col-start-1 row-start-1 whitespace-nowrap ${i > 0 ? "opacity-0" : ""}`}
-                  >
-                    {w}.
-                  </span>
-                ))}
-              </span>
+              Es una manera de{" "}
+              <span className="text-verde-concepto">pensar, argumentar y actuar</span>{" "}
+              en el mundo.
             </p>
             <p data-bit className="text-gris-texto mt-7 max-w-[52ch] font-sans text-[1rem] leading-relaxed md:text-[1.1rem]">
-              Del jardín de infantes al último año: el contenido curricular es un
-              puente para construir habilidades que sirven para la vida — dentro
-              y fuera del aula.
+              El contenido curricular es un medio para construir estrategias,
+              tomar decisiones y desarrollar herramientas que sirven dentro y
+              fuera del aula.
             </p>
           </div>
 
@@ -307,7 +301,7 @@ export function MiradaEd() {
               02
             </span>
             <span className="text-gris-texto font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-              Nuestra mirada · Empoderamiento
+              Empoderamiento desde el saber
             </span>
             <h2
               className="font-display text-azul-principal mt-6 max-w-[20ch] font-bold tracking-[-0.02em]"
@@ -335,9 +329,9 @@ export function MiradaEd() {
               .
             </h2>
             <p className="text-gris-texto mt-7 max-w-[54ch] font-sans text-[1rem] leading-relaxed md:text-[1.1rem]">
-              El concepto viene de la psicología social: devolverle al
-              profesorado la convicción de «puedo transformar», construida desde
-              el saber matemático y el liderazgo — nunca desde el déficit.
+              Empoderar es construir en el cuerpo docente la convicción de
+              «puedo transformar», sostenida por el saber, la reflexión y la
+              experiencia; nunca desde el déficit.
             </p>
           </div>
 
@@ -353,31 +347,52 @@ export function MiradaEd() {
               03
             </span>
             <span className="text-gris-texto font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-              Nuestra mirada · Educación como derecho
+              Transformación educativa
             </span>
             <h2
-              className="font-display text-azul-principal mt-6 max-w-[18ch] font-bold tracking-[-0.02em]"
-              style={{ fontSize: "clamp(2.1rem, 1rem + 4.2vw, 4rem)", lineHeight: 1.08 }}
+              className="font-display text-azul-principal mt-6 max-w-[22ch] text-balance font-bold tracking-[-0.02em]"
+              style={{ fontSize: "clamp(1.9rem, 0.95rem + 3.4vw, 3.3rem)", lineHeight: 1.12 }}
             >
-              La educación es un <span className="text-verde-concepto">derecho</span>.
+              La educación es un derecho.
+              <br />
+              Transformarla es{" "}
+              <span className="text-verde-concepto">ampliar posibilidades</span>.
             </h2>
-            <ul className="mt-9 flex max-w-3xl flex-wrap items-center justify-center gap-3">
+            {/* Dimensiones de la mirada (no interactivas): sin hover ni
+                cursor que sugieran clic. */}
+            <ul className="mt-6 flex max-w-3xl flex-wrap items-center justify-center gap-3">
               {CHIPS.map((c) => (
                 <li
                   key={c}
                   data-chip
-                  className="border-azul-principal/15 text-azul-principal hover:border-verde-concepto hover:bg-verde-concepto/5 rounded-full border bg-white px-5 py-2.5 font-sans text-[0.9rem] font-medium transition-colors duration-300"
+                  className="border-azul-principal/15 text-azul-principal rounded-full border bg-white px-5 py-2.5 font-sans text-[0.9rem] font-medium"
                 >
                   {c}
                 </li>
               ))}
             </ul>
-            <p className="text-gris-texto mt-8 max-w-[52ch] font-sans text-[1rem] leading-relaxed md:text-[1.1rem]">
-              Repensamos la educación desde la práctica, la justicia social y la
-              construcción colectiva del conocimiento.
+            <p className="text-gris-texto mt-5 max-w-[52ch] font-sans text-[1rem] leading-relaxed md:text-[1.1rem]">
+              Pensamos la educación desde la práctica, la inclusión, la justicia
+              social y la construcción colectiva del conocimiento.
             </p>
-            <div data-mirada-cta className="mt-9">
-              <ButtonSecondary href="/que-hacemos">Mirá cómo lo hacemos</ButtonSecondary>
+            {/* Síntesis de la mirada + puente hacia «La red tiene nombres».
+                Reusa el reveal del antiguo CTA (data-mirada-cta, tl@7.4) — el
+                botón «Mirá cómo lo hacemos» se retiró de esta transición (su
+                ruta /que-hacemos sigue viva en el nav). */}
+            <div data-mirada-cta className="mt-7 max-w-[56ch]">
+              <p
+                className="font-display text-azul-principal text-balance font-semibold"
+                style={{ fontSize: "clamp(1.15rem, 0.9rem + 0.85vw, 1.4rem)", lineHeight: 1.3 }}
+              >
+                Pensamiento matemático, saber y transformación no son líneas
+                separadas: forman una misma mirada.
+              </p>
+              <p className="text-gris-texto mt-3 font-sans text-[0.95rem] leading-relaxed md:text-[1rem]">
+                Una mirada así no se construye desde una sola disciplina ni
+                desde una sola voz. Se sostiene en una red de especialistas,
+                trayectorias y experiencias que trabajan desde distintos países
+                y campos del conocimiento.
+              </p>
             </div>
           </div>
 
