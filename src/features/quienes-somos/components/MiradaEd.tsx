@@ -57,7 +57,9 @@ type Perspectiva = {
   afirmativaPre: string;
   afirmativaAccent: string;
   afirmativaPost: string;
-  apoyo: string;
+  /** Una sola oración breve (8-14 palabras) o nada: la profundidad la
+   *  construyen las fichas, no un párrafo que repita el título. */
+  apoyo?: string;
   fichas: readonly string[];
 };
 
@@ -73,8 +75,7 @@ const PERSPECTIVAS: readonly Perspectiva[] = [
     afirmativaPre: "Es una manera de ",
     afirmativaAccent: "pensar, argumentar y actuar",
     afirmativaPost: " en el mundo.",
-    apoyo:
-      "El contenido curricular permite construir estrategias, tomar decisiones y desarrollar herramientas dentro y fuera del aula.",
+    // Sin párrafo: el título ya afirma el concepto y las fichas lo amplían.
     fichas: [
       "Construir estrategias",
       "Argumentar",
@@ -97,7 +98,7 @@ const PERSPECTIVAS: readonly Perspectiva[] = [
     afirmativaAccent: "transformar",
     afirmativaPost: ".",
     apoyo:
-      "Saber, reflexión y experiencia construyen en el cuerpo docente la convicción de «puedo transformar».",
+      "Saber, reflexión y experiencia para construir la convicción de transformar.",
     fichas: [
       "Saber",
       "Reflexión",
@@ -116,8 +117,7 @@ const PERSPECTIVAS: readonly Perspectiva[] = [
     afirmativaPre: "Transformarla es ",
     afirmativaAccent: "ampliar posibilidades",
     afirmativaPost: ".",
-    apoyo:
-      "Pensamos la educación desde la práctica, la inclusión, la justicia social y la construcción colectiva del conocimiento.",
+    apoyo: "Práctica, inclusión y justicia social para ampliar posibilidades.",
     fichas: [
       "Perspectiva de género",
       "Inclusión",
@@ -264,6 +264,14 @@ export function MiradaEd() {
         }
       });
       gsap.set(strikes, { scaleX: 0, transformOrigin: "left center" });
+      gsap.set(qa("[data-afirma-underline]"), { scaleX: 0, transformOrigin: "left center" });
+
+      // Capas: el sistema (stage) por encima de las fichas —las fichas
+      // pasan POR DETRÁS del label del nodo, nunca lo tapan— y las zonas
+      // de contenido siempre arriba de todo.
+      gsap.set(stage, { zIndex: 10 });
+      gsap.set(fichaGrupos, { zIndex: 5 });
+      gsap.set([...detalles, centro, sintesis], { zIndex: 20 });
 
       // Fichas: capas absolutas que nacen bajo el viewport y escalan por
       // una "escalera" de posiciones DEBAJO del label del nodo activo (la
@@ -274,9 +282,9 @@ export function MiradaEd() {
         items.forEach((f, k) => {
           gsap.set(f, {
             position: "absolute",
-            left: `${34 + (k % 2) * 4}vw`,
+            left: `${30 + (k % 2) * 5}vw`,
             top: 0,
-            maxWidth: "12rem",
+            maxWidth: "11.5rem",
             rotation: k % 2 === 0 ? -1.2 : 1.4,
             y: H() * 1.1,
             autoAlpha: 0,
@@ -368,6 +376,11 @@ export function MiradaEd() {
         if (nodoHalos[i]) tl.to(nodoHalos[i], { autoAlpha: 1, duration: 0.3 }, S + 0.22);
         tl.to(nodoNums[i], { color: p.accent, duration: 0.3 }, S + 0.22);
         tl.to(lineas[i], { stroke: p.accent, opacity: 1, duration: 0.35 }, S + 0.22);
+        // Las líneas ajenas casi se apagan: que no crucen la lectura.
+        lineas.forEach((l, j) => {
+          if (j !== i) tl.to(l, { opacity: j < i ? 0.28 : 0.12, duration: 0.3 }, S + 0.22);
+        });
+        tl.to(arcos, { autoAlpha: 0.07, duration: 0.3 }, S + 0.22);
 
         // Zona de lectura (derecha).
         const inner = detalles[i].querySelector<HTMLElement>("[data-detalle-inner]");
@@ -382,30 +395,40 @@ export function MiradaEd() {
         if (strikes[i]) {
           tl.to(strikes[i], { scaleX: 1, duration: 0.4, ease: "power2.out" }, S + 0.85);
         }
+        // Subrayado editorial (03): se dibuja izq→der con el scroll.
+        const under = detalles[i].querySelector<HTMLElement>("[data-afirma-underline]");
+        if (under) tl.to(under, { scaleX: 1, duration: 0.45, ease: "power2.out" }, S + 0.9);
 
         // Fichas: nacen cerca del nodo (abajo), suben con deriva a la derecha.
-        // Coreografía en escalera: cada ficha ENTRA (nace debajo y se
-        // estabiliza), CEDE cuando entra la siguiente (sube un escalón y
-        // pierde fuerza) y SALE. Tweens de una misma prop estrictamente
-        // secuenciales (scrub estable en ambas direcciones); todo el grupo
-        // muere dentro de su fase (k=4 termina en S+2.14 < S+2.15) y nunca
-        // hay más de ~3 fichas legibles a la vez.
+        // CORRIENTE CONTINUA: cada ficha viaja con UNA sola velocidad
+        // (tween lineal de y de toda su vida — se frena solo si el scroll
+        // se frena) y la opacidad es una rampa suave entrada→meseta→salida
+        // sin tramos superpuestos. El espaciado garantiza que solo una
+        // ficha esté en máxima legibilidad a la vez (in 0.14 + meseta 0.22
+        // = 0.36 > 0.22 de paso, la anterior ya está cediendo), con la
+        // siguiente entrando y la previa saliendo — 2-3 visibles. La ficha
+        // k=0 queda como HUELLA tenue cerca del nodo recorrido y recién se
+        // apaga al final de la fase. Todo muere antes de S+2.15.
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", fichaGrupos[i]);
         items.forEach((f, k) => {
-          const e = S + 0.5 + k * 0.22;
+          const e = S + 0.45 + k * 0.22;
+          const esHuella = k === 0;
+          const vida = esHuella ? 0.42 : 0.78;
           tl.fromTo(
             f,
-            { y: () => H() * 0.72 + 48 },
-            { y: () => H() * 0.72, duration: 0.2, ease: "power2.out" },
+            { y: () => H() * 0.86 },
+            { y: () => H() * (esHuella ? 0.48 : 0.14), duration: vida, ease: "none" },
             e,
           );
-          tl.to(f, { autoAlpha: 1, duration: 0.2, ease: "none" }, e);
-          tl.to(f, { y: () => H() * 0.6, duration: 0.16, ease: "power1.inOut" }, e + 0.2);
-          tl.to(f, { autoAlpha: 0.55, duration: 0.16, ease: "none" }, e + 0.2);
-          tl.to(f, { y: () => H() * 0.5, duration: 0.16, ease: "power1.inOut" }, e + 0.4);
-          tl.to(f, { autoAlpha: 0.22, duration: 0.16, ease: "none" }, e + 0.4);
-          tl.to(f, { y: () => H() * 0.46, duration: 0.16, ease: "power1.in" }, e + 0.6);
-          tl.to(f, { autoAlpha: 0, duration: 0.16, ease: "none" }, e + 0.6);
+          tl.to(f, { x: () => W() * 0.035 * (vida / 0.78), duration: vida, ease: "none" }, e);
+          tl.fromTo(f, { scale: 0.965 }, { scale: 1, duration: 0.14, ease: "power2.out" }, e);
+          tl.to(f, { autoAlpha: 1, duration: 0.14, ease: "none" }, e);
+          if (esHuella) {
+            tl.to(f, { autoAlpha: 0.12, duration: 0.14, ease: "none" }, e + 0.28);
+            tl.to(f, { autoAlpha: 0, duration: 0.15, ease: "none" }, S + 1.98);
+          } else {
+            tl.to(f, { autoAlpha: 0, duration: 0.42, ease: "none" }, e + 0.36);
+          }
         });
 
         // Salida: lectura se repliega; el halo del activo se apaga y el nodo
@@ -651,18 +674,22 @@ export function MiradaEd() {
                     ) : (
                       <span className="relative inline-block">
                         {p.afirmativaAccent}
+                        {/* Subrayado editorial: se dibuja izq→der con el scroll */}
                         <span
+                          data-afirma-underline
                           aria-hidden="true"
-                          className="absolute -bottom-[0.06em] left-0 h-[0.09em] w-full rounded-full"
+                          className="absolute -bottom-[0.05em] left-0 h-[0.06em] w-full rounded-full"
                           style={{ backgroundColor: p.accent }}
                         />
                       </span>
                     )}
                     {p.afirmativaPost}
                   </p>
-                  <p className="text-gris-texto mt-4 max-w-[46ch] font-sans text-[0.98rem] leading-relaxed md:text-[1.04rem]">
-                    {p.apoyo}
-                  </p>
+                  {p.apoyo ? (
+                    <p className="text-gris-texto mt-4 max-w-[42ch] font-sans text-[0.98rem] leading-relaxed md:text-[1.04rem]">
+                      {p.apoyo}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -732,7 +759,7 @@ export function MiradaEd() {
 
           {/* Indicador de progreso: mapa · 01 · 02 · 03 · síntesis */}
           <div
-            className="absolute bottom-7 left-1/2 flex -translate-x-1/2 items-center gap-2.5 motion-reduce:hidden"
+            className="absolute bottom-7 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2.5 motion-reduce:hidden"
             aria-hidden="true"
           >
             {Array.from({ length: 5 }, (_, i) => (
