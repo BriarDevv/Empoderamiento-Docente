@@ -344,6 +344,9 @@ export function MiradaEd() {
       });
 
       // FASE 0 — el mapa se presenta: núcleo, líneas, nodos.
+      // Clamp global de fichas al entrar a la zona (misma autocura que el
+      // clamp por fase, para el tramo del mapa antes de la fase 1).
+      tl.set(qa("[data-ficha]"), { autoAlpha: 0 }, 0.06);
       tl.to(qa("[data-centro-bit]"), { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.12, ease: "power3.out" }, 0.1);
       lineas.forEach((p, i) => {
         tl.to(p, { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, 0.35 + i * 0.12);
@@ -428,6 +431,13 @@ export function MiradaEd() {
         const D3 = 0.16; // VIDA = D1+D2+D3 = 0.54
         const HUELLA_K = [0, 3, 2]; // Construir estrategias · Convicción para transformar · Justicia social
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", fichaGrupos[i]);
+        // CLAMP de pre-nacimiento: al abrirse la fase se re-asegura el estado
+        // oculto de TODAS sus fichas. El set inicial del mount puede ser
+        // pisado por agentes externos (Fast Refresh en dev, hidratación);
+        // sin este clamp, las fichas que esperan turno quedaban VISIBLES,
+        // clavadas en su punto de nacimiento (el síntoma "trabado" del
+        // 23-jul). Dentro del timeline es reversible y se auto-cura.
+        tl.set(items, { autoAlpha: 0, x: 0, scale: 0.94, y: () => H() * 0.8 }, S + 0.02);
         items.forEach((f, k) => {
           const e = S + E0 + k * STEP;
           const esHuella = k === HUELLA_K[i];
