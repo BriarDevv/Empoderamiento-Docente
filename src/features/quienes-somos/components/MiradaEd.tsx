@@ -295,6 +295,18 @@ export function MiradaEd() {
           });
         });
       });
+      // RESPIRACIÓN: deriva vertical sutil e infinita de cada capa de fichas,
+      // independiente del scrub. Al ritmo real de lectura (una muesca de
+      // rueda + pausa) las fichas pasan buena parte del tiempo detenidas;
+      // sin esto se sienten "muertas". Anima al grupo padre (no al `y` de
+      // cada ficha), así no pelea con la corriente scrubbed.
+      fichaGrupos.forEach((g, i) => {
+        gsap.fromTo(
+          g,
+          { y: -5 },
+          { y: 5, duration: 3.2 + i * 0.5, ease: "sine.inOut", yoyo: true, repeat: -1 },
+        );
+      });
 
       // Nodos: nacen apagados y chicos; líneas sin dibujar; ramas ocultas.
       // El origin va en el centro del PUNTO (7px): al escalar, el punto
@@ -328,16 +340,17 @@ export function MiradaEd() {
       };
 
       // ── Timeline maestro (12 unidades sobre toda la zona) ────────────────
-      // scrub NUMÉRICO: cada tick de rueda avanza el scroll a saltos
+      // scrub NUMÉRICO: cada muesca de rueda avanza el scroll a saltos
       // discretos; con scrub:true la timeline saltaba con él (el "trabado").
-      // 0.75s de catch-up absorbe los ticks sin desconectar del usuario.
+      // 1s de catch-up convierte cada muesca en un deslizamiento largo y
+      // untuoso sin desconectar del usuario.
       const tl = gsap.timeline({
         defaults: { ease: "power2.inOut" },
         scrollTrigger: {
           trigger: zone,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.75,
+          scrub: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => setDot(self.progress),
         },
@@ -418,17 +431,21 @@ export function MiradaEd() {
         //      la meseta legible — se frena solo si el scroll se frena;
         //   3. sale acelerando hacia arriba-izquierda (power1.in arranca
         //      con pendiente 0) mientras decae la opacidad.
-        // El paso entre fichas es 50% de la vida (0.27/0.54): 1 legible +
-        // 1 entrando + 1 saliendo, nunca dos con alpha 1 (meseta 0.27 no
-        // solapa con la siguiente). La HUELLA de cada principio no sale:
+        // El paso entre fichas mantiene 1 legible + 1 entrando + 1 en
+        // disolución, nunca dos con alpha 1 (meseta = STEP, se tocan justo
+        // en el borde). La HUELLA de cada principio no sale:
         // estaciona tenue (0.10) junto al nodo, DEBAJO de su label (el
         // viejo 0.48H la dejaba pegada al texto del nodo), y se apaga
         // antes del cambio de cámara. Todo termina antes de S+2.15.
-        const E0 = 0.45;
-        const STEP = 0.27; // 50% de VIDA
-        const D1 = 0.16;
-        const D2 = 0.22;
-        const D3 = 0.16; // VIDA = D1+D2+D3 = 0.54
+        // Calibrado para RITMO DE LECTURA (una muesca de rueda + pausa), no
+        // solo scroll continuo: vidas largas (0.68 u ≈ 3 muescas) y salida
+        // como disolución lenta (D3 0.33) en vez de látigo. La meseta de
+        // alpha plena (0.24) sigue siendo ≤ STEP: solo una legible a la vez.
+        const E0 = 0.4;
+        const STEP = 0.24;
+        const D1 = 0.14;
+        const D2 = 0.21;
+        const D3 = 0.33; // VIDA = D1+D2+D3 = 0.68
         const HUELLA_K = [0, 3, 2]; // Construir estrategias · Convicción para transformar · Justicia social
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", fichaGrupos[i]);
         // CLAMP de pre-nacimiento: al abrirse la fase se re-asegura el estado
