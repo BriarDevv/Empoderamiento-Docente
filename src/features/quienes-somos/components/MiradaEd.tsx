@@ -273,20 +273,24 @@ export function MiradaEd() {
       gsap.set(fichaGrupos, { zIndex: 5 });
       gsap.set([...detalles, centro, sintesis], { zIndex: 20 });
 
-      // Fichas: capas absolutas que nacen bajo el viewport y escalan por
-      // una "escalera" de posiciones DEBAJO del label del nodo activo (la
-      // banda superior queda limpia para el sistema y la lectura).
+      // Fichas: capas absolutas en el CARRIL central-izquierdo (zona B),
+      // entre el nodo activo y la zona de lectura derecha. Un solo carril
+      // con desfasajes fijos por índice (nada aleatorio): las variaciones
+      // son chicas para que la corriente no se vea rígida, pero nunca tan
+      // grandes como para que dos fichas se choquen de costado.
+      const LANE_VW = [31, 33.6, 32.2, 34.4, 31.6];
       fichaGrupos.forEach((g) => {
         gsap.set(g, { position: "absolute", inset: 0, pointerEvents: "none" });
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", g);
         items.forEach((f, k) => {
           gsap.set(f, {
             position: "absolute",
-            left: `${30 + (k % 2) * 5}vw`,
+            left: `${LANE_VW[k] ?? 32}vw`,
             top: 0,
             maxWidth: "11.5rem",
-            rotation: k % 2 === 0 ? -1.2 : 1.4,
-            y: H() * 1.1,
+            rotation: k % 2 === 0 ? -0.8 : 1,
+            y: H() * 0.8,
+            scale: 0.94,
             autoAlpha: 0,
           });
         });
@@ -324,13 +328,16 @@ export function MiradaEd() {
       };
 
       // ── Timeline maestro (12 unidades sobre toda la zona) ────────────────
+      // scrub NUMÉRICO: cada tick de rueda avanza el scroll a saltos
+      // discretos; con scrub:true la timeline saltaba con él (el "trabado").
+      // 0.75s de catch-up absorbe los ticks sin desconectar del usuario.
       const tl = gsap.timeline({
         defaults: { ease: "power2.inOut" },
         scrollTrigger: {
           trigger: zone,
           start: "top top",
           end: "bottom bottom",
-          scrub: true,
+          scrub: 0.75,
           invalidateOnRefresh: true,
           onUpdate: (self) => setDot(self.progress),
         },
@@ -399,35 +406,66 @@ export function MiradaEd() {
         const under = detalles[i].querySelector<HTMLElement>("[data-afirma-underline]");
         if (under) tl.to(under, { scaleX: 1, duration: 0.45, ease: "power2.out" }, S + 0.9);
 
-        // Fichas: nacen cerca del nodo (abajo), suben con deriva a la derecha.
-        // CORRIENTE CONTINUA: cada ficha viaja con UNA sola velocidad
-        // (tween lineal de y de toda su vida — se frena solo si el scroll
-        // se frena) y la opacidad es una rampa suave entrada→meseta→salida
-        // sin tramos superpuestos. El espaciado garantiza que solo una
-        // ficha esté en máxima legibilidad a la vez (in 0.14 + meseta 0.22
-        // = 0.36 > 0.22 de paso, la anterior ya está cediendo), con la
-        // siguiente entrando y la previa saliendo — 2-3 visibles. La ficha
-        // k=0 queda como HUELLA tenue cerca del nodo recorrido y recién se
-        // apaga al final de la fase. Todo muere antes de S+2.15.
+        // Fichas — CORRIENTE ASCENDENTE GUIADA. Una sola trayectoria
+        // continua en tres tramos CONTIGUOS de la misma propiedad (nunca
+        // solapados → posición continua, reversible y determinista):
+        //   1. nace cerca del nodo (0.80H) y sube desacelerando (power1.out
+        //      termina con pendiente 0: empalma suave con el tramo lento);
+        //   2. carril de lectura (0.55H→0.50H): avance casi horizontal, es
+        //      la meseta legible — se frena solo si el scroll se frena;
+        //   3. sale acelerando hacia arriba-izquierda (power1.in arranca
+        //      con pendiente 0) mientras decae la opacidad.
+        // El paso entre fichas es 50% de la vida (0.27/0.54): 1 legible +
+        // 1 entrando + 1 saliendo, nunca dos con alpha 1 (meseta 0.27 no
+        // solapa con la siguiente). La HUELLA de cada principio no sale:
+        // estaciona tenue (0.10) junto al nodo, DEBAJO de su label (el
+        // viejo 0.48H la dejaba pegada al texto del nodo), y se apaga
+        // antes del cambio de cámara. Todo termina antes de S+2.15.
+        const E0 = 0.45;
+        const STEP = 0.27; // 50% de VIDA
+        const D1 = 0.16;
+        const D2 = 0.22;
+        const D3 = 0.16; // VIDA = D1+D2+D3 = 0.54
+        const HUELLA_K = [0, 3, 2]; // Construir estrategias · Convicción para transformar · Justicia social
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", fichaGrupos[i]);
         items.forEach((f, k) => {
-          const e = S + 0.45 + k * 0.22;
-          const esHuella = k === 0;
-          const vida = esHuella ? 0.42 : 0.78;
+          const e = S + E0 + k * STEP;
+          const esHuella = k === HUELLA_K[i];
+          // Tramo 1 — nacimiento: sube desacelerando hacia el carril.
           tl.fromTo(
             f,
-            { y: () => H() * 0.86 },
-            { y: () => H() * (esHuella ? 0.48 : 0.14), duration: vida, ease: "none" },
+            { y: () => H() * 0.8 },
+            { y: () => H() * 0.55, duration: D1, ease: "power1.out" },
             e,
           );
-          tl.to(f, { x: () => W() * 0.035 * (vida / 0.78), duration: vida, ease: "none" }, e);
-          tl.fromTo(f, { scale: 0.965 }, { scale: 1, duration: 0.14, ease: "power2.out" }, e);
-          tl.to(f, { autoAlpha: 1, duration: 0.14, ease: "none" }, e);
+          // Tramo 2 — lectura: casi una pausa, sin detenerse de golpe.
+          tl.to(f, { y: () => H() * 0.5, duration: D2, ease: "none" }, e + D1);
+          // Tramo 3 — salida (la huella estaciona junto al nodo recorrido).
+          tl.to(
+            f,
+            {
+              y: () => H() * (esHuella ? 0.56 : 0.16),
+              duration: D3,
+              ease: esHuella ? "power1.out" : "power1.in",
+            },
+            e + D1 + D2,
+          );
+          // Deriva lateral: entra hacia la derecha, sale hacia la izquierda.
+          tl.to(f, { x: () => W() * 0.02, duration: D1 + D2, ease: "power1.out" }, e);
+          tl.to(
+            f,
+            { x: () => W() * (esHuella ? -0.055 : -0.025), duration: D3, ease: "power1.in" },
+            e + D1 + D2,
+          );
+          // Presencia: escala y opacidad en rampas disjuntas (sin saltos).
+          tl.fromTo(f, { scale: 0.94 }, { scale: 1, duration: D1, ease: "power1.out" }, e);
+          tl.to(f, { autoAlpha: 1, duration: 0.11, ease: "none" }, e);
           if (esHuella) {
-            tl.to(f, { autoAlpha: 0.12, duration: 0.14, ease: "none" }, e + 0.28);
-            tl.to(f, { autoAlpha: 0, duration: 0.15, ease: "none" }, S + 1.98);
+            tl.to(f, { autoAlpha: 0.1, duration: D3, ease: "none" }, e + D1 + D2);
+            tl.to(f, { autoAlpha: 0, duration: 0.1, ease: "none" }, S + 2.02);
           } else {
-            tl.to(f, { autoAlpha: 0, duration: 0.42, ease: "none" }, e + 0.36);
+            tl.to(f, { scale: 0.97, duration: D3, ease: "power1.in" }, e + D1 + D2);
+            tl.to(f, { autoAlpha: 0, duration: D3, ease: "none" }, e + D1 + D2);
           }
         });
 
@@ -694,7 +732,9 @@ export function MiradaEd() {
               </div>
 
               {/* Fichas conceptuales: capas de pensamiento que nacen del nodo
-                  activo y suben. Sin semántica interactiva. */}
+                  activo y suben. Sin semántica interactiva. Fondo sólido: si
+                  una línea del mapa cruza por detrás, la ficha la tapa limpia
+                  (con /90 se transparentaba). */}
               <ul
                 data-fichas={i}
                 className="m-0 flex list-none flex-wrap items-center justify-center gap-3 px-6 pb-10 motion-reduce:mx-auto motion-reduce:max-w-xl"
@@ -703,7 +743,7 @@ export function MiradaEd() {
                   <li
                     key={f}
                     data-ficha
-                    className="border-azul-principal/12 rounded-xl border bg-white/90 px-5 py-3 font-sans text-[0.95rem] font-medium shadow-[0_10px_30px_-18px_rgb(31_45_77/0.35)] will-change-transform"
+                    className="border-azul-principal/12 rounded-xl border bg-white px-5 py-3 font-sans text-[0.95rem] font-medium shadow-[0_10px_30px_-18px_rgb(31_45_77/0.35)] will-change-transform"
                     style={{
                       color: "#1f2d4d",
                       borderLeft: `3px solid ${p.accent}`,
