@@ -177,8 +177,6 @@ const CAMARA = [
   { scale: 1.5, tx: 0.24, ty: 0.46 },
 ] as const;
 
-const NEUTRO_DOT = "rgba(31,45,77,0.28)";
-
 export function MiradaEd() {
   const rootRef = useRef<HTMLElement | null>(null);
   const zoneRef = useRef<HTMLDivElement | null>(null);
@@ -205,7 +203,6 @@ export function MiradaEd() {
       const dots = qa("[data-mirada-dot]");
       dotEls = dots;
       const nodoCores = qa("[data-nodo-core]");
-      const nodoDots = qa("[data-nodo-dot]");
       const nodoHalos = qa("[data-nodo-halo]");
       const nodoNums = qa("[data-nodo-num]");
       const nodoLabels = qa("[data-nodo-label]");
@@ -243,6 +240,8 @@ export function MiradaEd() {
       gsap.set(stage, { transformOrigin: "0 0" });
       gsap.set([centro, sintesis], { position: "absolute", inset: 0 });
       gsap.set(sintesis, { autoAlpha: 0 });
+      const fogInit = q("[data-sintesis-fog]");
+      if (fogInit) gsap.set(fogInit, { autoAlpha: 0 });
       gsap.set(qa("[data-centro-bit]"), { autoAlpha: 0, y: 22 });
       gsap.set(puentes, { autoAlpha: 0, y: 18 });
 
@@ -266,25 +265,29 @@ export function MiradaEd() {
       });
       gsap.set(strikes, { scaleX: 0, transformOrigin: "left center" });
 
-      // Fichas: capas absolutas que nacen bajo el viewport y suben.
+      // Fichas: capas absolutas que nacen bajo el viewport y escalan por
+      // una "escalera" de posiciones DEBAJO del label del nodo activo (la
+      // banda superior queda limpia para el sistema y la lectura).
       fichaGrupos.forEach((g) => {
         gsap.set(g, { position: "absolute", inset: 0, pointerEvents: "none" });
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", g);
         items.forEach((f, k) => {
           gsap.set(f, {
             position: "absolute",
-            left: `${32 + (k % 3) * 7}vw`,
+            left: `${34 + (k % 2) * 4}vw`,
             top: 0,
             maxWidth: "12rem",
             rotation: k % 2 === 0 ? -1.2 : 1.4,
-            y: H() * 1.05,
+            y: H() * 1.1,
             autoAlpha: 0,
           });
         });
       });
 
       // Nodos: nacen apagados y chicos; líneas sin dibujar; ramas ocultas.
-      gsap.set(nodoCores, { autoAlpha: 0, scale: 0.6 });
+      // El origin va en el centro del PUNTO (7px): al escalar, el punto
+      // queda clavado al extremo de su línea y el label crece hacia afuera.
+      gsap.set(nodoCores, { autoAlpha: 0, scale: 0.6, transformOrigin: "7px 50%" });
       gsap.set(nodoHalos, { autoAlpha: 0 });
       [...lineas, ...ramas].forEach((p) => {
         const len = p.getTotalLength();
@@ -330,7 +333,7 @@ export function MiradaEd() {
       lineas.forEach((p, i) => {
         tl.to(p, { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, 0.35 + i * 0.12);
       });
-      tl.to(nodoCores, { autoAlpha: 0.55, scale: 1, duration: 0.4, stagger: 0.12, ease: "power3.out" }, 0.55);
+      tl.to(nodoCores, { autoAlpha: 0.6, scale: 1, duration: 0.4, stagger: 0.12, ease: "power3.out" }, 0.55);
       tl.to(arcos, { autoAlpha: 0.12, duration: 0.35 }, 0.85);
 
       // Núcleo se retira antes del primer acercamiento.
@@ -354,14 +357,14 @@ export function MiradaEd() {
           S,
         );
 
-        // Estados del sistema: activo pleno, recorridos como memoria (0.55),
-        // futuros insinuados (0.25) — el color solo no identifica al activo.
+        // Estados del sistema: el activo manda; los recorridos quedan como
+        // memoria tenue y los futuros apenas insinuados (no compiten con la
+        // zona de lectura). El color solo no identifica al activo.
         nodoCores.forEach((core, j) => {
-          const target = j === i ? 1 : j < i ? 0.55 : 0.25;
+          const target = j === i ? 1 : j < i ? 0.38 : 0.12;
           tl.to(core, { autoAlpha: target, scale: j === i ? 1.08 : 1, duration: 0.3 }, S + 0.22);
         });
-        // Nodo activo: acento + halo pre-pintado (solo opacity, compositado).
-        tl.to(nodoDots[i], { backgroundColor: p.accent, duration: 0.3 }, S + 0.22);
+        // Nodo activo: halo pre-pintado (solo opacity, compositado) + número.
         if (nodoHalos[i]) tl.to(nodoHalos[i], { autoAlpha: 1, duration: 0.3 }, S + 0.22);
         tl.to(nodoNums[i], { color: p.accent, duration: 0.3 }, S + 0.22);
         tl.to(lineas[i], { stroke: p.accent, opacity: 1, duration: 0.35 }, S + 0.22);
@@ -381,22 +384,28 @@ export function MiradaEd() {
         }
 
         // Fichas: nacen cerca del nodo (abajo), suben con deriva a la derecha.
-        // Movimiento (y/x) y opacidad viajan en tweens separados para que
-        // ningún par de tweens escriba la misma propiedad en tramos
-        // superpuestos (scrub estable en ambas direcciones). El timing
-        // encierra TODO el grupo dentro de su fase (última ficha muere en
-        // S+2.06 < S+2.15) con ~3-4 visibles a la vez.
+        // Coreografía en escalera: cada ficha ENTRA (nace debajo y se
+        // estabiliza), CEDE cuando entra la siguiente (sube un escalón y
+        // pierde fuerza) y SALE. Tweens de una misma prop estrictamente
+        // secuenciales (scrub estable en ambas direcciones); todo el grupo
+        // muere dentro de su fase (k=4 termina en S+2.14 < S+2.15) y nunca
+        // hay más de ~3 fichas legibles a la vez.
         const items = gsap.utils.toArray<HTMLElement>("[data-ficha]", fichaGrupos[i]);
         items.forEach((f, k) => {
-          const at = S + 0.55 + k * 0.19;
+          const e = S + 0.5 + k * 0.22;
           tl.fromTo(
             f,
-            { y: () => H() * 1.05 },
-            { y: () => -H() * 0.32, x: () => W() * 0.03, duration: 0.75, ease: "none" },
-            at,
+            { y: () => H() * 0.72 + 48 },
+            { y: () => H() * 0.72, duration: 0.2, ease: "power2.out" },
+            e,
           );
-          tl.to(f, { autoAlpha: 1, duration: 0.14, ease: "none" }, at);
-          tl.to(f, { autoAlpha: 0, duration: 0.2, ease: "none" }, at + 0.55);
+          tl.to(f, { autoAlpha: 1, duration: 0.2, ease: "none" }, e);
+          tl.to(f, { y: () => H() * 0.6, duration: 0.16, ease: "power1.inOut" }, e + 0.2);
+          tl.to(f, { autoAlpha: 0.55, duration: 0.16, ease: "none" }, e + 0.2);
+          tl.to(f, { y: () => H() * 0.5, duration: 0.16, ease: "power1.inOut" }, e + 0.4);
+          tl.to(f, { autoAlpha: 0.22, duration: 0.16, ease: "none" }, e + 0.4);
+          tl.to(f, { y: () => H() * 0.46, duration: 0.16, ease: "power1.in" }, e + 0.6);
+          tl.to(f, { autoAlpha: 0, duration: 0.16, ease: "none" }, e + 0.6);
         });
 
         // Salida: lectura se repliega; el halo del activo se apaga y el nodo
@@ -407,13 +416,16 @@ export function MiradaEd() {
         tl.to(lineas[i], { opacity: 0.55, duration: 0.25 }, S + 1.92);
       });
 
-      // FASE 6 — regreso al mapa completo + síntesis en el núcleo. Los
-      // labels de los nodos se atenúan (los puntos conservan su acento):
-      // la síntesis centrada no compite con texto navy de fondo.
+      // FASE 6 — MOMENTO A: regreso al mapa y la síntesis SOLA, con foco
+      // absoluto. El sistema queda como huella: puntos con su acento,
+      // labels casi apagados, líneas finísimas (la naranja no cruza más el
+      // texto a plena intensidad).
       tl.to(stage, { x: 0, y: 0, scale: 1, duration: 0.6 }, 7.75);
-      tl.to(nodoCores, { autoAlpha: 0.85, duration: 0.35 }, 8.05);
-      tl.to(nodoLabels, { autoAlpha: 0.3, duration: 0.35 }, 8.05);
-      tl.to(arcos, { autoAlpha: 0.2, duration: 0.35 }, 8.05);
+      tl.to(nodoCores, { autoAlpha: 0.8, duration: 0.35 }, 8.05);
+      tl.to(nodoLabels, { autoAlpha: 0.18, duration: 0.35 }, 8.05);
+      tl.to(nodoNums, { autoAlpha: 0.35, duration: 0.35 }, 8.05);
+      tl.to(lineas, { opacity: 0.22, duration: 0.35 }, 8.05);
+      tl.to(arcos, { autoAlpha: 0.1, duration: 0.35 }, 8.05);
       tl.to(sintesis, { autoAlpha: 1, duration: 0.45 }, 8.5);
       tl.fromTo(
         q("[data-sintesis-frase]"),
@@ -422,14 +434,23 @@ export function MiradaEd() {
         8.55,
       );
 
-      // FASE 7 — la mirada se ramifica: la red incipiente y el puente.
+      // FASE 7 — MOMENTO B: el sistema cede aún más (niebla marfil detrás
+      // del texto), la síntesis achica apenas su presencia y recién entonces
+      // entra el puente. Las ramas dibujan la red incipiente ALREDEDOR del
+      // campo de lectura (la niebla protege el centro).
+      const fog = q("[data-sintesis-fog]");
+      if (fog) tl.to(fog, { autoAlpha: 1, duration: 0.45 }, 9.6);
+      tl.to(q("[data-sintesis-frase]"), { scale: 0.97, y: -14, duration: 0.45 }, 9.6);
+      tl.to(nodoCores, { autoAlpha: 0.35, duration: 0.4 }, 9.6);
+      tl.to(nodoLabels, { autoAlpha: 0.08, duration: 0.4 }, 9.6);
+      tl.to(lineas, { opacity: 0.12, duration: 0.4 }, 9.6);
       ramas.forEach((r, k) => {
-        tl.to(r, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, 9.25 + k * 0.05);
+        tl.to(r, { strokeDashoffset: 0, duration: 0.45, ease: "power2.out" }, 9.75 + k * 0.04);
       });
-      tl.to(ramdots, { scale: 1, autoAlpha: 1, duration: 0.3, stagger: 0.04, ease: "power2.out" }, 9.45);
-      tl.to(puentes[0], { autoAlpha: 1, y: 0, duration: 0.4 }, 9.95);
-      tl.to(puentes[1], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.45);
-      tl.to({}, { duration: 1.1 }, 10.9); // respiro antes de soltar el pin
+      tl.to(ramdots, { scale: 1, autoAlpha: 1, duration: 0.25, stagger: 0.03, ease: "power2.out" }, 9.95);
+      tl.to(puentes[0], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.3);
+      tl.to(puentes[1], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.75);
+      tl.to({}, { duration: 0.85 }, 11.15); // respiro antes de soltar el pin
       setDot(0);
     }, root);
 
@@ -508,6 +529,10 @@ export function MiradaEd() {
 
             {/* Nodos (wrapper posiciona; el core anima — GSAP no pisa el
                 translate de centrado) */}
+            {/* Anclaje IZQUIERDO: el punto queda sobre la coordenada del nodo
+                y el label crece hacia la derecha. Así, al hacer zoom sobre un
+                principio, los labels vecinos no asoman sobre la zona de
+                lectura (el 02 quedaba cruzando el texto del 01). */}
             {PERSPECTIVAS.map((p, i) => (
               <div
                 key={p.id}
@@ -515,7 +540,7 @@ export function MiradaEd() {
                 style={{
                   left: `${NODOS[i].x}%`,
                   top: `${NODOS[i].y}%`,
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-9px, -50%)",
                 }}
               >
                 <div
@@ -529,10 +554,10 @@ export function MiradaEd() {
                       className="absolute -inset-[7px] rounded-full"
                       style={{ backgroundColor: `${p.accent}1f` }}
                     />
+                    {/* Identidad cromática suave desde la apertura */}
                     <span
-                      data-nodo-dot
                       className="relative block h-3.5 w-3.5 rounded-full"
-                      style={{ backgroundColor: NEUTRO_DOT }}
+                      style={{ backgroundColor: p.accent }}
                     />
                   </span>
                   <span
@@ -572,7 +597,7 @@ export function MiradaEd() {
             </h2>
             <p
               data-centro-bit
-              className="text-gris-texto mt-5 max-w-[38ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.1rem]"
+              className="text-azul-principal/70 mt-5 max-w-[38ch] font-sans text-[1.05rem] font-medium tracking-wide md:text-[1.15rem]"
             >
               Pensamiento matemático, saber y transformación.
             </p>
@@ -670,9 +695,20 @@ export function MiradaEd() {
             data-sintesis
             className="flex h-full flex-col items-center justify-center px-6 text-center motion-reduce:h-auto motion-reduce:py-24"
           >
+            {/* Niebla marfil del MOMENTO B: campo de foco detrás del texto
+                (el sistema y las ramas quedan alrededor, no encima). */}
+            <span
+              data-sintesis-fog
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 motion-reduce:hidden"
+              style={{
+                background:
+                  "radial-gradient(ellipse 58% 52% at 50% 48%, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.78) 46%, rgba(255,255,255,0) 74%)",
+              }}
+            />
             <p
               data-sintesis-frase
-              className="font-display text-azul-principal max-w-[24ch] text-balance font-bold tracking-[-0.02em]"
+              className="font-display text-azul-principal relative max-w-[24ch] text-balance font-bold tracking-[-0.02em]"
               style={{ fontSize: "clamp(1.8rem, 1rem + 2.4vw, 3rem)", lineHeight: 1.16 }}
             >
               Pensamiento matemático, saber y transformación forman{" "}
@@ -680,13 +716,14 @@ export function MiradaEd() {
             </p>
             <p
               data-puente
-              className="text-azul-principal mt-8 max-w-[36ch] font-sans text-[1.05rem] leading-relaxed font-medium md:text-[1.15rem]"
+              className="font-display text-azul-principal relative mt-10 max-w-[30ch] text-balance font-semibold"
+              style={{ fontSize: "clamp(1.15rem, 0.9rem + 0.9vw, 1.5rem)", lineHeight: 1.35 }}
             >
               Una mirada así no se construye desde una sola voz.
             </p>
             <p
               data-puente
-              className="text-gris-texto mt-3 max-w-[44ch] font-sans text-[0.98rem] leading-relaxed md:text-[1.05rem]"
+              className="text-azul-principal/80 relative mt-3 max-w-[40ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.1rem]"
             >
               Se sostiene en una red de especialistas, trayectorias y
               experiencias diversas.
