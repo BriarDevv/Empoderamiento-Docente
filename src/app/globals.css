@@ -7,6 +7,12 @@
   --color-azul-claro: #a9c5e8;
   --color-verde-concepto: #1f9a78;
   --color-naranja-accion: #e07a2f;
+  /* Variantes SOLO para texto: el verde y el naranja de marca no alcanzan
+     4.5:1 sobre blanco en tamaños chicos (WCAG AA 1.4.3). Estas versiones
+     oscurecidas sí (5.27:1 y 4.78:1). Fondos, bordes y trazos siguen usando
+     el color de marca, que con 3:1 cumple para elementos no textuales. */
+  --color-verde-concepto-texto: #177a5f;
+  --color-naranja-accion-texto: #b35a15;
   --color-gris-fondo: #f2f4f7;
   --color-gris-texto: #6b7280;
 
@@ -340,4 +346,18 @@ html.has-custom-cursor * {
 .bn-row-inner {
   position: relative;
   z-index: 1;
+}
+
+/* Pista de scroll del perfil inmersivo: un empuje vertical suave y contenido
+   (coherente con la coreografía; reemplaza el bounce genérico de Tailwind). */
+@keyframes scroll-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
 }
