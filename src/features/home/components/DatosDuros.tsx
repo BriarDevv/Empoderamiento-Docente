@@ -17,7 +17,8 @@ if (typeof window !== "undefined") {
  *
  * OJO: valores PLACEHOLDER — reemplazar por los reales de Empoderamiento Docente.
  * Logos de aliados: assets AUTORIZADOS (/public/aliados). El Footer lleva la
- * misma tira pero con su propia lista: si acá se suma o saca uno, revisar allá.
+ * misma tira con su propia lista (y sus propias alturas, porque su <li> es más
+ * bajo): si acá se suma o saca uno, replicarlo allá.
  */
 const DATOS = [
   { value: 15, prefix: "+", suffix: "", label: "Años de trayectoria", nota: "Diseñando intervenciones situadas." },
