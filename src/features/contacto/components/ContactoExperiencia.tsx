@@ -41,9 +41,9 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
  *      tema entran en cascada a su alrededor. Por eso hay un solo titular
  *      acomodándose y no dos diciendo lo mismo — la palabra es la semilla del
  *      layout, no un cartel previo.
- *  2 · FORMULARIO — al elegir tema, el TÍTULO de la fila elegida viaja (ghost
- *      tipográfico) hasta el rail navy del formulario y los campos suben en
- *      cascada. "Cambiar tema" vuelve al selector sin perder lo tipeado.
+ *  2 · FORMULARIO — al elegir tema, el índice se disuelve y el formulario
+ *      entra en cascada; el rail navy (ícono + título del tema) aparece de una,
+ *      sin vuelo. "Cambiar tema" vuelve al selector sin perder lo tipeado.
  *  3 · CIERRE — al enviar: «Cada propuesta empieza con una conversación.»
  *
  * Lo secundario del sitemap (mail directo + sumarse al equipo) ya no vive en
@@ -382,7 +382,10 @@ export function ContactoExperiencia() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduced, introListo]);
 
-  // ── APERTURA → FORMULARIO: la tarjeta elegida viaja hasta el chip ───────
+  // ── APERTURA → FORMULARIO: crossfade limpio (sin vuelo) ─────────────────
+  // El índice se disuelve y el formulario entra en cascada. El rail — con su
+  // ícono y su título del tema — aparece de una, sin que nada vuele: un ícono
+  // chico cruzando la pantalla se leía como adorno, y el título ya no viajaba.
   const elegirTema = (key: TemaKey, cardEl: HTMLElement) => {
     if (animando.current) return;
     setTema(key);
@@ -395,42 +398,16 @@ export function ContactoExperiencia() {
     }
 
     animando.current = true;
-    // Medimos la BALDOSA de ícono de la fila (origen del vuelo) antes de tocar
-    // nada: es lo único que viaja al rail; el título ya no vuela como texto.
-    const srcTile = cardEl.querySelector<HTMLElement>("[data-tema-icono]");
-    const srcTileRect = (srcTile ?? cardEl).getBoundingClientRect();
 
-    // esperar el re-render (el destino ya existe) y medir en vivo
+    // esperar el re-render para que el rail ya tenga el tema elegido
     requestAnimationFrame(() => {
       const root = rootRef.current;
-      const chip = root?.querySelector<HTMLElement>("[data-chip-tema]");
-      const dstTile = root?.querySelector<HTMLElement>("[data-chip-icono]");
-      if (!root || !chip || !dstTile) {
+      if (!root) {
         gsap.set(panel("apertura"), { autoAlpha: 0 });
         gsap.set(panel("formulario"), { autoAlpha: 1 });
         animando.current = false;
         return;
       }
-      const dstTileRect = dstTile.getBoundingClientRect();
-
-      // Vuela el ÍCONO, no el texto: un clon de la baldosa de la fila viaja a la
-      // baldosa del rail y al aterrizar se crossfadea con la real. El título del
-      // chip entra aparte, con un fade limpio — puede quebrar en dos líneas sin
-      // costura, porque ya no hay ghost tipográfico que tenga que calzar.
-      const scaleRatio =
-        dstTileRect.width > 0 ? srcTileRect.width / dstTileRect.width : 1;
-      const ghost = (srcTile ?? chip).cloneNode(true) as HTMLElement;
-      ghost.setAttribute("aria-hidden", "true");
-      Object.assign(ghost.style, {
-        position: "fixed",
-        left: `${dstTileRect.left}px`,
-        top: `${dstTileRect.top}px`,
-        margin: "0",
-        zIndex: "45",
-        pointerEvents: "none",
-        transformOrigin: "left top",
-      } as unknown as CSSStyleDeclaration);
-      document.body.appendChild(ghost);
 
       const otras = gsap.utils.toArray<HTMLElement>("[data-tema-card]").filter((c) => c !== cardEl);
       const campos = gsap.utils.toArray<HTMLElement>("[data-campo]");
@@ -438,51 +415,24 @@ export function ContactoExperiencia() {
       const tl = gsap.timeline({
         defaults: { ease: "power3.inOut" },
         onComplete: () => {
-          ghost.remove();
           animando.current = false;
           root.querySelector<HTMLInputElement>("#ct-nombre")?.focus({ preventScroll: true });
         },
       });
-
-      // el ícono real del rail y el título arrancan ocultos: el ícono entra en
-      // crossfade con el ghost al aterrizar; el título hace su fade aparte.
-      gsap.set(chip, { autoAlpha: 0 });
-      gsap.set(dstTile, { autoAlpha: 0 });
 
       tl.set(cardEl, { autoAlpha: 0 }, 0)
         // el resto del índice se disuelve
         .to(otras, { autoAlpha: 0, y: 10, duration: 0.4, stagger: 0.03 }, 0)
         .to("[data-ap-head], [data-ap-h2]", { autoAlpha: 0, y: -16, duration: 0.4 }, 0)
         .set(panel("apertura"), { autoAlpha: 0 }, 0.42)
-        // el contenedor aparece TEMPRANO y el rail entra primero en la cascada:
-        // el ícono aterriza sobre una superficie que ya existe.
+        // el formulario entra en cascada; el rail (ícono + título del tema) llega
+        // con su superficie, de una.
         .set(panel("formulario"), { autoAlpha: 1 }, 0.28)
         .fromTo(
           campos,
           { autoAlpha: 0, y: 18 },
           { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.06 },
           0.34,
-        )
-        // el ÍCONO viaja: de su baldosa en el índice a la baldosa del rail…
-        .fromTo(
-          ghost,
-          {
-            x: srcTileRect.left - dstTileRect.left,
-            y: srcTileRect.top - dstTileRect.top,
-            scale: scaleRatio,
-          },
-          { x: 0, y: 0, scale: 1, duration: 0.6 },
-          0.1,
-        )
-        // …al aterrizar, la baldosa real del rail entra en crossfade y el ghost sale
-        .to(dstTile, { autoAlpha: 1, duration: 0.25, ease: "power1.out" }, 0.58)
-        .to(ghost, { autoAlpha: 0, duration: 0.2, ease: "power1.in" }, 0.62)
-        // …y el TÍTULO aparece con un fade limpio (sin costura de quiebre)
-        .fromTo(
-          chip,
-          { autoAlpha: 0, y: 8 },
-          { autoAlpha: 1, y: 0, duration: 0.4, ease: "power2.out" },
-          0.56,
         );
     });
   };
@@ -779,10 +729,8 @@ export function ContactoExperiencia() {
                     onClick={(e) => elegirTema(t.key, e.currentTarget)}
                     className="group border-azul-claro/45 hover:border-verde-concepto/50 focus-visible:outline-verde-concepto flex items-center gap-4 rounded-xl border bg-white/55 px-4 py-3 text-left transition-all duration-300 hover:bg-white hover:shadow-[0_16px_36px_-22px_rgb(31_45_77/0.45)] focus-visible:outline-2 focus-visible:-outline-offset-2 md:gap-5 md:px-5 md:py-3.5"
                   >
-                    {/* Baldosa de ícono de marca (identifica el tema y es el
-                        ORIGEN del vuelo hacia el rail del formulario). */}
+                    {/* Baldosa de ícono de marca (identifica el tema). */}
                     <span
-                      data-tema-icono
                       className="border-azul-claro/50 group-hover:border-verde-concepto/60 group-hover:bg-verde-concepto/10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-white transition-colors duration-300"
                       aria-hidden="true"
                     >
@@ -874,12 +822,10 @@ export function ContactoExperiencia() {
             >
               <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${DOTS_NAVY}`} />
 
-              {/* Cabecera del rail: la baldosa de ícono (DESTINO del vuelo) y el
-                  número de tema. La baldosa arranca oculta y entra en crossfade
-                  cuando el ícono de la fila aterriza. */}
+              {/* Cabecera del rail: la baldosa de ícono del tema y el número.
+                  Entra con la superficie del rail en la cascada del formulario. */}
               <div className="relative flex items-center gap-3">
                 <span
-                  data-chip-icono
                   className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10"
                   aria-hidden="true"
                 >
@@ -889,9 +835,8 @@ export function ContactoExperiencia() {
                   Tema · 0{temaIdx + 1}
                 </p>
               </div>
-              {/* Acá ATERRIZA el título de la fila elegida (fade limpio) */}
+              {/* Título del tema elegido (aparece con la superficie del rail) */}
               <h2
-                data-chip-tema
                 className="font-display relative mt-4 text-[1.5rem] leading-tight font-bold tracking-[-0.01em] text-white md:text-[1.75rem]"
               >
                 {temaActivo?.titulo ?? "Consulta"}
