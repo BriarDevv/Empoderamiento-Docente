@@ -155,6 +155,15 @@ export function ChevronDown({ size = 24, ...rest }: IconProps) {
   );
 }
 
+/** Check ✓ para opción elegida en menús propios. */
+export function Check({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
 export function Menu({ size = 24, ...rest }: IconProps) {
   return (
     <svg width={size} height={size} {...baseProps} {...rest}>
