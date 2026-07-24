@@ -57,9 +57,6 @@ type Perspectiva = {
   afirmativaPre: string;
   afirmativaAccent: string;
   afirmativaPost: string;
-  /** Una sola oración breve (8-14 palabras) o nada: la profundidad la
-   *  construyen las fichas, no un párrafo que repita el título. */
-  apoyo?: string;
   fichas: readonly string[];
 };
 
@@ -75,7 +72,6 @@ const PERSPECTIVAS: readonly Perspectiva[] = [
     afirmativaPre: "Es una manera de ",
     afirmativaAccent: "pensar, argumentar y actuar",
     afirmativaPost: " en el mundo.",
-    // Sin párrafo: el título ya afirma el concepto y las fichas lo amplían.
     fichas: [
       "Construir estrategias",
       "Argumentar",
@@ -97,8 +93,6 @@ const PERSPECTIVAS: readonly Perspectiva[] = [
     afirmativaPre: "Es poder para ",
     afirmativaAccent: "transformar",
     afirmativaPost: ".",
-    apoyo:
-      "Saber, reflexión y experiencia para construir la convicción de transformar.",
     fichas: [
       "Saber",
       "Reflexión",
@@ -117,7 +111,6 @@ const PERSPECTIVAS: readonly Perspectiva[] = [
     afirmativaPre: "Transformarla es ",
     afirmativaAccent: "ampliar posibilidades",
     afirmativaPost: ".",
-    apoyo: "Práctica, inclusión y justicia social para ampliar posibilidades.",
     fichas: [
       "Perspectiva de género",
       "Inclusión",
@@ -289,7 +282,7 @@ export function MiradaEd() {
             top: 0,
             maxWidth: "11.5rem",
             rotation: k % 2 === 0 ? -0.8 : 1,
-            y: H() * 0.8,
+            y: H() * 0.86,
             scale: 0.94,
             autoAlpha: 0,
           });
@@ -320,13 +313,28 @@ export function MiradaEd() {
       gsap.set(arcos, { autoAlpha: 0 });
       gsap.set(ramdots, { scale: 0, transformOrigin: "center", autoAlpha: 0 });
 
+      // ── Aire para leer el título del núcleo ──────────────────────────────
+      // Las rayas hacia los tres nodos salían encima de la entrada del texto
+      // (0.35 contra un título que termina de entrar recién en 0.67): el
+      // titular nunca quedaba solo. Todo lo que va DESPUÉS de esa entrada se
+      // corre este tanto, y la zona crece en proporción (780 × 14/12 = 910svh)
+      // para que el aire sea scroll real y el resto conserve su ritmo.
+      //
+      // Con 2 unidades el titular queda solo de 0.67 a 2.35 ≈ 97svh de scroll:
+      // casi una pantalla entera de rueda antes de que aparezca la primera
+      // raya. Subir o bajar SOLO este número (y la altura de la zona, que es
+      // 780 × TOTAL/12): fases, umbrales del indicador y ritmo se reacomodan.
+      const AIRE_TITULO = 2;
+      const TOTAL = 12 + AIRE_TITULO;
+
       // ── Indicador de progreso (5 momentos, color = principio activo) ─────
       const FASE_COLOR = ["#4a6fa5", "#1f9a78", "#4a6fa5", "#e07a2f", "#1f2d4d"];
+      // Umbrales = arranque de cada fase sobre la duración total.
+      const BOUNDS = [1.3, 3.45, 5.6, 7.75].map((t) => (t + AIRE_TITULO) / TOTAL);
       let lastIdx = -1;
       const setDot = (p: number) => {
-        const bounds = [0.108, 0.288, 0.467, 0.646];
         let idx = 0;
-        for (let i = 0; i < bounds.length; i++) if (p >= bounds[i]) idx = i + 1;
+        for (let i = 0; i < BOUNDS.length; i++) if (p >= BOUNDS[i]) idx = i + 1;
         if (idx === lastIdx) return;
         lastIdx = idx;
         dots.forEach((d, i) => {
@@ -339,7 +347,7 @@ export function MiradaEd() {
         });
       };
 
-      // ── Timeline maestro (12 unidades sobre toda la zona) ────────────────
+      // ── Timeline maestro (14 unidades sobre toda la zona) ────────────────
       // scrub NUMÉRICO: cada muesca de rueda avanza el scroll a saltos
       // discretos; con scrub:true la timeline saltaba con él (el "trabado").
       // 1s de catch-up convierte cada muesca en un deslizamiento largo y
@@ -362,17 +370,25 @@ export function MiradaEd() {
       tl.set(qa("[data-ficha]"), { autoAlpha: 0 }, 0.06);
       tl.to(qa("[data-centro-bit]"), { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.12, ease: "power3.out" }, 0.1);
       lineas.forEach((p, i) => {
-        tl.to(p, { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, 0.35 + i * 0.12);
+        tl.to(
+          p,
+          { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" },
+          0.35 + AIRE_TITULO + i * 0.12,
+        );
       });
-      tl.to(nodoCores, { autoAlpha: 0.6, scale: 1, duration: 0.4, stagger: 0.12, ease: "power3.out" }, 0.55);
-      tl.to(arcos, { autoAlpha: 0.12, duration: 0.35 }, 0.85);
+      tl.to(
+        nodoCores,
+        { autoAlpha: 0.6, scale: 1, duration: 0.4, stagger: 0.12, ease: "power3.out" },
+        0.55 + AIRE_TITULO,
+      );
+      tl.to(arcos, { autoAlpha: 0.12, duration: 0.35 }, 0.85 + AIRE_TITULO);
 
       // Núcleo se retira antes del primer acercamiento.
-      tl.to(centro, { autoAlpha: 0, duration: 0.28 }, 1.02);
+      tl.to(centro, { autoAlpha: 0, duration: 0.28 }, 1.02 + AIRE_TITULO);
 
       // FASES 1-5 — acercamiento, revelado y salida de cada principio.
       PERSPECTIVAS.forEach((p, i) => {
-        const S = 1.3 + i * 2.15;
+        const S = 1.3 + AIRE_TITULO + i * 2.15;
         const cam = CAMARA[i];
         const nodo = NODOS[i];
 
@@ -425,18 +441,28 @@ export function MiradaEd() {
         // Fichas — CORRIENTE ASCENDENTE GUIADA. Una sola trayectoria
         // continua en tres tramos CONTIGUOS de la misma propiedad (nunca
         // solapados → posición continua, reversible y determinista):
-        //   1. nace cerca del nodo (0.80H) y sube desacelerando (power1.out
+        //   1. nace cerca del nodo (0.86H) y sube desacelerando (power1.out
         //      termina con pendiente 0: empalma suave con el tramo lento);
-        //   2. carril de lectura (0.55H→0.50H): avance casi horizontal, es
+        //   2. carril de lectura (0.58H→0.44H): avance casi horizontal, es
         //      la meseta legible — se frena solo si el scroll se frena;
         //   3. sale acelerando hacia arriba-izquierda (power1.in arranca
         //      con pendiente 0) mientras decae la opacidad.
         // El paso entre fichas mantiene 1 legible + 1 entrando + 1 en
         // disolución, nunca dos con alpha 1 (meseta = STEP, se tocan justo
-        // en el borde). La HUELLA de cada principio no sale:
-        // estaciona tenue (0.10) junto al nodo, DEBAJO de su label (el
-        // viejo 0.48H la dejaba pegada al texto del nodo), y se apaga
-        // antes del cambio de cámara. Todo termina antes de S+2.15.
+        // en el borde).
+        //
+        // CORREDOR ANCHO (24-jul): la meseta recorría 0.55H→0.50H, apenas 45px
+        // — menos que el alto de una ficha. Cuando la siguiente aterrizaba en
+        // 0.55H, la anterior seguía a 0.50H y se PISABAN (se veía como bug).
+        // Ahora el tramo de lectura baja hasta 0.44H: en el peor cruce quedan
+        // ~0.17H de separación y ninguna se monta sobre otra.
+        //
+        // La HUELLA de cada principio no sale: estaciona tenue (0.10) junto al
+        // nodo y se apaga antes del cambio de cámara. Estacionaba en 0.56H —
+        // es decir, JUSTO donde aterriza cada ficha nueva—, así que quedaba
+        // debajo de todas las que venían después. Ahora baja a 0.66H y se
+        // corre más a la izquierda (-0.13W): queda fuera del carril, abajo del
+        // nodo. Todo termina antes de S+2.15.
         // Calibrado para RITMO DE LECTURA (una muesca de rueda + pausa), no
         // solo scroll continuo: vidas largas (0.68 u ≈ 3 muescas) y salida
         // como disolución lenta (D3 0.33) en vez de látigo. La meseta de
@@ -454,24 +480,26 @@ export function MiradaEd() {
         // sin este clamp, las fichas que esperan turno quedaban VISIBLES,
         // clavadas en su punto de nacimiento (el síntoma "trabado" del
         // 23-jul). Dentro del timeline es reversible y se auto-cura.
-        tl.set(items, { autoAlpha: 0, x: 0, scale: 0.94, y: () => H() * 0.8 }, S + 0.02);
+        tl.set(items, { autoAlpha: 0, x: 0, scale: 0.94, y: () => H() * 0.86 }, S + 0.02);
         items.forEach((f, k) => {
           const e = S + E0 + k * STEP;
           const esHuella = k === HUELLA_K[i];
           // Tramo 1 — nacimiento: sube desacelerando hacia el carril.
           tl.fromTo(
             f,
-            { y: () => H() * 0.8 },
-            { y: () => H() * 0.55, duration: D1, ease: "power1.out" },
+            { y: () => H() * 0.86 },
+            { y: () => H() * 0.58, duration: D1, ease: "power1.out" },
             e,
           );
           // Tramo 2 — lectura: casi una pausa, sin detenerse de golpe.
-          tl.to(f, { y: () => H() * 0.5, duration: D2, ease: "none" }, e + D1);
-          // Tramo 3 — salida (la huella estaciona junto al nodo recorrido).
+          tl.to(f, { y: () => H() * 0.44, duration: D2, ease: "none" }, e + D1);
+          // Tramo 3 — salida (la huella estaciona ABAJO del nodo, fuera del
+          // carril: si estaciona en el carril, todas las que siguen le caen
+          // encima).
           tl.to(
             f,
             {
-              y: () => H() * (esHuella ? 0.56 : 0.16),
+              y: () => H() * (esHuella ? 0.66 : 0.1),
               duration: D3,
               ease: esHuella ? "power1.out" : "power1.in",
             },
@@ -481,7 +509,7 @@ export function MiradaEd() {
           tl.to(f, { x: () => W() * 0.02, duration: D1 + D2, ease: "power1.out" }, e);
           tl.to(
             f,
-            { x: () => W() * (esHuella ? -0.055 : -0.025), duration: D3, ease: "power1.in" },
+            { x: () => W() * (esHuella ? -0.13 : -0.025), duration: D3, ease: "power1.in" },
             e + D1 + D2,
           );
           // Presencia: escala y opacidad en rampas disjuntas (sin saltos).
@@ -508,18 +536,18 @@ export function MiradaEd() {
       // absoluto. El sistema queda como huella: puntos con su acento,
       // labels casi apagados, líneas finísimas (la naranja no cruza más el
       // texto a plena intensidad).
-      tl.to(stage, { x: 0, y: 0, scale: 1, duration: 0.6 }, 7.75);
-      tl.to(nodoCores, { autoAlpha: 0.8, duration: 0.35 }, 8.05);
-      tl.to(nodoLabels, { autoAlpha: 0.18, duration: 0.35 }, 8.05);
-      tl.to(nodoNums, { autoAlpha: 0.35, duration: 0.35 }, 8.05);
-      tl.to(lineas, { opacity: 0.22, duration: 0.35 }, 8.05);
-      tl.to(arcos, { autoAlpha: 0.1, duration: 0.35 }, 8.05);
-      tl.to(sintesis, { autoAlpha: 1, duration: 0.45 }, 8.5);
+      tl.to(stage, { x: 0, y: 0, scale: 1, duration: 0.6 }, 7.75 + AIRE_TITULO);
+      tl.to(nodoCores, { autoAlpha: 0.8, duration: 0.35 }, 8.05 + AIRE_TITULO);
+      tl.to(nodoLabels, { autoAlpha: 0.18, duration: 0.35 }, 8.05 + AIRE_TITULO);
+      tl.to(nodoNums, { autoAlpha: 0.35, duration: 0.35 }, 8.05 + AIRE_TITULO);
+      tl.to(lineas, { opacity: 0.22, duration: 0.35 }, 8.05 + AIRE_TITULO);
+      tl.to(arcos, { autoAlpha: 0.1, duration: 0.35 }, 8.05 + AIRE_TITULO);
+      tl.to(sintesis, { autoAlpha: 1, duration: 0.45 }, 8.5 + AIRE_TITULO);
       tl.fromTo(
         q("[data-sintesis-frase]"),
         { autoAlpha: 0, y: 22 },
         { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" },
-        8.55,
+        8.55 + AIRE_TITULO,
       );
 
       // FASE 7 — MOMENTO B: el sistema cede aún más (niebla marfil detrás
@@ -527,18 +555,26 @@ export function MiradaEd() {
       // entra el puente. Las ramas dibujan la red incipiente ALREDEDOR del
       // campo de lectura (la niebla protege el centro).
       const fog = q("[data-sintesis-fog]");
-      if (fog) tl.to(fog, { autoAlpha: 1, duration: 0.45 }, 9.6);
-      tl.to(q("[data-sintesis-frase]"), { scale: 0.97, y: -14, duration: 0.45 }, 9.6);
-      tl.to(nodoCores, { autoAlpha: 0.35, duration: 0.4 }, 9.6);
-      tl.to(nodoLabels, { autoAlpha: 0.08, duration: 0.4 }, 9.6);
-      tl.to(lineas, { opacity: 0.12, duration: 0.4 }, 9.6);
+      if (fog) tl.to(fog, { autoAlpha: 1, duration: 0.45 }, 9.6 + AIRE_TITULO);
+      tl.to(q("[data-sintesis-frase]"), { scale: 0.97, y: -14, duration: 0.45 }, 9.6 + AIRE_TITULO);
+      tl.to(nodoCores, { autoAlpha: 0.35, duration: 0.4 }, 9.6 + AIRE_TITULO);
+      tl.to(nodoLabels, { autoAlpha: 0.08, duration: 0.4 }, 9.6 + AIRE_TITULO);
+      tl.to(lineas, { opacity: 0.12, duration: 0.4 }, 9.6 + AIRE_TITULO);
       ramas.forEach((r, k) => {
-        tl.to(r, { strokeDashoffset: 0, duration: 0.45, ease: "power2.out" }, 9.75 + k * 0.04);
+        tl.to(
+          r,
+          { strokeDashoffset: 0, duration: 0.45, ease: "power2.out" },
+          9.75 + AIRE_TITULO + k * 0.04,
+        );
       });
-      tl.to(ramdots, { scale: 1, autoAlpha: 1, duration: 0.25, stagger: 0.03, ease: "power2.out" }, 9.95);
-      tl.to(puentes[0], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.3);
-      tl.to(puentes[1], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.75);
-      tl.to({}, { duration: 0.85 }, 11.15); // respiro antes de soltar el pin
+      tl.to(
+        ramdots,
+        { scale: 1, autoAlpha: 1, duration: 0.25, stagger: 0.03, ease: "power2.out" },
+        9.95 + AIRE_TITULO,
+      );
+      tl.to(puentes[0], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.3 + AIRE_TITULO);
+      tl.to(puentes[1], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.75 + AIRE_TITULO);
+      tl.to({}, { duration: 0.85 }, 11.15 + AIRE_TITULO); // respiro antes de soltar el pin
       setDot(0);
     }, root);
 
@@ -555,7 +591,7 @@ export function MiradaEd() {
       className="bg-grain-light to-gris-fondo/60 relative z-30 -mt-[4svh] overflow-clip rounded-t-[2.5rem] bg-gradient-to-b from-white shadow-[0_-24px_60px_-30px_rgb(15_23_42/0.35)]"
       aria-label="Nuestra mirada"
     >
-      <div ref={zoneRef} className="relative h-[780svh] motion-reduce:h-auto">
+      <div ref={zoneRef} className="relative h-[910svh] motion-reduce:h-auto">
         <div className="sticky top-0 h-[100svh] w-full overflow-hidden motion-reduce:static motion-reduce:h-auto">
           {/* ── Escenario decorativo: constelación (líneas + nodos) ─────────
               Es la capa que la "cámara" recorre. Decorativa: el contenido
@@ -681,14 +717,9 @@ export function MiradaEd() {
               className="font-display text-azul-principal mt-5 max-w-[16ch] text-balance font-bold tracking-[-0.02em]"
               style={{ fontSize: "clamp(2.1rem, 1rem + 3.6vw, 3.6rem)", lineHeight: 1.08 }}
             >
-              Una misma mirada, tres principios.
+              Una misma mirada, tres{" "}
+              <span className="text-verde-concepto">principios</span>.
             </h2>
-            <p
-              data-centro-bit
-              className="text-azul-principal/70 mt-5 max-w-[38ch] font-sans text-[1.05rem] font-medium tracking-wide md:text-[1.15rem]"
-            >
-              Pensamiento matemático, saber y transformación.
-            </p>
           </div>
 
           {/* ── Zonas de lectura + fichas por principio ───────────────────── */}
@@ -703,17 +734,17 @@ export function MiradaEd() {
                   className="mx-auto max-w-xl px-6 text-center motion-safe:px-0"
                 >
                   {/* Barra de acento decorativa: el color identifica al
-                      principio sin comprometer el contraste del texto. */}
+                      principio sin comprometer el contraste del texto. Queda
+                      sola —sin la etiqueta «01 — Pensamiento matemático»—:
+                      ese dato ya lo dice el nodo del mapa, al que la cámara
+                      está apuntando mientras se lee este bloque. */}
                   <span
                     aria-hidden="true"
-                    className="mx-auto mb-3 block h-[3px] w-8 rounded-full motion-safe:mx-0"
+                    className="mx-auto mb-5 block h-[3px] w-8 rounded-full motion-safe:mx-0"
                     style={{ backgroundColor: p.accent }}
                   />
-                  <span className="text-azul-principal/75 font-mono text-[0.78rem] font-medium tracking-[0.24em] uppercase">
-                    {p.id} — {p.label}
-                  </span>
                   <h3
-                    className="font-display text-azul-principal mt-4 font-bold tracking-[-0.02em]"
+                    className="font-display text-azul-principal font-bold tracking-[-0.02em]"
                     style={{ fontSize: "clamp(1.7rem, 1rem + 1.6vw, 2.4rem)", lineHeight: 1.14 }}
                   >
                     {p.fraseAntes}
@@ -750,11 +781,6 @@ export function MiradaEd() {
                     )}
                     {p.afirmativaPost}
                   </p>
-                  {p.apoyo ? (
-                    <p className="text-gris-texto mt-4 max-w-[42ch] font-sans text-[0.98rem] leading-relaxed md:text-[1.04rem]">
-                      {p.apoyo}
-                    </p>
-                  ) : null}
                 </div>
               </div>
 
