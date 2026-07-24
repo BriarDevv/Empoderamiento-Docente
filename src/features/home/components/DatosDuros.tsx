@@ -16,7 +16,8 @@ if (typeof window !== "undefined") {
  * finales, sin animación).
  *
  * OJO: valores PLACEHOLDER — reemplazar por los reales de Empoderamiento Docente.
- * Logos de aliados: assets AUTORIZADOS (mismos que el Footer, /public/aliados).
+ * Logos de aliados: assets AUTORIZADOS (/public/aliados). El Footer lleva la
+ * misma tira pero con su propia lista: si acá se suma o saca uno, revisar allá.
  */
 const DATOS = [
   { value: 15, prefix: "+", suffix: "", label: "Años de trayectoria", nota: "Diseñando intervenciones situadas." },
@@ -25,10 +26,18 @@ const DATOS = [
   { value: 5, prefix: "", suffix: "", label: "Países", nota: "Donde dejamos huella." },
 ] as const;
 
+// Science Up va más alto que el resto (h-11 contra h-7/h-9) porque es un
+// lockup de dos líneas: su wordmark ocupa la mitad de la caja, así que a la
+// altura de los demás quedaría ópticamente la mitad de presente.
 const ALIADOS = [
   { src: "/aliados/techint.png", alt: "Techint", cls: "h-7" },
   { src: "/aliados/roberto-rocca.svg", alt: "Roberto Rocca", cls: "h-7" },
   { src: "/aliados/buenos-aires.png", alt: "Buenos Aires Ciudad", cls: "h-9" },
+  {
+    src: "/aliados/science-up.png",
+    alt: "Science Up — Consorcio Ciencia 2030 PUCV, USACH, UCN",
+    cls: "h-11",
+  },
 ] as const;
 
 const fmt = (n: number) => n.toLocaleString("es-AR");
