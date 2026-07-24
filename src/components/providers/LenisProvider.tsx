@@ -5,6 +5,7 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
+import { registerLenis } from "@/lib/lenis";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -33,6 +34,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       touchMultiplier: 2,
     });
 
+    registerLenis(lenis);
     lenis.on("scroll", ScrollTrigger.update);
 
     // Lenis corre dentro del ticker de GSAP para compartir el mismo
@@ -62,6 +64,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       cancelAnimationFrame(resizeRaf);
       gsap.ticker.remove(tickerFn);
       lenis.off("scroll", ScrollTrigger.update);
+      registerLenis(null);
       lenis.destroy();
     };
   }, [reducedMotion]);
