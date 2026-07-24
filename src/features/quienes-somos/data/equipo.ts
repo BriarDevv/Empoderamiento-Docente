@@ -150,6 +150,18 @@ export type Persona = {
   bio: string;
   /** object-position del <img> para encuadrar el rostro según la foto real. */
   imagePosition: string;
+  /**
+   * Acercamiento propio de esta foto (1 = la foto tal cual; nunca menor a 1,
+   * porque dejaría de cubrir la card).
+   *
+   * Las fotos reales van del selfie de primer plano al plano de medio cuerpo.
+   * Con un solo encuadre para todas, quien fue retratado de lejos aparece con
+   * la cara mucho más chica dentro de una card del mismo tamaño y termina
+   * leyéndose como si pesara menos que sus pares — una jerarquía accidental que
+   * la sacó el fotógrafo, no el organigrama. Este zoom empareja el TAMAÑO DE
+   * LOS ROSTROS dentro de cada nivel; no toca el tamaño de la card.
+   */
+  imageZoom?: number;
   linkedin?: string;
   pubs?: Publicacion[];
   /** Recorrido inmersivo (Parte 2). Solo quienes lo tienen desarrollado. */
@@ -393,6 +405,7 @@ export const EQUIPO: Persona[] = [
     pais: "México",
     tier: 3,
     imagePosition: "50% 25%",
+    imageZoom: 1.1,
     bio: "Especialista en análisis y diseño del currículum en Matemáticas y desarrollo profesional docente. Doctora en Ciencias con especialidad en Matemática Educativa.",
     pubs: [
       { titulo: "Hernández, Páez y Aké (2026)" },
@@ -408,6 +421,7 @@ export const EQUIPO: Persona[] = [
     pais: "México",
     tier: 3,
     imagePosition: "50% 22%",
+    imageZoom: 1.1,
     bio: "Doctora en Ciencias con especialidad en Matemática Educativa. Especialista en desarrollo del pensamiento matemático. Facilitadora y diseñadora de material didáctico.",
   },
   {
@@ -435,6 +449,7 @@ export const EQUIPO: Persona[] = [
     pais: "Chile",
     tier: 4,
     imagePosition: "50% 12%",
+    imageZoom: 1.22,
     bio: "Especialista en pensamiento estocástico. Investigador y académico. Magíster y Doctor en Didáctica de la Matemática. Profesor de Matemática, mención Estadística Educacional.",
   },
   {
@@ -462,6 +477,7 @@ export const EQUIPO: Persona[] = [
     pais: "México",
     tier: 4,
     imagePosition: "50% 15%",
+    imageZoom: 1.34,
     bio: "Especialista en desarrollo profesional docente, pensamiento y lenguaje variacional y evaluación educativa. Doctor en Ciencias con especialidad en Matemática Educativa.",
   },
   {
@@ -471,6 +487,7 @@ export const EQUIPO: Persona[] = [
     pais: "México",
     tier: 4,
     imagePosition: "50% 14%",
+    imageZoom: 1.3,
     bio: "Especialista en la construcción social del conocimiento y el uso de tecnología en la enseñanza de las matemáticas. Doctor en Ciencias con especialidad en Matemática Educativa.",
     pubs: [
       { titulo: "Rodríguez, Briceño y Hernández (2026)" },
