@@ -26,6 +26,14 @@ const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean
 type Cfg = {
   aspect: string;
   radius: string;
+  /**
+   * Fondo del caption EN REPOSO. Las dos direcciones conservan el plato blanco
+   * sólido; de N3 para abajo es vidrio esmerilado, así la foto respira por
+   * detrás del texto en vez de quedar cortada por una losa. El desenfoque no es
+   * decorativo: sin él la foto se lee como ruido detrás de los nombres y el
+   * cargo chico deja de sostener contraste sobre las fotos oscuras.
+   */
+  plate: string;
   pad: string;
   nombre: string;
   rol: string;
@@ -39,11 +47,23 @@ type Cfg = {
   labelOnHover: boolean;
 };
 
+/**
+ * Escala por nivel. Los anchos reales a 1280 de container son 481 → 379 → 304 →
+ * 232 px: una progresión sostenida (~0.79 entre niveles) en la que cada escalón
+ * se nota sin que ninguno caiga a miniatura. Los cuerpos de texto acompañan esa
+ * progresión — nunca al revés: primero se fija el ancho de la card, después se
+ * elige el tamaño que ahí se lee sin esfuerzo.
+ *
+ * `labelAtRest` es exclusivo de la Dirección General: en el resto el círculo con
+ * la flecha ES la señal de acceso en reposo, y el texto "Ver trayectoria" entra
+ * en hover. Es lo que mantiene a los líderes por debajo de la Dirección
+ * Académica también en el estado base.
+ */
 const CFG: Record<Tier, Cfg> = {
-  1: { aspect: "aspect-[4/5]", radius: "rounded-[1.5rem]", pad: "p-5 lg:p-6", nombre: "text-[1.55rem] lg:text-[1.85rem]", rol: "text-[0.9rem]", pais: "text-[0.66rem]", label: "text-[0.82rem]", arrow: "h-11 w-11", glyph: 18, labelAtRest: true, labelOnHover: true },
-  2: { aspect: "aspect-[4/5]", radius: "rounded-[1.4rem]", pad: "p-5", nombre: "text-[1.3rem]", rol: "text-[0.82rem]", pais: "text-[0.64rem]", label: "text-[0.78rem]", arrow: "h-10 w-10", glyph: 16, labelAtRest: false, labelOnHover: true },
-  3: { aspect: "aspect-[3/4]", radius: "rounded-[1.25rem]", pad: "p-4", nombre: "text-[1.05rem]", rol: "text-[0.73rem]", pais: "text-[0.6rem]", label: "text-[0.7rem]", arrow: "h-9 w-9", glyph: 15, labelAtRest: false, labelOnHover: true },
-  4: { aspect: "aspect-[4/5]", radius: "rounded-[1.1rem]", pad: "p-3.5", nombre: "text-[0.94rem]", rol: "text-[0.66rem]", pais: "text-[0.56rem]", label: "text-[0.66rem]", arrow: "h-8 w-8", glyph: 14, labelAtRest: false, labelOnHover: false },
+  1: { aspect: "aspect-[4/5]", radius: "rounded-[1.5rem]", plate: "bg-white", pad: "p-5 lg:p-6", nombre: "text-[1.55rem] lg:text-[1.85rem]", rol: "text-[0.9rem]", pais: "text-[0.66rem]", label: "text-[0.82rem]", arrow: "h-11 w-11", glyph: 18, labelAtRest: true, labelOnHover: true },
+  2: { aspect: "aspect-[4/5]", radius: "rounded-[1.4rem]", plate: "bg-white", pad: "p-5", nombre: "text-[1.3rem]", rol: "text-[0.82rem]", pais: "text-[0.64rem]", label: "text-[0.78rem]", arrow: "h-10 w-10", glyph: 16, labelAtRest: false, labelOnHover: true },
+  3: { aspect: "aspect-[4/5]", radius: "rounded-[1.35rem]", plate: "bg-white/82 backdrop-blur-[3px]", pad: "p-[1.15rem]", nombre: "text-[1.18rem]", rol: "text-[0.79rem]", pais: "text-[0.63rem]", label: "text-[0.76rem]", arrow: "h-10 w-10", glyph: 16, labelAtRest: false, labelOnHover: true },
+  4: { aspect: "aspect-[4/5]", radius: "rounded-[1.15rem]", plate: "bg-white/82 backdrop-blur-[3px]", pad: "p-[0.95rem]", nombre: "text-[1.02rem]", rol: "text-[0.72rem]", pais: "text-[0.59rem]", label: "text-[0.7rem]", arrow: "h-9 w-9", glyph: 15, labelAtRest: false, labelOnHover: true },
 };
 
 /** Un caption (reposo o hover). Los dos son estructuralmente idénticos para
@@ -68,7 +88,7 @@ function Caption({
         cfg.pad,
         hover
           ? "from-azul-principal/95 via-azul-principal/55 to-transparent bg-gradient-to-t pt-20 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-          : "bg-white opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0",
+          : cx(cfg.plate, "opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0"),
       )}
     >
       <span
@@ -81,10 +101,13 @@ function Caption({
         {persona.rol}
       </span>
       <span className="mt-2 flex items-center justify-between gap-2">
-        <span className={cx("font-mono tracking-[0.16em] uppercase", cfg.pais, hover ? "text-azul-claro" : "text-azul-medio")}>
+        {/* El país cede antes que el CTA: en las compactas "Colombia" + "Ver
+            trayectoria" van al límite del ancho útil y el acceso no puede ser
+            lo que se recorte. */}
+        <span className={cx("min-w-0 truncate font-mono tracking-[0.16em] uppercase", cfg.pais, hover ? "text-azul-claro" : "text-azul-medio")}>
           {persona.pais}
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex shrink-0 items-center gap-1.5">
           {showLabel && (
             <span className={cx("font-sans font-medium whitespace-nowrap", cfg.label, hover ? "text-white" : "text-azul-principal/80")}>
               Ver trayectoria
@@ -134,9 +157,16 @@ export function PersonCard({
         src={fotoDe(persona.key)}
         alt={persona.nombre}
         fill
-        sizes={persona.tier <= 2 ? "(max-width: 1024px) 90vw, 640px" : persona.tier === 3 ? "(max-width: 1024px) 45vw, 300px" : "(max-width: 1024px) 30vw, 200px"}
-        style={{ objectPosition: persona.imagePosition }}
-        className="object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.045] group-hover:will-change-transform group-focus-visible:scale-[1.045] group-focus-visible:will-change-transform"
+        sizes={persona.tier <= 2 ? "(max-width: 1024px) 90vw, 640px" : persona.tier === 3 ? "(max-width: 1024px) 45vw, 320px" : "(max-width: 1024px) 30vw, 240px"}
+        style={
+          {
+            objectPosition: persona.imagePosition,
+            "--foto-zoom": persona.imageZoom ?? 1,
+          } as React.CSSProperties
+        }
+        /* El acercamiento de hover se multiplica por el zoom propio de la foto,
+           así el gesto es el mismo para todos sin importar de qué encuadre parta. */
+        className="scale-[var(--foto-zoom)] object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[calc(var(--foto-zoom)*1.045)] group-hover:will-change-transform group-focus-visible:scale-[calc(var(--foto-zoom)*1.045)] group-focus-visible:will-change-transform"
       />
       {/* Captions pre-apilados: reposo (plate claro) ↔ hover (scrim navy) */}
       <Caption persona={persona} cfg={cfg} variant="rest" />
