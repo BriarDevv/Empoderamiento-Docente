@@ -572,8 +572,9 @@ export function MiradaEd() {
         { scale: 1, autoAlpha: 1, duration: 0.25, stagger: 0.03, ease: "power2.out" },
         9.95 + AIRE_TITULO,
       );
-      tl.to(puentes[0], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.3 + AIRE_TITULO);
-      tl.to(puentes[1], { autoAlpha: 1, y: 0, duration: 0.4 }, 10.75 + AIRE_TITULO);
+      // Sin indices: el puente quedo en un solo parrafo y targetear puentes[1]
+      // dejaria a GSAP buscando un elemento que ya no existe.
+      tl.to(puentes, { autoAlpha: 1, y: 0, duration: 0.4 }, 10.3 + AIRE_TITULO);
       tl.to({}, { duration: 0.85 }, 11.15 + AIRE_TITULO); // respiro antes de soltar el pin
       setDot(0);
     }, root);
@@ -836,14 +837,7 @@ export function MiradaEd() {
             </p>
             <p
               data-puente
-              className="font-display text-azul-principal relative mt-10 max-w-[30ch] text-balance font-semibold"
-              style={{ fontSize: "clamp(1.15rem, 0.9rem + 0.9vw, 1.5rem)", lineHeight: 1.35 }}
-            >
-              Una mirada así no se construye desde una sola voz.
-            </p>
-            <p
-              data-puente
-              className="text-azul-principal/80 relative mt-3 max-w-[40ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.1rem]"
+              className="text-azul-principal/80 relative mt-7 max-w-[40ch] font-sans text-[1.02rem] leading-relaxed md:text-[1.1rem]"
             >
               Se sostiene en una red de especialistas, trayectorias y
               experiencias diversas.
