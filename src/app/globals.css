@@ -67,6 +67,25 @@ html.has-custom-cursor * {
   background-size: 22px 22px;
 }
 
+/* Grilla de puntos blanca — patrón §6 sobre fondos azul-principal
+   (manual: blanco al 10–15% sobre azul). */
+.pattern-dots-inverse {
+  background-image: radial-gradient(
+    circle,
+    rgb(255 255 255 / 0.13) 2px,
+    transparent 2.5px
+  );
+  background-size: 22px 22px;
+}
+
+/* Riel horizontal sin scrollbar visible (se navega con flecha / drag). */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Grain sutil para fondos claros — saca el flat plano.
    Opacidad muy baja para que no compita con el contenido. */
 .bg-grain-light {
