@@ -146,6 +146,16 @@ export function ArrowUpRight({ size = 24, ...rest }: IconProps) {
   );
 }
 
+/** Lupa para buscadores (Biblioteca). */
+export function Search({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16" y2="16" />
+    </svg>
+  );
+}
+
 /** Chevron ∨ para selects e indicadores de despliegue. */
 export function ChevronDown({ size = 24, ...rest }: IconProps) {
   return (
