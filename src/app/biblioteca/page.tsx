@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { BibliotecaHero } from "@/features/biblioteca/components/BibliotecaHero";
 import { DestacadosBiblioteca } from "@/features/biblioteca/components/DestacadosBiblioteca";
 import { MaterialesListado } from "@/features/biblioteca/components/MaterialesListado";
+import { PuenteInvestigacion } from "@/features/biblioteca/components/PuenteInvestigacion";
+import { CierreBiblioteca } from "@/features/biblioteca/components/CierreBiblioteca";
 
 export const metadata: Metadata = {
   title: "Biblioteca",
@@ -15,7 +17,8 @@ export default function BibliotecaPage() {
       <BibliotecaHero />
       <DestacadosBiblioteca />
       <MaterialesListado />
-      {/* Próximas secciones (sitemap): Puente con Investigación · Cierre. */}
+      <PuenteInvestigacion />
+      <CierreBiblioteca />
     </main>
   );
 }
