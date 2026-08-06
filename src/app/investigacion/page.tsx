@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { InvestigacionHero } from "@/features/investigacion/components/InvestigacionHero";
 import { SentidoInvestigacion } from "@/features/investigacion/components/SentidoInvestigacion";
+import { LineasInvestigacion } from "@/features/investigacion/components/LineasInvestigacion";
+import { CicloInvestigacion } from "@/features/investigacion/components/CicloInvestigacion";
+import { VolvemosInvestigar } from "@/features/investigacion/components/VolvemosInvestigar";
+import { InvestigacionEnAccion } from "@/features/investigacion/components/InvestigacionEnAccion";
+import { PuenteBiblioteca } from "@/features/investigacion/components/PuenteBiblioteca";
+import { CierreInvestigacion } from "@/features/investigacion/components/CierreInvestigacion";
 
 export const metadata: Metadata = {
   title: "Investigación",
@@ -9,16 +15,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Página Investigación — sigue el recorrido del sitemap (site-map-ED (1).pdf,
- * pág. 04):
- *  1 Hero "Investigar para transformar" (↓ Líneas · ↗ Biblioteca)
- *  2 Por qué investigamos (el sentido)
- *  3 Líneas de investigación (los 7 temas)
- *  4 Ciclo de investigación aplicada (el método, 4 fases)
- *  5 Volvemos a investigar (mejora continua, 4 pasos)
- *  6 Investigación en acción (casos / producción académica → Contacto)
- *  7 Conexión con Biblioteca (puente ↗ Biblioteca)
- *  8 Cierre (→ Contacto)
+ * Página Investigación — recorrido completo del sitemap (site-map-ED (1).pdf,
+ * pág. 04): Hero → Por qué investigamos → Líneas → Ciclo → Volvemos a
+ * investigar → En acción → Puente con Biblioteca → Cierre.
  *
  * Contenido de fuentes oficiales (modelo conceptual del cliente): base
  * epistemológica socioepistemológica, 7 líneas, ciclo CME de 4 fases,
@@ -29,8 +28,12 @@ export default function InvestigacionPage() {
     <main>
       <InvestigacionHero />
       <SentidoInvestigacion />
-      {/* Próximas secciones del sitemap: Líneas · Ciclo · Volvemos a
-          investigar · En acción · Puente · Cierre. */}
+      <LineasInvestigacion />
+      <CicloInvestigacion />
+      <VolvemosInvestigar />
+      <InvestigacionEnAccion />
+      <PuenteBiblioteca />
+      <CierreInvestigacion />
     </main>
   );
 }
