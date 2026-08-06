@@ -10,8 +10,10 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 /**
  * Hero de Biblioteca — "Publicaciones y recursos" (sitemap: apertura, ancla a
  * Materiales). Arquitectura de la referencia: una TARJETA redondeada gigante
- * con el titular display centrado, la bajada, el buscador y un riel de
- * categorías en píldoras al pie. Traducida al branding ED:
+ * a lo ancho de todo el viewport (solo el gutter chico de la sección), con el
+ * contenido interno en el contenedor estándar del sitio (`max-w-screen-xl` +
+ * `px-5/px-10`): el titular display centrado, la bajada, el buscador y un
+ * riel de categorías en píldoras al pie. Traducida al branding ED:
  *  - Tarjeta en azul-principal (identidad institucional) con el patrón del
  *    manual §6: grilla de puntos blanca tenue + UNA forma plana azul-medio
  *    asomando del borde, y un glow superior de azul-claro (la luz del faro).
@@ -51,7 +53,7 @@ export function BibliotecaHero() {
       className="px-4 pt-24 pb-4 md:px-6 md:pt-28 md:pb-6"
       aria-label="Biblioteca — publicaciones y recursos"
     >
-      <div className="bg-azul-principal relative isolate mx-auto flex min-h-[82svh] w-full max-w-screen-xl flex-col overflow-hidden rounded-[2rem] px-5 pt-16 pb-5 md:rounded-[2.75rem] md:px-10 md:pt-24 md:pb-7">
+      <div className="bg-azul-principal relative isolate flex min-h-[82svh] w-full flex-col overflow-hidden rounded-[2rem] pt-16 pb-5 md:rounded-[2.75rem] md:pt-24 md:pb-7">
         {/* Fondo (manual §6): luz del faro + grilla de puntos + forma plana */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
           <span
@@ -66,7 +68,7 @@ export function BibliotecaHero() {
         </div>
 
         {/* ── Titular + bajada + buscador (centrados) ────────────────────── */}
-        <div className="mx-auto my-auto flex w-full max-w-screen-xl flex-col items-center pb-12 text-center">
+        <div className="mx-auto my-auto flex w-full max-w-screen-xl flex-col items-center px-5 pb-12 text-center md:px-10">
           <h1
             className="font-display font-extrabold tracking-[-0.03em] text-white"
             style={{ fontSize: "clamp(2.75rem, 1.1rem + 7vw, 6.25rem)", lineHeight: 1 }}
@@ -127,7 +129,7 @@ export function BibliotecaHero() {
         </div>
 
         {/* ── Riel de categorías al pie de la tarjeta ────────────────────── */}
-        <div data-bh-rise>
+        <div data-bh-rise className="mx-auto w-full max-w-screen-xl px-5 md:px-10">
           <CategoriasRail />
         </div>
       </div>
