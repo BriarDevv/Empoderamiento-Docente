@@ -22,8 +22,8 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
  *  - Patrón §6 vivo: puntos base tenues + el "haz del faro" que sigue al
  *    cursor y enciende los puntos a su paso (<PuntosFaro />). El glow
  *    superior de azul-claro queda contenido para no lavar el titular.
- *  - Titular blanco con "y recursos" en azul-claro (eco del logo negativo,
- *    donde "DOCENTE" va en azul-claro).
+ *  - Titular blanco con "y recursos" en verde-concepto (verde para conceptos,
+ *    DESIGN.md §6).
  *  - Buscador: única acción del bloque → botón naranja (naranja solo CTAs).
  *
  * Entrada — "el faro barre la biblioteca" (~2.2s, un solo gesto): el haz de
@@ -104,7 +104,7 @@ export function BibliotecaHero() {
             </span>
           </span>
           <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
-            <span data-bh-word className="text-azul-claro block">
+            <span data-bh-word className="text-verde-concepto block">
               y recursos
             </span>
           </span>
