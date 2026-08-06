@@ -68,11 +68,12 @@ html.has-custom-cursor * {
 }
 
 /* Grilla de puntos blanca — patrón §6 sobre fondos azul-principal
-   (manual: blanco al 10–15% sobre azul). */
+   (manual: blanco al 10–15% sobre azul). `--dots-alpha` permite variantes:
+   capa base tenue vs. capa "encendida" por el haz del faro (Biblioteca). */
 .pattern-dots-inverse {
   background-image: radial-gradient(
     circle,
-    rgb(255 255 255 / 0.13) 2px,
+    rgb(255 255 255 / var(--dots-alpha, 0.13)) 2px,
     transparent 2.5px
   );
   background-size: 22px 22px;
