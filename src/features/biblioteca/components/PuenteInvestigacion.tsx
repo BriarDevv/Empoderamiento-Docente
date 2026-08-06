@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { RevealLines } from "@/components/ui/RevealLines";
 import { ButtonSecondary } from "@/components/ui/ButtonSecondary";
+import { BookOpen, LampManual, Target, Compass } from "@/components/ui/icons";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
@@ -14,26 +15,23 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * "Conexión con Investigación" (sitemap pág. 05, sección 7 · PUENTE). Une la
- * Biblioteca con Investigación: nada de lo que hay acá salió de la nada. A la
- * derecha, un flujo — el nodo "investigación" del que SALEN las ramas hacia
- * los recursos; las ramas se dibujan con el scroll y cada recurso se enciende
- * al final de la suya. Fondo claro. CTA ↗ Investigación.
+ * "Conexión con Investigación" (sitemap pág. 05, sección 7 · PUENTE) —
+ * VERSIÓN A: cards que se DAN VUELTA. Cada tipo de recurso (frente) esconde,
+ * en el dorso, la línea de investigación que lo origina: "detrás de cada
+ * recurso hay una investigación", literal y jugable. Flip al hover/focus,
+ * entrada en cascada por scroll. Fondo claro. CTA ↗ Investigación.
  *
- * Sin JS / prefers-reduced-motion: flujo y texto visibles.
+ * Mapeo recurso→línea: inferido del modelo conceptual — VALIDAR con cliente.
+ * Sin JS / prefers-reduced-motion: cards visibles (frente); el dorso aparece
+ * igual al hover/focus (es solo CSS).
  */
 
-const NODO = { x: 96, y: 210 };
-const RECURSOS = [
-  { x: 372, y: 70, label: "Publicaciones" },
-  { x: 400, y: 150, label: "Materiales" },
-  { x: 400, y: 250, label: "Proyectos" },
-  { x: 372, y: 330, label: "Guías" },
+const CARDS = [
+  { Icon: BookOpen, tipo: "Publicaciones", linea: "Resignificación del conocimiento matemático escolar" },
+  { Icon: LampManual, tipo: "Materiales", linea: "Tareas disruptivas y matemática funcional" },
+  { Icon: Target, tipo: "Proyectos", linea: "Desarrollo profesional docente sostenido" },
+  { Icon: Compass, tipo: "Guías", linea: "Desarrollo del pensamiento matemático" },
 ] as const;
-
-// rama curva del nodo a cada recurso
-const rama = (rx: number, ry: number) =>
-  `M ${NODO.x} ${NODO.y} C ${NODO.x + 120} ${NODO.y}, ${rx - 120} ${ry}, ${rx} ${ry}`;
 
 export function PuenteInvestigacion() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -44,26 +42,20 @@ export function PuenteInvestigacion() {
     if (!root || reduced) return;
 
     const ctx = gsap.context(() => {
-      const nodo = root.querySelector<SVGGElement>("[data-nodo]");
-      const ramas = gsap.utils.toArray<SVGPathElement>("[data-rama]");
-      const recursos = gsap.utils.toArray<SVGGElement>("[data-recurso]");
-
-      if (nodo) gsap.set(nodo, { autoAlpha: 0, scale: 0.6, transformOrigin: "center", transformBox: "fill-box" });
-      ramas.forEach((r) => {
-        const len = r.getTotalLength();
-        gsap.set(r, { strokeDasharray: len, strokeDashoffset: len });
-      });
-      gsap.set(recursos, { autoAlpha: 0, x: -12 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: root, start: "top 72%" },
-        defaults: { ease: "power3.out" },
-      });
-      if (nodo) tl.to(nodo, { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.8)" }, 0);
-      ramas.forEach((r, i) => {
-        tl.to(r, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 0.3 + i * 0.16);
-        if (recursos[i]) tl.to(recursos[i], { autoAlpha: 1, x: 0, duration: 0.4 }, 0.3 + i * 0.16 + 0.5);
-      });
+      const cards = gsap.utils.toArray<HTMLElement>("[data-flip]");
+      gsap.fromTo(
+        cards,
+        { autoAlpha: 0, y: 30, rotateX: -12 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          rotateX: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: "[data-flip-grid]", start: "top 82%" },
+        },
+      );
     }, root);
 
     return () => ctx.revert();
@@ -72,64 +64,56 @@ export function PuenteInvestigacion() {
   return (
     <section ref={rootRef} className="relative bg-white" aria-label="Conexión con Investigación">
       <div className="mx-auto w-full max-w-screen-xl px-5 py-24 md:px-10 md:py-32">
-        <div className="items-center gap-12 lg:grid lg:grid-cols-2">
-          <div>
-            <Eyebrow>Conexión con Investigación</Eyebrow>
-            <RevealLines
-              as="h2"
-              className="font-display text-azul-principal mt-6 max-w-[16ch] font-bold tracking-[-0.02em]"
-              style={{ fontSize: "clamp(2rem, 1rem + 3vw, 3.6rem)", lineHeight: 1.06 }}
-            >
-              Cada recurso nace de una investigación.
-            </RevealLines>
-            <p className="text-gris-texto mt-6 max-w-[44ch] font-sans text-[1.05rem] leading-relaxed">
-              Nada de lo que hay acá salió de la nada: es el resultado de años
-              de estudiar cómo se aprende y se enseña la matemática. La
-              biblioteca es la punta visible de ese trabajo.
-            </p>
-            <div className="mt-9">
-              <ButtonSecondary href="/investigacion">Ir a Investigación</ButtonSecondary>
+        <div className="max-w-[46ch]">
+          <Eyebrow>Conexión con Investigación</Eyebrow>
+          <RevealLines
+            as="h2"
+            className="font-display text-azul-principal mt-6 max-w-[18ch] font-bold tracking-[-0.02em]"
+            style={{ fontSize: "clamp(2rem, 1rem + 3vw, 3.6rem)", lineHeight: 1.06 }}
+          >
+            Detrás de cada recurso, una investigación.
+          </RevealLines>
+          <p className="text-gris-texto mt-6 font-sans text-[1.05rem] leading-relaxed">
+            Pasá el mouse por cada tarjeta: nada de lo que hay en la biblioteca
+            salió de la nada. Todo nace de estudiar cómo se aprende y se enseña
+            la matemática.
+          </p>
+        </div>
+
+        <div data-flip-grid className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {CARDS.map(({ Icon, tipo, linea }) => (
+            <div key={tipo} data-flip className="group h-56 [perspective:1200px]">
+              <div className="relative h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-within:[transform:rotateY(180deg)]">
+                {/* Frente: el recurso */}
+                <div className="border-azul-claro/50 absolute inset-0 flex flex-col justify-between rounded-2xl border bg-gris-fondo/50 p-6 [backface-visibility:hidden]">
+                  <span className="bg-azul-principal/8 text-verde-concepto flex h-12 w-12 items-center justify-center rounded-xl">
+                    <Icon size={24} />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-azul-principal text-[1.25rem] font-bold">{tipo}</h3>
+                    <button
+                      type="button"
+                      className="text-gris-texto mt-2 font-mono text-[0.7rem] tracking-[0.12em] uppercase"
+                    >
+                      Ver origen →
+                    </button>
+                  </div>
+                </div>
+                {/* Dorso: la investigación que lo origina */}
+                <div className="bg-azul-principal absolute inset-0 flex flex-col justify-between rounded-2xl p-6 text-white [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <span className="text-verde-concepto font-mono text-[0.68rem] tracking-[0.14em] uppercase">
+                    Nace de
+                  </span>
+                  <p className="font-display text-[1.02rem] leading-snug font-semibold">{linea}</p>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Flujo: de la investigación salen los recursos */}
-          <div className="mt-14 lg:mt-0">
-            <svg viewBox="0 0 500 420" className="w-full" aria-hidden="true">
-              {RECURSOS.map((r, i) => (
-                <path
-                  data-rama
-                  key={`rama${i}`}
-                  d={rama(r.x, r.y)}
-                  fill="none"
-                  stroke="#a9c5e8"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              ))}
-
-              {/* recursos al final de cada rama */}
-              {RECURSOS.map((r, i) => (
-                <g data-recurso key={`rec${i}`}>
-                  <rect x={r.x} y={r.y - 17} width="96" height="34" rx="8" fill="#f2f4f7" stroke="#a9c5e8" strokeWidth="1" />
-                  <text x={r.x + 48} y={r.y + 4} textAnchor="middle" fontSize="12" fill="#1f2d4d" fontWeight="600" className="font-sans">
-                    {r.label}
-                  </text>
-                </g>
-              ))}
-
-              {/* nodo investigación */}
-              <g data-nodo>
-                <circle cx={NODO.x} cy={NODO.y} r="46" fill="#1f9a78" />
-                <circle cx={NODO.x} cy={NODO.y} r="46" fill="none" stroke="#1f9a78" strokeOpacity="0.3" strokeWidth="10" />
-                <text x={NODO.x} y={NODO.y - 2} textAnchor="middle" fontSize="12" fontWeight="700" fill="#fff" className="font-display">
-                  Investi-
-                </text>
-                <text x={NODO.x} y={NODO.y + 13} textAnchor="middle" fontSize="12" fontWeight="700" fill="#fff" className="font-display">
-                  gación
-                </text>
-              </g>
-            </svg>
-          </div>
+        <div className="mt-12 flex flex-wrap items-center gap-4">
+          <ButtonSecondary href="/investigacion">Ir a Investigación</ButtonSecondary>
+          <ButtonSecondary href="/novedades">Ver novedades</ButtonSecondary>
         </div>
       </div>
     </section>
