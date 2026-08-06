@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { BibliotecaHero } from "@/features/biblioteca/components/BibliotecaHero";
+import { DestacadosBiblioteca } from "@/features/biblioteca/components/DestacadosBiblioteca";
+import { MaterialesListado } from "@/features/biblioteca/components/MaterialesListado";
 
 export const metadata: Metadata = {
   title: "Biblioteca",
@@ -11,9 +13,9 @@ export default function BibliotecaPage() {
   return (
     <main>
       <BibliotecaHero />
-      {/* Próximas secciones (sitemap): Buscador + filtros (tipo, tema, público,
-          año, proyecto) · Material destacado · Categorías principales · Listado
-          de recursos (#materiales) · Puente con Investigación · Cierre. */}
+      <DestacadosBiblioteca />
+      <MaterialesListado />
+      {/* Próximas secciones (sitemap): Puente con Investigación · Cierre. */}
     </main>
   );
 }
