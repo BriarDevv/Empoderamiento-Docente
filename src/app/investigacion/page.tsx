@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { InvestigacionHero } from "@/features/investigacion/components/InvestigacionHero";
+import { SentidoInvestigacion } from "@/features/investigacion/components/SentidoInvestigacion";
 
 export const metadata: Metadata = {
   title: "Investigación",
@@ -27,8 +28,9 @@ export default function InvestigacionPage() {
   return (
     <main>
       <InvestigacionHero />
-      {/* Próximas secciones del sitemap: Por qué investigamos · Líneas ·
-          Ciclo · Volvemos a investigar · En acción · Puente · Cierre. */}
+      <SentidoInvestigacion />
+      {/* Próximas secciones del sitemap: Líneas · Ciclo · Volvemos a
+          investigar · En acción · Puente · Cierre. */}
     </main>
   );
 }
