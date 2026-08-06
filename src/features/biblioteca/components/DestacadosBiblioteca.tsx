@@ -205,7 +205,7 @@ export function DestacadosBiblioteca() {
             className="font-display mt-6 font-extrabold tracking-[-0.02em] md:col-span-9 md:mt-0"
             style={{ fontSize: "clamp(2.2rem, 1rem + 4.5vw, 4.25rem)", lineHeight: 1.05 }}
           >
-            <span className="text-azul-medio">Cuatro materiales</span>{" "}
+            <span className="text-verde-concepto">Cuatro materiales</span>{" "}
             <span className="text-azul-principal">para entrar a la biblioteca</span>
           </h2>
         </div>
@@ -321,7 +321,7 @@ export function DestacadosBiblioteca() {
                     >
                       {titulo}
                     </h3>
-                    <p className="text-azul-claro mt-3 font-sans text-[1.05rem] font-semibold">
+                    <p className="text-verde-concepto mt-3 font-sans text-[1.05rem] font-semibold">
                       {tagline}
                     </p>
                     <p className="mt-6 max-w-[58ch] font-sans text-[0.98rem] leading-relaxed text-white/80">

@@ -103,7 +103,7 @@ export function CategoriasRail() {
                 : "bg-gris-fondo text-azul-principal hover:bg-azul-claro/40"
             }`}
           >
-            <span className={i === 0 ? "text-azul-claro" : "text-azul-medio"}>
+            <span className="text-verde-concepto">
               <Icon size={18} />
             </span>
             {label}
