@@ -83,31 +83,32 @@ export function CategoriasRail() {
         <ArrowRight size={18} className="rotate-180" />
       </button>
 
-      <div className="min-w-0 flex-1 rounded-full bg-white p-2 shadow-[0_24px_60px_-24px_rgb(0_0_0_/_0.4)]">
-        <div
-          ref={railRef}
-          onScroll={actualizar}
-          className="scrollbar-none flex items-center gap-2 overflow-x-auto"
-        >
-          {CATEGORIAS.map(({ label, Icon }, i) => (
-            <button
-              key={label}
-              type="button"
-              data-bh-pill
-              onClick={irAlListado}
-              className={`flex shrink-0 items-center gap-2.5 rounded-full px-4 py-2.5 font-sans text-[0.9rem] font-medium whitespace-nowrap transition-colors ${
-                i === 0
-                  ? "bg-azul-principal text-white"
-                  : "bg-gris-fondo text-azul-principal hover:bg-azul-claro/40"
-              }`}
-            >
-              <span className={i === 0 ? "text-azul-claro" : "text-azul-medio"}>
-                <Icon size={18} />
-              </span>
-              {label}
-            </button>
-          ))}
-        </div>
+      {/* La banda blanca ES el contenedor de scroll: las píldoras se cortan
+          contra su borde redondeado real (como la referencia), no contra una
+          línea interna de padding. */}
+      <div
+        ref={railRef}
+        onScroll={actualizar}
+        className="scrollbar-none flex min-w-0 flex-1 items-center gap-2 overflow-x-auto rounded-full bg-white p-2 shadow-[0_24px_60px_-24px_rgb(0_0_0_/_0.4)]"
+      >
+        {CATEGORIAS.map(({ label, Icon }, i) => (
+          <button
+            key={label}
+            type="button"
+            data-bh-pill
+            onClick={irAlListado}
+            className={`flex shrink-0 items-center gap-2.5 rounded-full px-4 py-2.5 font-sans text-[0.9rem] font-medium whitespace-nowrap transition-colors ${
+              i === 0
+                ? "bg-azul-principal text-white"
+                : "bg-gris-fondo text-azul-principal hover:bg-azul-claro/40"
+            }`}
+          >
+            <span className={i === 0 ? "text-azul-claro" : "text-azul-medio"}>
+              <Icon size={18} />
+            </span>
+            {label}
+          </button>
+        ))}
       </div>
 
       <button
