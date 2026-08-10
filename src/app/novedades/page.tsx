@@ -1,0 +1,30 @@
+import type { Metadata } from "next";
+import { NovedadesHero } from "@/features/novedades/components/NovedadesHero";
+import { NovedadDestacada } from "@/features/novedades/components/NovedadDestacada";
+import { FiltrosNovedades } from "@/features/novedades/components/FiltrosNovedades";
+import { EdEnMovimiento } from "@/features/novedades/components/EdEnMovimiento";
+import { LanzamientosRecientes } from "@/features/novedades/components/LanzamientosRecientes";
+import { Convocatorias } from "@/features/novedades/components/Convocatorias";
+import { ArchivoPorAnio } from "@/features/novedades/components/ArchivoPorAnio";
+import { CierreNovedades } from "@/features/novedades/components/CierreNovedades";
+
+export const metadata: Metadata = {
+  title: "Novedades",
+  description:
+    "Publicaciones, encuentros, convocatorias y prensa de Empoderamiento Docente: seguí de cerca lo que investigamos, diseñamos y llevamos al aula.",
+};
+
+export default function NovedadesPage() {
+  return (
+    <main>
+      <NovedadesHero />
+      <NovedadDestacada />
+      <FiltrosNovedades />
+      <EdEnMovimiento />
+      <LanzamientosRecientes />
+      <Convocatorias />
+      <ArchivoPorAnio />
+      <CierreNovedades />
+    </main>
+  );
+}
