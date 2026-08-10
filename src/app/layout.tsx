@@ -68,10 +68,12 @@ export default function RootLayout({
         <LenisProvider>
           <Header />
           {children}
-          {/* Fondo blanco detrás del footer: la muesca de sus esquinas
-              superiores redondeadas se ve BLANCA (matchea con la sección de
-              arriba), en vez del gris-fondo del body. */}
-          <div className="bg-white">
+          {/* Fondo detrás del footer: la muesca de sus esquinas superiores
+              redondeadas toma ESTE color. Blanco por defecto (matchea las
+              páginas que terminan en claro). Si la última sección baja en navy
+              hacia el pie, se marca con [data-footer-dock-dark] y la muesca pasa
+              a navy (regla en globals.css) para fundir sección y footer. */}
+          <div data-footer-dock className="bg-white">
             <Footer />
           </div>
         </LenisProvider>
