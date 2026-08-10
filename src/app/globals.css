@@ -387,9 +387,10 @@ html.has-custom-cursor * {
 /* El footer trae esquinas superiores redondeadas; su muesca se pinta con el
    color del contenedor [data-footer-dock] (blanco por defecto, ver layout).
    Cuando la última sección de la página se funde en navy hacia el pie —el
-   cierre de Biblioteca—, esa sección se marca con [data-footer-dock-dark]: el
-   :has() a nivel de página tiñe la muesca de navy y borra los triángulos claros
-   del encuentro, para que sección y footer se lean como una sola superficie. */
+   cierre de Biblioteca o de Novedades—, esa sección se marca con
+   [data-footer-dock-dark]: el :has() a nivel de página tiñe la muesca de navy y
+   borra los triángulos claros del encuentro, para que sección y footer se lean
+   como una sola superficie. */
 body:has([data-footer-dock-dark]) [data-footer-dock] {
   background-color: var(--color-azul-principal);
 }
