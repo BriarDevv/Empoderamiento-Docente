@@ -66,6 +66,7 @@ export function CierreBiblioteca() {
   return (
     <section
       ref={rootRef}
+      data-footer-dock-dark
       className="bg-azul-principal relative z-40 -mt-[5svh] overflow-hidden rounded-t-[2.5rem] text-white shadow-[0_-24px_60px_-30px_rgb(15_23_42/0.45)]"
       aria-label="Cierre"
     >
@@ -75,6 +76,13 @@ export function CierreBiblioteca() {
       <span
         aria-hidden="true"
         className="pointer-events-none absolute top-[20%] left-1/2 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(31_154_120/0.12)_0%,transparent_65%)]"
+      />
+      {/* Difuminado inferior: los puntos se disuelven en el navy hacia el pie.
+          Como el footer ahora comparte ese navy (data-footer-dock-dark), el
+          cierre y el footer se leen como una sola superficie, sin corte seco. */}
+      <span
+        aria-hidden="true"
+        className="from-azul-principal pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-52 bg-gradient-to-t to-transparent"
       />
 
       <div className="relative z-10 mx-auto flex min-h-[72svh] w-full max-w-screen-xl flex-col items-center justify-center px-5 py-28 text-center md:px-10">
