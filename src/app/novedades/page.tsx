@@ -4,8 +4,6 @@ import { NovedadDestacada } from "@/features/novedades/components/NovedadDestaca
 import { FiltrosNovedades } from "@/features/novedades/components/FiltrosNovedades";
 import { EdEnMovimiento } from "@/features/novedades/components/EdEnMovimiento";
 import { LanzamientosRecientes } from "@/features/novedades/components/LanzamientosRecientes";
-import { Convocatorias } from "@/features/novedades/components/Convocatorias";
-import { ArchivoPorAnio } from "@/features/novedades/components/ArchivoPorAnio";
 import { CierreNovedades } from "@/features/novedades/components/CierreNovedades";
 
 export const metadata: Metadata = {
@@ -22,8 +20,6 @@ export default function NovedadesPage() {
       <FiltrosNovedades />
       <EdEnMovimiento />
       <LanzamientosRecientes />
-      <Convocatorias />
-      <ArchivoPorAnio />
       <CierreNovedades />
     </main>
   );
