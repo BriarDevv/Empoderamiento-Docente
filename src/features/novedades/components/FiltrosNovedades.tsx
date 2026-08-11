@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { RevealLines } from "@/components/ui/RevealLines";
 import {
   NOVEDADES,
@@ -156,11 +155,12 @@ export function FiltrosNovedades() {
   return (
     <section id="ultimas" className="bg-gris-fondo" aria-label="Últimas novedades">
       <div className="mx-auto w-full max-w-screen-xl px-5 pt-6 pb-24 md:px-10 md:pb-28">
-        <div className="max-w-[46ch]">
-          <Eyebrow>Últimas novedades</Eyebrow>
+        {/* Sin max-w: los `ch` del wrapper se resolvían contra los 16px del
+            body (~368px), no contra el tamaño del titular, y lo partían en dos. */}
+        <div>
           <RevealLines
             as="h2"
-            className="font-display text-azul-principal mt-5 font-bold tracking-[-0.02em]"
+            className="font-display text-azul-principal font-bold tracking-[-0.02em]"
             style={{ fontSize: "clamp(1.8rem, 1rem + 2.6vw, 3.2rem)", lineHeight: 1.08 }}
           >
             Lo que viene pasando.

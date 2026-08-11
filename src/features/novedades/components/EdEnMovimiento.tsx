@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MOVIMIENTO } from "../data";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
@@ -41,6 +40,24 @@ const LANES = [
   { side: 1, y: 0.16 },
 ];
 
+/**
+ * Pinta en verde-concepto el tramo `acento` dentro de `frase` — la misma
+ * convención que los heroes ("y recursos" en Biblioteca, "transformar." en
+ * Investigación). Si el acento no aparece en la frase, devuelve la frase entera
+ * en blanco: la copy manda, el color es un realce.
+ */
+function conAcento(frase: string, acento: string) {
+  const i = acento ? frase.indexOf(acento) : -1;
+  if (i === -1) return frase;
+  return (
+    <>
+      {frase.slice(0, i)}
+      <span className="text-verde-concepto">{acento}</span>
+      {frase.slice(i + acento.length)}
+    </>
+  );
+}
+
 export function EdEnMovimiento() {
   const zoneRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -60,6 +77,7 @@ export function EdEnMovimiento() {
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>("[data-mov-card]");
       const phrases = gsap.utils.toArray<HTMLElement>("[data-mov-phrase]");
+      const luz = stage.querySelector<HTMLElement>("[data-mov-luz]");
       const W = window.innerWidth;
       const H = window.innerHeight;
       const vpY = -H * 0.06; // punto de fuga: la luz del horizonte, algo arriba del centro
@@ -77,6 +95,27 @@ export function EdEnMovimiento() {
         });
       });
       gsap.set(phrases, { autoAlpha: 0, y: 16 });
+
+      // El faro se enciende MIENTRAS la sección entra en cuadro: la luz nace
+      // chica y apagada y llega a plena justo cuando el navy terminó de ocupar
+      // la pantalla. Ventana exacta: de "top bottom" a "top top".
+      if (luz) {
+        gsap.fromTo(
+          luz,
+          { autoAlpha: 0, scale: 0.45 },
+          {
+            autoAlpha: 1,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: zone,
+              start: "top bottom",
+              end: "top top",
+              scrub: true,
+            },
+          },
+        );
+      }
 
       const step = 1.7; // separación entre momentos en el timeline
       const tl = gsap.timeline({
@@ -119,6 +158,16 @@ export function EdEnMovimiento() {
           );
       });
 
+      // El faro destella al parir cada momento y vuelve a crucero: la luz queda
+      // atada al ritmo de la escena en vez de ser un degradé quieto de fondo.
+      if (luz) {
+        cards.forEach((_, i) => {
+          const t = i * step;
+          tl.to(luz, { scale: 1.16, opacity: 1, ease: "none", duration: 0.5 }, t)
+            .to(luz, { scale: 1, opacity: 0.7, ease: "none", duration: 1.2 }, t + 0.5);
+        });
+      }
+
       // Frases al centro: crossfade sincronizado con cada momento.
       phrases.forEach((ph, i) => {
         const t = i * step;
@@ -137,7 +186,7 @@ export function EdEnMovimiento() {
   return (
     <div
       ref={zoneRef}
-      className={live ? "relative h-[560svh] bg-azul-principal" : "bg-azul-principal"}
+      className={"relative bg-azul-principal " + (live ? "h-[560svh]" : "")}
       aria-label="ED en movimiento"
     >
       <div
@@ -147,20 +196,19 @@ export function EdEnMovimiento() {
           (live ? "sticky top-0 flex h-[100svh] flex-col" : "flex min-h-[70svh] flex-col py-24")
         }
       >
-        {/* Luz del faro en el horizonte (el punto del que "nacen" los momentos). */}
+        {/* Luz del faro en el horizonte (el punto del que "nacen" los momentos).
+            No es un fondo estático: crece mientras la sección sube tapando al
+            archivo, y después destella con cada momento que pare. */}
         <span
+          data-mov-luz
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
+            transformOrigin: "50% 40%",
             background:
               "radial-gradient(46% 40% at 50% 40%, color-mix(in srgb, var(--color-azul-claro) 20%, transparent), transparent 70%)",
           }}
         />
-
-        {/* Encabezado fijo del escenario. */}
-        <div className="mx-auto w-full max-w-screen-xl px-5 pt-10 md:px-10 md:pt-14">
-          <Eyebrow variant="light">ED en movimiento</Eyebrow>
-        </div>
 
         {/* Frases al centro: overlay que crossfadea en modo live. Se renderizan
             siempre (así el efecto las encuentra); en estático quedan invisibles
@@ -173,7 +221,7 @@ export function EdEnMovimiento() {
               className="font-display text-[clamp(1.6rem,1rem+2.4vw,3rem)] font-bold tracking-[-0.02em] text-white [text-shadow:0_2px_30px_rgb(15_21_40/0.6)]"
               style={{ position: "absolute", opacity: 0 }}
             >
-              {m.frase}
+              {conAcento(m.frase, m.acento)}
             </p>
           ))}
         </div>
