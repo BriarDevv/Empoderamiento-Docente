@@ -382,15 +382,14 @@ html.has-custom-cursor * {
   }
 }
 
-/* === Footer dock — muesca navy cuando la página baja oscura ========= */
+/* === Footer dock — la muesca toma el color sobre el que termina la página == */
 
 /* El footer trae esquinas superiores redondeadas; su muesca se pinta con el
    color del contenedor [data-footer-dock] (blanco por defecto, ver layout).
-   Cuando la última sección de la página se funde en navy hacia el pie —el
-   cierre de Biblioteca o de Novedades—, esa sección se marca con
-   [data-footer-dock-dark]: el :has() a nivel de página tiñe la muesca de navy y
-   borra los triángulos claros del encuentro, para que sección y footer se lean
-   como una sola superficie. */
-body:has([data-footer-dock-dark]) [data-footer-dock] {
-  background-color: var(--color-azul-principal);
+   Cuando la página no termina en blanco sino en gris-fondo —el cierre de
+   Novedades, cuya tarjeta flota sobre ese gris—, esa sección se marca con
+   [data-footer-dock-tint="gris"]: el :has() a nivel de página tiñe la muesca del
+   mismo gris y evita los triángulos blancos del encuentro. */
+body:has([data-footer-dock-tint="gris"]) [data-footer-dock] {
+  background-color: var(--color-gris-fondo);
 }

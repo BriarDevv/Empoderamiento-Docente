@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { RevealLines } from "@/components/ui/RevealLines";
 import { ButtonSecondary } from "@/components/ui/ButtonSecondary";
 import { BookOpen, LampManual, Target, Compass } from "@/components/ui/icons";
@@ -65,10 +64,9 @@ export function PuenteInvestigacion() {
     <section ref={rootRef} className="relative bg-white" aria-label="Conexión con Investigación">
       <div className="mx-auto w-full max-w-screen-xl px-5 py-24 md:px-10 md:py-32">
         <div className="max-w-[46ch]">
-          <Eyebrow>Conexión con Investigación</Eyebrow>
           <RevealLines
             as="h2"
-            className="font-display text-azul-principal mt-6 max-w-[18ch] font-bold tracking-[-0.02em]"
+            className="font-display text-azul-principal max-w-[18ch] font-bold tracking-[-0.02em]"
             style={{ fontSize: "clamp(2rem, 1rem + 3vw, 3.6rem)", lineHeight: 1.06 }}
           >
             Detrás de cada recurso, una investigación.
