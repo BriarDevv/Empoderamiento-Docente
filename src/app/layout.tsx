@@ -70,9 +70,10 @@ export default function RootLayout({
           {children}
           {/* Fondo detrás del footer: la muesca de sus esquinas superiores
               redondeadas toma ESTE color. Blanco por defecto (matchea las
-              páginas que terminan en claro). Si la última sección baja en navy
-              hacia el pie, se marca con [data-footer-dock-dark] y la muesca pasa
-              a navy (regla en globals.css) para fundir sección y footer. */}
+              páginas que terminan en blanco). Si la página termina sobre
+              gris-fondo —el cierre de Novedades—, esa sección se marca con
+              [data-footer-dock-tint="gris"] y la muesca toma ese gris (regla en
+              globals.css) para que el encuentro no muestre triángulos blancos. */}
           <div data-footer-dock className="bg-white">
             <Footer />
           </div>
