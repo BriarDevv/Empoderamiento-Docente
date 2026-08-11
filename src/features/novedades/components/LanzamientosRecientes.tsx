@@ -3,7 +3,6 @@
 import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { RevealLines } from "@/components/ui/RevealLines";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { LANZAMIENTOS } from "../data";
@@ -61,16 +60,17 @@ export function LanzamientosRecientes() {
 
   return (
     <section className="bg-gris-fondo" aria-label="Lanzamientos y recursos recientes">
-      <div className="mx-auto w-full max-w-screen-xl px-5 pt-6 md:px-10">
+      <div className="mx-auto w-full max-w-screen-xl px-5 pt-20 md:px-10 md:pt-28">
         <div className="flex items-end justify-between gap-6">
-          <div className="max-w-[42ch]">
-            <Eyebrow>Lanzamientos y recursos recientes</Eyebrow>
+          {/* Sin max-w: el titular entra en un solo renglón en desktop (con
+              42ch se partía en dos). En mobile cae a dos líneas naturalmente. */}
+          <div>
             <RevealLines
               as="h2"
-              className="font-display text-azul-principal mt-5 font-bold tracking-[-0.02em]"
+              className="font-display text-azul-principal font-bold tracking-[-0.02em]"
               style={{ fontSize: "clamp(1.7rem, 1rem + 2.4vw, 3rem)", lineHeight: 1.08 }}
             >
-              Recién salido, listo para el aula.
+              Recién salido, para el aula.
             </RevealLines>
           </div>
           <Link
