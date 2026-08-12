@@ -168,15 +168,17 @@ export function EdEnMovimiento() {
         });
       }
 
-      // Frases al centro: crossfade sincronizado con cada momento.
+      // Frases al centro, de a una: la salida de cada frase termina (t+2.45)
+      // antes de que entre la siguiente (t+step+0.8 = t+2.5). Si se pisan,
+      // se superponen legibles en el mismo punto y se lee sucio.
       phrases.forEach((ph, i) => {
         const t = i * step;
         tl.fromTo(
           ph,
           { autoAlpha: 0, y: 16 },
-          { autoAlpha: 1, y: 0, ease: "none", duration: 0.9 },
+          { autoAlpha: 1, y: 0, ease: "none", duration: 0.6 },
           t + 0.8,
-        ).to(ph, { autoAlpha: 0, y: -12, ease: "none", duration: 0.8 }, t + 2.3);
+        ).to(ph, { autoAlpha: 0, y: -12, ease: "none", duration: 0.45 }, t + 2.0);
       });
     }, stage);
 
