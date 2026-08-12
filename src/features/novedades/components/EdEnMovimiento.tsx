@@ -158,16 +158,6 @@ export function EdEnMovimiento() {
           );
       });
 
-      // El faro destella al parir cada momento y vuelve a crucero: la luz queda
-      // atada al ritmo de la escena en vez de ser un degradé quieto de fondo.
-      if (luz) {
-        cards.forEach((_, i) => {
-          const t = i * step;
-          tl.to(luz, { scale: 1.16, opacity: 1, ease: "none", duration: 0.5 }, t)
-            .to(luz, { scale: 1, opacity: 0.7, ease: "none", duration: 1.2 }, t + 0.5);
-        });
-      }
-
       // Frases al centro, de a una: la salida de cada frase termina (t+2.45)
       // antes de que entre la siguiente (t+step+0.8 = t+2.5). Si se pisan,
       // se superponen legibles en el mismo punto y se lee sucio.
@@ -194,21 +184,22 @@ export function EdEnMovimiento() {
       <div
         ref={stageRef}
         className={
-          "relative isolate overflow-hidden text-white " +
+          "bg-grain-dark relative isolate overflow-hidden text-white " +
           (live ? "sticky top-0 flex h-[100svh] flex-col" : "flex min-h-[70svh] flex-col py-24")
         }
       >
-        {/* Luz del faro en el horizonte (el punto del que "nacen" los momentos).
-            No es un fondo estático: crece mientras la sección sube tapando al
-            archivo, y después destella con cada momento que pare. */}
+        {/* Luz del faro EN el horizonte: elipse angosta y baja sobre la línea de
+            fuga (44% ≈ centro + vpY), no un globo centrado detrás del texto.
+            Dos capas: núcleo fino + halo amplio y tenue. Solo se "enciende"
+            mientras la sección entra en cuadro; después queda quieta. */}
         <span
           data-mov-luz
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
-            transformOrigin: "50% 40%",
+            transformOrigin: "50% 44%",
             background:
-              "radial-gradient(46% 40% at 50% 40%, color-mix(in srgb, var(--color-azul-claro) 20%, transparent), transparent 70%)",
+              "radial-gradient(50% 8% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 26%, transparent), transparent 72%), radial-gradient(75% 22% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 10%, transparent), transparent 70%)",
           }}
         />
 
