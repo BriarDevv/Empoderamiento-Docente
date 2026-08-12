@@ -3,36 +3,32 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { PuntosFaro } from "@/components/ui/PuntosFaro";
+import { RotadorPalabras } from "./RotadorPalabras";
 import { SplitFlap } from "./SplitFlap";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 /**
- * Hero de Novedades — ESPEJO del hero de Biblioteca. Misma firma de marca, y a
- * propósito: son las dos puertas de entrada al material de ED y tienen que
- * leerse como hermanas. Lo que se comparte, literal:
- *  - Patrón §6 vivo: puntos base tenues + el "haz del faro" que sigue al cursor
- *    y enciende los puntos a su paso (<PuntosFaro />, el mismo componente).
- *  - Glow superior de azul-claro contenido, para no lavar el titular.
- *  - Titular blanco con el remate en verde-concepto (DESIGN.md §6).
+ * Hero de Novedades — comparte la BASE de marca con Biblioteca (patrón §6
+ * vivo: <PuntosFaro />, glow superior contenido, titular blanco con remate en
+ * verde-concepto) pero la identidad es propia: el tablero split-flap. Donde
+ * Biblioteca es un catálogo quieto con buscador, Novedades es flujo — y lo
+ * dice el titular mismo: "Siempre hay [palabra]" con la palabra verde girando
+ * en loop por las categorías de la página (<RotadorPalabras />), como tablero
+ * de salidas de una estación. La fecha de última actualización usa la misma
+ * mecánica (<SplitFlap />): una sola identidad, dos escalas.
  *
- * Lo que se ESPEJA (y alcanza para que las dos páginas no se confundan):
- *  - El barrido del faro entra por la DERECHA (`desde="derecha"`), no por la
- *    izquierda.
- *  - La bola azul-medio entra por abajo-derecha, no por abajo-izquierda.
+ * Diferencias espejadas que se conservan del layout original: el barrido del
+ * faro entra por la DERECHA (`desde="derecha"`) y la bola azul-medio por
+ * abajo-derecha.
  *
- * Entrada — el mismo gesto de ~2.2s: el haz de PuntosFaro barre de derecha a
- * izquierda encendiendo los puntos; el titular sube desde su máscara cuando la
- * luz cruza el centro, el glow "queda prendido", la bola entra traída por el
- * barrido y bajada + tablero + pista rematan con el haz ya entregado al cursor.
- * Los tiempos están ACOPLADOS a las constantes del barrido en PuntosFaro
- * (delay 0.3 + 1.3s de recorrido → cruza el centro ≈ 0.95s). Como el barrido es
- * simétrico, invertir el sentido no corre ese cruce: los tiempos son los mismos
- * que en Biblioteca.
- *
- * El detalle propio de Novedades: el tablero split-flap con la última fecha,
- * que gira al cargar (energía de "algo que acaba de llegar").
- * Sin motion / prefers-reduced-motion: todo visible, sin barrido ni giro.
+ * Entrada (~2.5s, un gesto): el haz barre encendiendo los puntos; la línea
+ * "Siempre hay" sube desde su máscara cuando la luz cruza el centro
+ * (constantes de PuntosFaro: delay 0.3 + 1.3s → cruce ≈ 0.95s) mientras el
+ * rotador llega GIRANDO y frena sobre "novedades." recién pasada la luz
+ * (settleDelay acoplado a ese cruce); glow, bola y remates cierran como en
+ * Biblioteca. Sin motion / prefers-reduced-motion: todo visible y quieto,
+ * rotador fijo en "novedades.".
  */
 export function NovedadesHero() {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -91,27 +87,34 @@ export function NovedadesHero() {
           className="font-display font-extrabold tracking-[-0.03em] text-white"
           style={{ fontSize: "clamp(2.75rem, 1.1rem + 7vw, 6.25rem)", lineHeight: 1 }}
         >
-          {/* Visible en dos líneas enmascaradas; el sr-only evita que el lector
-              las concatene sin espacio ("Siempre estápasando algo."). */}
-          <span className="sr-only">Siempre está pasando algo.</span>
+          {/* El texto accesible es ESTABLE (sr-only): el rotador visual es
+              aria-hidden y no anuncia cada giro al lector de pantalla. */}
+          <span className="sr-only">Siempre hay novedades.</span>
           <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
             <span data-nh-word className="block">
-              Siempre está
+              Siempre hay
             </span>
           </span>
-          <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
-            <span data-nh-word className="text-verde-concepto block">
-              pasando algo.
-            </span>
-          </span>
+          {/* Sin máscara de subida: esta línea ENTRA girando como tablero y
+              frena cuando el haz del faro cruza el centro (~0.95s). */}
+          <RotadorPalabras
+            words={[
+              "novedades.",
+              "publicaciones.",
+              "encuentros.",
+              "convocatorias.",
+              "prensa.",
+            ]}
+            settleDelay={0.95}
+            className="text-verde-concepto block"
+          />
         </h1>
 
         <p
           data-nh-rise
           className="mt-7 max-w-[54ch] font-sans text-[1.05rem] leading-relaxed text-white/85 md:text-[1.2rem]"
         >
-          Publicaciones, encuentros, convocatorias y prensa. Seguí de cerca lo
-          que investigamos, diseñamos y llevamos al aula.
+          Seguí de cerca lo que investigamos, diseñamos y llevamos al aula.
         </p>
 
         {/* Tablero "en vivo": punto verde latiendo + última fecha que gira.
