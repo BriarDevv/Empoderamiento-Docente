@@ -212,7 +212,7 @@ export function EdEnMovimiento() {
           style={{
             transformOrigin: "50% 44%",
             background:
-              "radial-gradient(50% 8% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 26%, transparent), transparent 72%), radial-gradient(75% 22% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 10%, transparent), transparent 70%)",
+              "radial-gradient(42% 6% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 17%, transparent), transparent 70%), radial-gradient(68% 18% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 8%, transparent), transparent 70%)",
           }}
         />
 
