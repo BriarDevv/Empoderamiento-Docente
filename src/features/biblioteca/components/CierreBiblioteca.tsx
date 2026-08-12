@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { RevealLines } from "@/components/ui/RevealLines";
@@ -131,13 +132,13 @@ export function CierreBiblioteca() {
 
           <div data-cierre-foot className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
             <ButtonPrimary href="/contacto">¿Buscás un material puntual?</ButtonPrimary>
-            <a
+            <Link
               href="/novedades"
               className="group text-azul-claro hover:text-white inline-flex items-center gap-2 font-sans text-[0.95rem] font-medium transition-colors"
             >
               Ver novedades
               <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>
