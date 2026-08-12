@@ -88,10 +88,10 @@ html.has-custom-cursor * {
 }
 
 /* Grain sutil para fondos claros — saca el flat plano.
-   Opacidad muy baja para que no compita con el contenido. */
-.bg-grain-light {
-  position: relative;
-}
+   Opacidad muy baja para que no compita con el contenido.
+   OJO: el host debe traer su propio position (relative/sticky/...). Estas
+   clases no lo fuerzan: al estar fuera de @layer le ganarían al position de
+   las utilities de Tailwind (p. ej. pisarían un `sticky`). */
 .bg-grain-light::before {
   content: "";
   position: absolute;
@@ -106,9 +106,6 @@ html.has-custom-cursor * {
 
 /* Variante para fondos navy: blend screen (multiply sobre oscuro no se ve) y
    ruido desaturado — los puntos de color cantan más sobre azul-principal. */
-.bg-grain-dark {
-  position: relative;
-}
 .bg-grain-dark::before {
   content: "";
   position: absolute;
