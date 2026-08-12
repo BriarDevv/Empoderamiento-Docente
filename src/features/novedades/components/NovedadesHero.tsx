@@ -125,8 +125,10 @@ export function NovedadesHero() {
           data-nh-rise
           className="text-azul-claro/90 mt-10 flex flex-col items-center gap-2.5 font-mono text-[0.8rem] tracking-[0.18em] uppercase"
         >
-          <span className="inline-flex items-center gap-3 whitespace-nowrap">
-            <span className="bg-verde-concepto h-2 w-2 animate-pulse rounded-full" />
+          {/* El punto va absoluto (fuera del flujo) para que NO sume ancho:
+              la frase queda centrada en sí misma, como la fecha de abajo. */}
+          <span className="relative whitespace-nowrap">
+            <span className="bg-verde-concepto absolute top-1/2 -left-5 h-2 w-2 -translate-y-1/2 animate-pulse rounded-full" />
             Última actualización
           </span>
           <SplitFlap
