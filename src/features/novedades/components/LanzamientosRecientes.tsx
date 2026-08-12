@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { RevealLines } from "@/components/ui/RevealLines";
-import { ArrowRight, ArrowUpRight } from "@/components/ui/icons";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "@/components/ui/icons";
 import { LANZAMIENTOS } from "../data";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
@@ -56,18 +62,38 @@ export function LanzamientosRecientes() {
     onUp();
   };
 
-  // El velo derecho solo tiene sentido mientras queda riel por descubrir.
-  const syncFade = () => {
+  /* Extremos del riel: apagan el velo derecho (directo al DOM) y deshabilitan
+     las flechas prev/next (estado React, solo cambia en los bordes). */
+  const [ends, setEnds] = useState({ start: true, end: false });
+  const syncEdges = () => {
     const el = trackRef.current;
-    const fade = fadeRef.current;
-    if (!el || !fade) return;
-    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 8;
-    fade.style.opacity = atEnd ? "0" : "1";
+    if (!el) return;
+    const start = el.scrollLeft <= 8;
+    const end = el.scrollLeft >= el.scrollWidth - el.clientWidth - 8;
+    if (fadeRef.current) fadeRef.current.style.opacity = end ? "0" : "1";
+    setEnds((prev) => (prev.start === start && prev.end === end ? prev : { start, end }));
   };
 
   useEffect(() => {
-    syncFade();
+    syncEdges();
+    window.addEventListener("resize", syncEdges);
+    return () => window.removeEventListener("resize", syncEdges);
   }, []);
+
+  // Una card por paso: ancho de la primera card + gap del riel (gap-5 = 20px).
+  const scrollByCard = (dir: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.querySelector("article");
+    const paso = (card ? card.getBoundingClientRect().width : el.clientWidth * 0.8) + 20;
+    el.scrollBy({ left: dir * paso, behavior: reduced ? "auto" : "smooth" });
+  };
+
+  const onKey = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    scrollByCard(e.key === "ArrowLeft" ? -1 : 1);
+  };
 
   const onDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!hoverFine()) return; // touch → scroll nativo
@@ -126,16 +152,40 @@ export function LanzamientosRecientes() {
               Recién salido, para el aula.
             </RevealLines>
           </div>
-          <Link
-            href="/biblioteca"
-            className="group text-azul-principal hover:text-verde-concepto-texto mb-2 hidden shrink-0 items-center gap-2 font-sans text-[0.95rem] font-medium transition-colors md:inline-flex"
-          >
-            Ir a Biblioteca
-            <ArrowUpRight
-              size={16}
-              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            />
-          </Link>
+          <div className="mb-2 hidden shrink-0 items-center gap-6 md:flex">
+            {/* Prev/next: la vía accesible del riel (el drag no existe para
+                teclado). Deshabilitadas en los extremos. */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Anteriores"
+                disabled={ends.start}
+                onClick={() => scrollByCard(-1)}
+                className="border-azul-principal/15 text-azul-principal hover:border-verde-concepto/50 hover:text-verde-concepto-texto flex h-10 w-10 items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-30"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <button
+                type="button"
+                aria-label="Siguientes"
+                disabled={ends.end}
+                onClick={() => scrollByCard(1)}
+                className="border-azul-principal/15 text-azul-principal hover:border-verde-concepto/50 hover:text-verde-concepto-texto flex h-10 w-10 items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-30"
+              >
+                <ArrowRight size={16} />
+              </button>
+            </div>
+            <Link
+              href="/biblioteca"
+              className="group text-azul-principal hover:text-verde-concepto-texto inline-flex items-center gap-2 font-sans text-[0.95rem] font-medium transition-colors"
+            >
+              Ir a Biblioteca
+              <ArrowUpRight
+                size={16}
+                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -143,13 +193,17 @@ export function LanzamientosRecientes() {
       <div ref={wrapRef} className="relative">
         <div
           ref={trackRef}
+          role="region"
+          aria-label="Riel de lanzamientos recientes"
+          tabIndex={0}
+          onKeyDown={onKey}
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={onUp}
           onPointerEnter={onEnter}
           onPointerLeave={onLeave}
-          onScroll={syncFade}
-          className="scrollbar-none mt-8 flex gap-5 overflow-x-auto px-5 pb-20 select-none md:cursor-none md:px-10"
+          onScroll={syncEdges}
+          className="scrollbar-none focus-visible:ring-verde-concepto/50 mt-8 flex gap-5 overflow-x-auto px-5 pb-20 select-none focus-visible:ring-2 focus-visible:outline-none md:cursor-none md:px-10"
         >
           {LANZAMIENTOS.map((l) => (
             <article
