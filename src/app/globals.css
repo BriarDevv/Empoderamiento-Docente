@@ -393,3 +393,19 @@ html.has-custom-cursor * {
 body:has([data-footer-dock-tint="gris"]) [data-footer-dock] {
   background-color: var(--color-gris-fondo);
 }
+
+/* === Transición del faro (novedades) — destello que respira =============== */
+
+/* El pulso del destello corre por CSS (compositor): en dev el main thread se
+   satura y las animaciones por rAF se arrastran; esta no. */
+@keyframes tf-destello {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.85;
+  }
+}
