@@ -60,6 +60,20 @@ export type Novedad = {
   imagen: string;
   /** Solo una debería ser la de tapa. */
   destacada?: boolean;
+  /**
+   * Cuerpo de la nota en secciones tituladas: alimentan la "guía de la nota"
+   * (índice lateral de la ficha). Solo las novedades con cuerpo tienen ficha
+   * propia en /novedades/[id] y card clickeable. Piloto: el libro.
+   * PENDIENTE: reemplazar por el texto real del cliente.
+   */
+  cuerpo?: NovedadSeccion[];
+};
+
+export type NovedadSeccion = {
+  /** Ancla dentro de la ficha (kebab-case, única por nota). */
+  id: string;
+  titulo: string;
+  parrafos: string[];
 };
 
 // Listado de novedades. La primera con destacada:true es la "nota de tapa".
@@ -75,6 +89,37 @@ export const NOVEDADES: Novedad[] = [
       "Reunimos años de investigación y trabajo con escuelas en un libro que piensa la matemática escolar desde sus usos, sus prácticas y quienes la enseñan.",
     imagen: "/hero/hero-2.webp",
     destacada: true,
+    cuerpo: [
+      {
+        id: "por-que-este-libro",
+        titulo: "Por qué este libro",
+        parrafos: [
+          "«Empoderamiento docente y Socioepistemología» reúne más de una década de trabajo entre aulas, escuelas y equipos de investigación. No es un balance: es una apuesta por mirar la matemática escolar desde otro lugar — desde sus usos, sus prácticas y las personas que la enseñan.",
+        ],
+      },
+      {
+        id: "la-mirada",
+        titulo: "La mirada socioepistemológica",
+        parrafos: [
+          "La pregunta que recorre el libro es simple de enunciar y difícil de responder: ¿qué pasa cuando dejamos de preguntarnos cómo enseñar mejor una lista de temas y empezamos a preguntarnos para qué sirve ese saber, quién lo usa y en qué situaciones cobra sentido? Esa es la mirada socioepistemológica: el conocimiento matemático se resignifica cuando se lo pone en situación.",
+        ],
+      },
+      {
+        id: "que-van-a-encontrar",
+        titulo: "Qué van a encontrar",
+        parrafos: [
+          "No van a encontrar acá un recetario. El libro invita a problematizar la matemática que la escuela decidió enseñar y a diseñar tareas donde el saber funcione: situaciones con más de una estrategia posible, donde estudiantes argumentan, comparan caminos y defienden decisiones — y donde cada docente recupera el poder sobre su propia práctica.",
+          "Los capítulos alternan marco teórico con episodios de aula documentados en el trabajo con escuelas: qué pasó cuando una tarea rompió con la matemática de reglas, cómo se sostiene el debate sin perder el rumbo matemático, qué señales muestran que un proceso de empoderamiento está en marcha.",
+        ],
+      },
+      {
+        id: "donde-sigue",
+        titulo: "Dónde sigue",
+        parrafos: [
+          "El libro se suma al catálogo de nuestra Biblioteca y va a acompañar los próximos encuentros con equipos docentes. En las próximas semanas vamos a compartir por acá las presentaciones abiertas.",
+        ],
+      },
+    ],
   },
   {
     id: "relime-2025",
