@@ -89,7 +89,14 @@ export function SplitFlap({
         }
         reel.insertBefore(frag, finalSpan);
 
-        const cellH = cell.offsetHeight || finalSpan.offsetHeight;
+        // OJO: offsetHeight redondea a entero y la celda mide 1.06em, que casi
+        // nunca cae redondo. Con fuentes chicas (la fecha del hero: 12.8px →
+        // celda de 13.56px) el redondeo a 14px acumula ~5px sobre 12 glifos y
+        // la bobina frena a media celda del carácter real. getBoundingClientRect
+        // devuelve el alto fraccional y frena exacto.
+        const cellH =
+          finalSpan.getBoundingClientRect().height ||
+          cell.getBoundingClientRect().height;
         const n = reel.children.length; // cycles + 1
         tweens.push(
           gsap.fromTo(
@@ -135,9 +142,13 @@ export function SplitFlap({
 
   return (
     <Tag ref={ref} className={className} style={style} aria-label={text}>
+      {/* Texto real, invisible pero SELECCIONABLE. Las bobinas guardan ~12
+          glifos al azar por celda que overflow-hidden tapa pero el portapapeles
+          igual levanta: van select-none y esto es lo único que se copia. */}
+      <span className="sr-only">{text}</span>
       {chars.map((ch, i) =>
         ch === " " ? (
-          <span key={i} aria-hidden="true" className="inline-block">
+          <span key={i} aria-hidden="true" className="inline-block select-none">
             &nbsp;
           </span>
         ) : (
@@ -145,7 +156,7 @@ export function SplitFlap({
             key={i}
             data-cell
             aria-hidden="true"
-            className="relative inline-block overflow-hidden align-bottom"
+            className="relative inline-block overflow-hidden align-bottom select-none"
             style={{ height: CELL_H, lineHeight: CELL_H }}
           >
             {/* Sizer invisible: fija el ancho al carácter final. */}

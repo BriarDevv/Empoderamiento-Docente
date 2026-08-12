@@ -36,9 +36,6 @@ export function fechaCorta(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   return `${d} ${MESES[m - 1]} ${y}`;
 }
-export function anioDe(iso: string): number {
-  return Number(iso.slice(0, 4));
-}
 
 // El orden acá manda el orden de los chips de filtro.
 export const CATEGORIAS: Categoria[] = [
@@ -63,6 +60,20 @@ export type Novedad = {
   imagen: string;
   /** Solo una debería ser la de tapa. */
   destacada?: boolean;
+  /**
+   * Cuerpo de la nota en secciones tituladas: alimentan la "guía de la nota"
+   * (índice lateral de la ficha). Solo las novedades con cuerpo tienen ficha
+   * propia en /novedades/[id] y card clickeable. Piloto: el libro.
+   * PENDIENTE: reemplazar por el texto real del cliente.
+   */
+  cuerpo?: NovedadSeccion[];
+};
+
+export type NovedadSeccion = {
+  /** Ancla dentro de la ficha (kebab-case, única por nota). */
+  id: string;
+  titulo: string;
+  parrafos: string[];
 };
 
 // Listado de novedades. La primera con destacada:true es la "nota de tapa".
@@ -71,11 +82,44 @@ export const NOVEDADES: Novedad[] = [
     id: "libro-socioepistemologia",
     fecha: "2026-07-15",
     categoria: "publicaciones",
-    titulo: "Sale el libro «Empoderamiento docente y Socioepistemología»",
+    // "el libro" era redundante: la categoría ya dice PUBLICACIONES y la bajada
+    // arranca contando que es un libro.
+    titulo: "Sale «Empoderamiento docente y Socioepistemología»",
     bajada:
       "Reunimos años de investigación y trabajo con escuelas en un libro que piensa la matemática escolar desde sus usos, sus prácticas y quienes la enseñan.",
     imagen: "/hero/hero-2.webp",
     destacada: true,
+    cuerpo: [
+      {
+        id: "por-que-este-libro",
+        titulo: "Por qué este libro",
+        parrafos: [
+          "«Empoderamiento docente y Socioepistemología» reúne más de una década de trabajo entre aulas, escuelas y equipos de investigación. No es un balance: es una apuesta por mirar la matemática escolar desde otro lugar — desde sus usos, sus prácticas y las personas que la enseñan.",
+        ],
+      },
+      {
+        id: "la-mirada",
+        titulo: "La mirada socioepistemológica",
+        parrafos: [
+          "La pregunta que recorre el libro es simple de enunciar y difícil de responder: ¿qué pasa cuando dejamos de preguntarnos cómo enseñar mejor una lista de temas y empezamos a preguntarnos para qué sirve ese saber, quién lo usa y en qué situaciones cobra sentido? Esa es la mirada socioepistemológica: el conocimiento matemático se resignifica cuando se lo pone en situación.",
+        ],
+      },
+      {
+        id: "que-van-a-encontrar",
+        titulo: "Qué van a encontrar",
+        parrafos: [
+          "No van a encontrar acá un recetario. El libro invita a problematizar la matemática que la escuela decidió enseñar y a diseñar tareas donde el saber funcione: situaciones con más de una estrategia posible, donde estudiantes argumentan, comparan caminos y defienden decisiones — y donde cada docente recupera el poder sobre su propia práctica.",
+          "Los capítulos alternan marco teórico con episodios de aula documentados en el trabajo con escuelas: qué pasó cuando una tarea rompió con la matemática de reglas, cómo se sostiene el debate sin perder el rumbo matemático, qué señales muestran que un proceso de empoderamiento está en marcha.",
+        ],
+      },
+      {
+        id: "donde-sigue",
+        titulo: "Dónde sigue",
+        parrafos: [
+          "El libro se suma al catálogo de nuestra Biblioteca y va a acompañar los próximos encuentros con equipos docentes. En las próximas semanas vamos a compartir por acá las presentaciones abiertas.",
+        ],
+      },
+    ],
   },
   {
     id: "relime-2025",
@@ -159,16 +203,23 @@ export type MomentoMovimiento = {
   id: string;
   etiqueta: string;
   frase: string;
+  /**
+   * Tramo de `frase` que va en verde-concepto (DESIGN §6: el verde nombra el
+   * concepto, igual que "y recursos" en el hero de Biblioteca o "transformar."
+   * en el de Investigación). Debe ser un substring EXACTO de `frase`; si no
+   * matchea, la frase se muestra entera en blanco.
+   */
+  acento: string;
   imagen: string;
 };
 
 export const MOVIMIENTO: MomentoMovimiento[] = [
-  { id: "aulas", etiqueta: "EN LAS AULAS", frase: "Empieza en el aula.", imagen: "/quienes-somos/origen-01-aulas.webp" },
-  { id: "docentes", etiqueta: "CON DOCENTES", frase: "Junto a quienes enseñan.", imagen: "/metodo/escuchamos.webp" },
-  { id: "investigacion", etiqueta: "INVESTIGACIÓN", frase: "Investigamos lo que hacemos.", imagen: "/quienes-somos/origen-03-pregunta.webp" },
-  { id: "diseno", etiqueta: "DISEÑO", frase: "Diseñamos tareas que importan.", imagen: "/metodo/disenamos.webp" },
-  { id: "congresos", etiqueta: "CONGRESOS", frase: "Lo llevamos a la región.", imagen: "/hero/hero-6.webp" },
-  { id: "paises", etiqueta: "CINCO PAÍSES", frase: "En cinco países, a la vez.", imagen: "/hero/hero-9.webp" },
+  { id: "aulas", etiqueta: "EN LAS AULAS", frase: "Empieza en el aula.", acento: "el aula.", imagen: "/quienes-somos/origen-01-aulas.webp" },
+  { id: "docentes", etiqueta: "CON DOCENTES", frase: "Junto a quienes enseñan.", acento: "quienes enseñan.", imagen: "/metodo/escuchamos.webp" },
+  { id: "investigacion", etiqueta: "INVESTIGACIÓN", frase: "Investigamos lo que hacemos.", acento: "lo que hacemos.", imagen: "/quienes-somos/origen-03-pregunta.webp" },
+  { id: "diseno", etiqueta: "DISEÑO", frase: "Diseñamos tareas que importan.", acento: "tareas que importan.", imagen: "/metodo/disenamos.webp" },
+  { id: "congresos", etiqueta: "CONGRESOS", frase: "Lo llevamos a la región.", acento: "a la región.", imagen: "/hero/hero-6.webp" },
+  { id: "paises", etiqueta: "CINCO PAÍSES", frase: "En cinco países, a la vez.", acento: "cinco países", imagen: "/hero/hero-9.webp" },
 ];
 
 // ── Lanzamientos y recursos recientes (puente a Biblioteca) ───────────────────
@@ -186,33 +237,3 @@ export const LANZAMIENTOS: Lanzamiento[] = [
   { id: "l-guias", tipo: "Guías", titulo: "Desarrollo del pensamiento matemático", imagen: "/metodo/evaluamos.webp" },
   { id: "l-taller", tipo: "Materiales", titulo: "Del ciclo de talleres 2025", imagen: "/metodo/acompanamos.webp" },
 ];
-
-// ── Convocatorias / Forma parte (SIN bolsa de trabajo) ────────────────────────
-export type Convocatoria = {
-  id: string;
-  titulo: string;
-  desc: string;
-};
-
-export const CONVOCATORIAS: Convocatoria[] = [
-  {
-    id: "red",
-    titulo: "Sumate a la red docente",
-    desc: "Una comunidad que investiga su propia práctica y comparte lo que aprende. No es una capacitación más.",
-  },
-  {
-    id: "estudio",
-    titulo: "Participá de un estudio",
-    desc: "Abrimos tu aula a la investigación: probamos juntos tareas y miramos qué pasa con el saber matemático.",
-  },
-  {
-    id: "colaboracion",
-    titulo: "Proponé una colaboración",
-    desc: "¿Tu escuela, institución o equipo quiere trabajar con nosotros? Contános qué tienen en mente.",
-  },
-];
-
-// ── Archivo por año (índice) ──────────────────────────────────────────────────
-// El conteo sale del listado real de arriba; años sin novedades cargadas
-// quedan igual como ancla del archivo histórico (pendiente contenido).
-export const ARCHIVO_ANIOS = [2026, 2025, 2024] as const;

@@ -88,10 +88,10 @@ html.has-custom-cursor * {
 }
 
 /* Grain sutil para fondos claros — saca el flat plano.
-   Opacidad muy baja para que no compita con el contenido. */
-.bg-grain-light {
-  position: relative;
-}
+   Opacidad muy baja para que no compita con el contenido.
+   OJO: el host debe traer su propio position (relative/sticky/...). Estas
+   clases no lo fuerzan: al estar fuera de @layer le ganarían al position de
+   las utilities de Tailwind (p. ej. pisarían un `sticky`). */
 .bg-grain-light::before {
   content: "";
   position: absolute;
@@ -100,6 +100,20 @@ html.has-custom-cursor * {
   opacity: 0.035;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 200px 200px;
+  z-index: 0;
+}
+
+/* Variante para fondos navy: blend screen (multiply sobre oscuro no se ve) y
+   ruido desaturado — los puntos de color cantan más sobre azul-principal. */
+.bg-grain-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 200px 200px;
   z-index: 0;
 }
@@ -382,15 +396,30 @@ html.has-custom-cursor * {
   }
 }
 
-/* === Footer dock — muesca navy cuando la página baja oscura ========= */
+/* === Footer dock — la muesca toma el color sobre el que termina la página == */
 
 /* El footer trae esquinas superiores redondeadas; su muesca se pinta con el
    color del contenedor [data-footer-dock] (blanco por defecto, ver layout).
-   Cuando la última sección de la página se funde en navy hacia el pie —el
-   cierre de Biblioteca o de Novedades—, esa sección se marca con
-   [data-footer-dock-dark]: el :has() a nivel de página tiñe la muesca de navy y
-   borra los triángulos claros del encuentro, para que sección y footer se lean
-   como una sola superficie. */
-body:has([data-footer-dock-dark]) [data-footer-dock] {
-  background-color: var(--color-azul-principal);
+   Cuando la página no termina en blanco sino en gris-fondo —el cierre de
+   Novedades, cuya tarjeta flota sobre ese gris—, esa sección se marca con
+   [data-footer-dock-tint="gris"]: el :has() a nivel de página tiñe la muesca del
+   mismo gris y evita los triángulos blancos del encuentro. */
+body:has([data-footer-dock-tint="gris"]) [data-footer-dock] {
+  background-color: var(--color-gris-fondo);
+}
+
+/* === Transición del faro (novedades) — destello que respira =============== */
+
+/* El pulso del destello corre por CSS (compositor): en dev el main thread se
+   satura y las animaciones por rAF se arrastran; esta no. */
+@keyframes tf-destello {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.85;
+  }
 }

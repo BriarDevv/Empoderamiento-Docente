@@ -4,7 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { Search } from "@/components/ui/icons";
 import { CategoriasRail } from "./CategoriasRail";
-import { PuntosFaro } from "./PuntosFaro";
+import { PuntosFaro } from "@/components/ui/PuntosFaro";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 

@@ -136,6 +136,16 @@ export function ArrowRight({ size = 24, ...rest }: IconProps) {
   );
 }
 
+/** Espejo de ArrowRight, para navegación prev/next. */
+export function ArrowLeft({ size = 24, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} {...baseProps} {...rest}>
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 5 5 12 12 19" />
+    </svg>
+  );
+}
+
 /** Flecha diagonal ↗ (mismo trazo que la del Footer). */
 export function ArrowUpRight({ size = 24, ...rest }: IconProps) {
   return (
