@@ -61,6 +61,7 @@ function conAcento(frase: string, acento: string) {
 export function EdEnMovimiento() {
   const zoneRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const counterRef = useRef<HTMLSpanElement | null>(null);
   const reduced = useReducedMotion();
   const [live, setLive] = useState(false);
 
@@ -124,6 +125,18 @@ export function EdEnMovimiento() {
           start: "top top",
           end: "bottom bottom",
           scrub: 0.6,
+          // Contador de progreso: qué momento está en escena. Se escribe
+          // directo al DOM (sin estado React) para no re-renderizar por tick.
+          onUpdate: (self) => {
+            const el = counterRef.current;
+            if (!el || !self.animation) return;
+            const i = Math.min(
+              MOVIMIENTO.length - 1,
+              Math.max(0, Math.floor(self.animation.time() / step)),
+            );
+            const label = String(i + 1).padStart(2, "0");
+            if (el.textContent !== label) el.textContent = label;
+          },
         },
       });
 
@@ -202,6 +215,19 @@ export function EdEnMovimiento() {
               "radial-gradient(50% 8% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 26%, transparent), transparent 72%), radial-gradient(75% 22% at 50% 44%, color-mix(in srgb, var(--color-azul-claro) 10%, transparent), transparent 70%)",
           }}
         />
+
+        {/* Progreso de la escena: momento activo / total. Mismo lenguaje que
+            las etiquetas de las fotos (mono chico, azul-claro). Decorativo:
+            oculto a lectores de pantalla y solo en modo live. */}
+        {live && (
+          <p
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-8 left-5 z-20 font-mono text-[0.68rem] tracking-[0.16em] text-azul-claro/80 md:left-10"
+          >
+            <span ref={counterRef}>01</span>
+            <span className="text-white/35"> / {String(MOVIMIENTO.length).padStart(2, "0")}</span>
+          </p>
+        )}
 
         {/* Frases al centro: overlay que crossfadea en modo live. Se renderizan
             siempre (así el efecto las encuentra); en estático quedan invisibles
