@@ -1,0 +1,132 @@
+GUION ORAL — DEMO BIBLIOTECA + NOVEDADES (para Raquel y Daniela)
+Registro: relajado y canchero, con toques técnicos en los momentos clave.
+
+Lo que está entre [corchetes] es acotación: es lo que HACÉS, no se dice.
+El resto es lo que DECÍS, de corrido.
+Recordá: pantalla grande (no celu), scroll despacio, y mover el mouse
+para que se vea el faro.
+
+============================================================
+APERTURA
+============================================================
+
+Che, les muestro dos partes del sitio que ya están bastante finas: la
+Biblioteca y Novedades. Antes de arrancar, un aviso: los textos y
+algunas portadas son de relleno, están para que se vea real, después
+metemos el material de ustedes. Lo que quiero que miren posta es cómo
+se mueve, cómo se siente. Vamos con la Biblioteca.
+
+
+============================================================
+BIBLIOTECA
+============================================================
+
+[Abrís /biblioteca y recargás. Movés el mouse en zigzag.]
+
+Esto es la entrada. Fíjense que todo el sitio arranca en este azul
+institucional. ¿Ven esta luz que se mueve? Le decimos el faro, es el
+hilo de la marca, la idea del faro que ilumina el aula. Y ojo este
+detalle: reacciona al cursor en tiempo real. Los puntitos se prenden
+por donde paso el mouse. El título entra justo cuando la luz lo cruza.
+Chiquito, pero le da un montón.
+
+[Bajás MUY despacio hasta los materiales destacados.]
+
+Ahora mirá esto que está buenísimo. Bajo despacito... ¿ven cómo estas
+cuatro tapas se van juntando en una sola pila? Esto es scroll-driven:
+la animación está pegada al scroll, no corre sola, la manejás vos con
+el dedo. Y fijate que mientras leo cada material, la imagen de arriba
+se corre con una máscara y aparece la de abajo. Son cuatro materiales
+elegidos como puerta de entrada, para el que cae por primera vez.
+
+[Seguís bajando hasta el catálogo con filtros.]
+
+Acá abajo, el catálogo completo. Y esto ya funciona de verdad: filtro
+por tipo, por público, por año... [tocás un par de filtros] todo
+reactivo, se actualiza al toque. Y el buscador, mirá: escribo sin
+acento y lo encuentra igual, porque normaliza las tildes. Contenido de
+relleno, pero el motor es el real.
+
+[Bajás al bloque de las tarjetas que se dan vuelta.]
+
+Este me gusta: conecta la biblioteca con la investigación. Paso el
+mouse por cada tarjeta [pasás el mouse] y te muestra de qué
+investigación salió cada recurso. La idea es esa: nada acá salió de la
+nada. Ojo, che, esto lo quiero chequear con ustedes: el cruce entre el
+recurso y la investigación lo armé yo a ojo. ¿Va bien así, o lo
+tocamos?
+
+[Bajás al cierre de la página.]
+
+Y la Biblioteca cierra así, con el faro de nuevo y un botón para
+escribirnos. Un detalle de marca: el naranja lo usamos SOLO para los
+botones de acción, nunca de adorno. Es una regla que bancamos en todo
+el sitio.
+
+
+============================================================
+NOVEDADES
+============================================================
+
+Listo, me voy a Novedades.
+
+[Abrís /novedades y recargás. Dejás que el tablero gire y frene.]
+
+Novedades tiene la misma base que la Biblioteca pero su onda propia.
+Miren este tablero, tipo los de aeropuerto: split-flap le dicen. La
+palabra va rotando por las categorías de la sección y frena en
+"novedades". Y la fecha de abajo es otro tablero igual. La idea es que
+se sienta vivo, que siempre hay algo nuevo.
+
+[Mostrás la nota de tapa. Hacés clic para entrar a la ficha.]
+
+Esta es la nota de tapa, el libro. Le hago clic y entro a la nota
+completa, con este índice al costado que te va marcando dónde vas
+leyendo. Es el piloto de cómo va a ser cada nota por dentro. Por ahora
+dejé clickeable solo el libro, de muestra. [Volvés a /novedades.]
+
+[Tocás un par de categorías para filtrar la grilla.]
+
+Acá las novedades filtran por categoría, igual que la biblioteca.
+
+[Bajás MUY despacio a "ED en movimiento".]
+
+Y ahora la joya de Novedades. Le decimos "ED en movimiento". Bajo bien
+lento... ¿ven cómo cada imagen nace de ese puntito de luz al fondo y se
+viene para acá? Técnicamente es una escena de profundidad: cada foto
+arranca en el punto de fuga y escala hacia vos con el scroll, como
+saliendo de la niebla. Cada una es un momento del proyecto: las aulas,
+los docentes, la investigación, los congresos, los cinco países. La
+idea es justamente esa, ED siempre en movimiento.
+
+[Opcional, si querés lucir el detalle:]
+Ah, y todo esto está pensado para desktop. Si entrás del celu, o tenés
+activado el modo de menos animación por accesibilidad, cae solo a una
+versión quieta y legible. No se rompe nada.
+
+[Seguís bajando.]
+
+Después hay un puente rápido a lo último que salió, que te devuelve a
+la biblioteca.
+
+[Llegás al cierre.]
+
+Y cierra invitando a escribirnos y a seguirnos en las redes.
+
+
+============================================================
+CIERRE Y PREGUNTAS
+============================================================
+
+Bueno, eso es lo que les quería mostrar. Antes de que me digan qué les
+pareció en general, un par de cositas puntuales:
+
+- ¿Cómo ven el tono y la cantidad de texto? Veníamos buscando que sea
+  claro y cortito.
+- El cruce recurso-investigación que les mostré, ¿va?
+- ¿Qué materiales reales meterían como destacados de entrada a la
+  biblioteca?
+- Y el nivel de animación, ¿lo sienten justo, o en algún punto se les
+  hace mucho?
+
+Díganme.
