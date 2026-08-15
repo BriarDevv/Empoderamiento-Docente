@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-28
-- **Decision-makers:** @BriarDevv
+- **Decision-makers:** @bygama
 - **Supersedes:** ADR-0001 (solo la capa de persistencia / base de datos)
 
 ---

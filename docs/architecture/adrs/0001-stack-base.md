@@ -3,7 +3,7 @@
 - **Status:** Accepted — **persistencia superseded por
   [ADR-0002](0002-adoptar-supabase-persistencia.md)** (2026-06-28)
 - **Date:** 2026-05-19
-- **Decision-makers:** @BriarDevv (resto del equipo a sumar cuando se den
+- **Decision-makers:** @bygama (resto del equipo a sumar cuando se den
   de alta en GitHub)
 
 > **Nota de actualización (2026-06-28).** La base de datos descrita más abajo
