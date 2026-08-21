@@ -315,15 +315,6 @@ export function TorreLineas() {
           }
           aria-hidden={live || undefined}
         >
-          <div className="relative z-20 mx-auto flex w-full max-w-screen-xl items-baseline justify-between px-5 pt-24 md:px-10 md:pt-28">
-            <p className="text-gris-texto font-mono text-[0.7rem] tracking-[0.14em] uppercase">
-              Qué hacemos · El recorrido
-            </p>
-            <p className="text-gris-texto/70 hidden font-mono text-[0.7rem] tracking-[0.14em] uppercase md:block">
-              Scrolleá para girar ↓
-            </p>
-          </div>
-
           {/* Niebla arriba y abajo del escenario: los tambores que entran o
               salen se desvanecen antes de pisar el encabezado o los apoyos.
               (z-10: sobre la escena, debajo de header/rieles/apoyos en z-20.) */}
