@@ -93,6 +93,9 @@ export function QueHacemosHero() {
     const ctx = gsap.context(() => {
       gsap.set("[data-qh-word]", { yPercent: 115 });
       gsap.set("[data-qh-underline]", { scaleX: 0 });
+      // El celeste entra desde la DERECHA (cruzado con el subrayado, que se
+      // dibuja desde la izquierda).
+      gsap.set("[data-qh-pintura]", { clipPath: "inset(0% 0% 0% 100%)" });
       gsap.set("[data-qh-glow]", { autoAlpha: 0 });
       gsap.set("[data-qh-rise]", { autoAlpha: 0, y: 24 });
 
@@ -100,8 +103,10 @@ export function QueHacemosHero() {
       tl.to("[data-qh-word]", { yPercent: 0, duration: 1, stagger: 0.12 }, 0.75)
         .to("[data-qh-glow]", { autoAlpha: 1, duration: 1.4, ease: "power2.out" }, 1.0)
         // El subrayado se dibuja de izquierda a derecha cuando el titular
-        // ya está arriba — el gesto del marcador.
+        // ya está arriba — el gesto del marcador — y la palabra se tiñe de
+        // celeste con un barrido cruzado, desde la derecha.
         .to("[data-qh-underline]", { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 1.7)
+        .to("[data-qh-pintura]", { clipPath: "inset(0% 0% 0% 0%)", duration: 0.8, ease: "power3.inOut" }, 1.7)
         .to("[data-qh-rise]", { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.12 }, 1.45);
     }, root);
 
@@ -423,10 +428,16 @@ export function QueHacemosHero() {
           <span aria-hidden="true" className="block overflow-hidden pb-[0.14em]">
             <span data-qh-word className="block">
               {/* Marcador verde de la marca, en versión subrayado (ref Ink):
-                  se dibuja de izquierda a derecha en la entrada. La palabra
-                  va en azul-claro — el celeste de la paleta (§1). */}
-              <span className="text-azul-claro relative inline-block">
+                  se dibuja de izquierda a derecha en la entrada, y a la vez
+                  una copia en azul-claro (el celeste de la paleta, §1) se
+                  revela con clip-path DESDE LA DERECHA — barrido cruzado:
+                  el subrayado va y el color viene. Sin motion: celeste
+                  directo (el clip solo lo setea GSAP). */}
+              <span className="relative inline-block">
                 Transformamos.
+                <span aria-hidden="true" data-qh-pintura className="text-azul-claro absolute inset-0">
+                  Transformamos.
+                </span>
                 <span
                   data-qh-underline
                   className="bg-verde-concepto absolute right-[0.04em] -bottom-[0.04em] left-[0.02em] h-[0.045em] origin-left rounded-full"
