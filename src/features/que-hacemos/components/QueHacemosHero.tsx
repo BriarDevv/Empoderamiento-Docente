@@ -3,13 +3,11 @@
 import { useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import gsap from "gsap";
+import { Magnetic } from "@/components/ui/Magnetic";
 import { PuntosFaro } from "@/components/ui/PuntosFaro";
 import { getLenis } from "@/lib/lenis";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
-
-// Circunferencia del anillo de carga (r=36 en viewBox 80).
-const ANILLO = 2 * Math.PI * 36;
 
 // ── Escena ambiente: imágenes que nacen de la luz del horizonte ────────────
 // Misma idea que el hero de Investigación (imágenes evocativas que se acercan
@@ -66,19 +64,23 @@ const CADENCIA = 3.5; // cada cuánto nace una imagen nueva
  * profundidad. Amplitudes chicas (≤18px) — acompaña, no marea. Solo con
  * puntero fino (hover:hover); sin motion no hay parallax.
  *
- * Portal al recorrido: botón circular que responde a click Y a hold —
- * cualquier gesto termina encendiendo. Apretar carga el anillo a ritmo
- * lento (~1.1s, el gesto Noomo); si soltás antes de completar, cuenta como
+ * ESTRUCTURA (referencia Ink): eyebrow → titular blanco con subrayado verde
+ * bajo la palabra clave (el marcador de concepto de la marca, en versión
+ * subrayado) → bajada → botón pill naranja (CTA de acción, §7 del manual).
+ *
+ * Portal al recorrido: el pill responde a click Y a hold — cualquier gesto
+ * termina encendiendo. Apretar carga el botón a ritmo lento (~1.1s, un
+ * barrido oscuro lo va llenando); si soltás antes de completar, cuenta como
  * click y la carga restante se acelera (~0.4s). Al completar: la luz verde
  * sube desde abajo (el faro encendiéndose) y viaja suave hasta la torre
- * (#recorrido). El hover insinúa la carga (anillo al 15%) como affordance.
+ * (#recorrido). El hover insinúa la carga (barrido al 15%) como affordance.
  * NO es una puerta: scrollear de largo sigue funcionando siempre. Teclado
  * (click sintético) carga rápido; con prefers-reduced-motion salta directo.
  */
 export function QueHacemosHero() {
   const rootRef = useRef<HTMLElement | null>(null);
   const holdRef = useRef<HTMLButtonElement | null>(null);
-  const ringRef = useRef<SVGCircleElement | null>(null);
+  const fillRef = useRef<HTMLSpanElement | null>(null);
   const reduced = useReducedMotion();
   // La escena de imágenes solo corre en desktop con puntero fino y motion:
   // en mobile/reduced el hero queda limpio (y ni se cargan las fotos).
@@ -90,12 +92,16 @@ export function QueHacemosHero() {
 
     const ctx = gsap.context(() => {
       gsap.set("[data-qh-word]", { yPercent: 115 });
+      gsap.set("[data-qh-underline]", { scaleX: 0 });
       gsap.set("[data-qh-glow]", { autoAlpha: 0 });
       gsap.set("[data-qh-rise]", { autoAlpha: 0, y: 24 });
 
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       tl.to("[data-qh-word]", { yPercent: 0, duration: 1, stagger: 0.12 }, 0.75)
         .to("[data-qh-glow]", { autoAlpha: 1, duration: 1.4, ease: "power2.out" }, 1.0)
+        // El subrayado se dibuja de izquierda a derecha cuando el titular
+        // ya está arriba — el gesto del marcador.
+        .to("[data-qh-underline]", { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 1.7)
         .to("[data-qh-rise]", { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.12 }, 1.45);
     }, root);
 
@@ -188,12 +194,12 @@ export function QueHacemosHero() {
     return () => ctx.revert();
   }, [escenaViva]);
 
-  // ── Portal al recorrido (un click) ─────────────────────────────────────
+  // ── Portal al recorrido (click / hold sobre el pill) ───────────────────
   useIsomorphicLayoutEffect(() => {
     const btn = holdRef.current;
-    const ring = ringRef.current;
+    const fill = fillRef.current;
     const root = rootRef.current;
-    if (!btn || !ring || !root) return;
+    if (!btn || !fill || !root) return;
 
     const viajar = () => {
       const destino = document.getElementById("recorrido");
@@ -215,14 +221,14 @@ export function QueHacemosHero() {
     // idle → cargando (dedo abajo o click acelerando) → viajando → idle.
     let fase: "idle" | "cargando" | "viajando" = "idle";
 
-    ring.style.strokeDasharray = String(ANILLO);
+    // El barrido oscuro del pill marca el progreso de la carga.
     const pintar = () => {
-      ring.style.strokeDashoffset = String(ANILLO * (1 - prog.v));
+      fill.style.transform = `scaleX(${prog.v})`;
       if (holdGlow) holdGlow.style.opacity = String(prog.v * 0.9);
     };
     pintar();
 
-    // Carga completa: flash de luz y viaje; el anillo se descarga mientras
+    // Carga completa: flash de luz y viaje; el barrido se descarga mientras
     // viajamos.
     const fuego = () => {
       fase = "viajando";
@@ -240,14 +246,14 @@ export function QueHacemosHero() {
         duration: 0.8,
         delay: 0.5,
         ease: "power2.out",
-        onUpdate: () => (ring.style.strokeDashoffset = String(ANILLO * (1 - prog.v))),
+        onUpdate: () => (fill.style.transform = `scaleX(${prog.v})`),
         onComplete: () => {
           fase = "idle";
         },
       });
     };
 
-    // Carga el resto del anillo en `dur` (escalado por lo que falta) y fuego.
+    // Carga el resto del barrido en `dur` (escalado por lo que falta) y fuego.
     const cargar = (dur: number, ease: string) => {
       tween?.kill();
       tween = gsap.to(prog, {
@@ -397,64 +403,69 @@ export function QueHacemosHero() {
       <div
         className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center px-5 text-center will-change-transform md:px-10"
         style={{
-          transform: "translate3d(calc(var(--qhx, 0) * 10px), calc(var(--qhy, 0) * 8px), 0)",
+          // Sigue al mouse y ADEMÁS se inclina apenas hacia él (mira al
+          // cursor) — mismos signos que useTilt: rotateY con x, rotateX
+          // contra y. Ángulos chicos para que acompañe sin marear.
+          transform:
+            "perspective(1000px) translate3d(calc(var(--qhx, 0) * 10px), calc(var(--qhy, 0) * 8px), 0) rotateY(calc(var(--qhx, 0) * 2.6deg)) rotateX(calc(var(--qhy, 0) * -2.1deg))",
         }}
       >
         <h1
           className="font-display font-extrabold tracking-[-0.03em] text-white [text-shadow:0_2px_30px_rgb(15_21_40/0.55)]"
-          style={{ fontSize: "clamp(2.75rem, 1.1rem + 7vw, 6.25rem)", lineHeight: 1 }}
+          style={{ fontSize: "clamp(2.75rem, 1.1rem + 7vw, 6.25rem)", lineHeight: 1.04 }}
         >
           <span className="sr-only">No formamos. Transformamos.</span>
-          <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
+          <span aria-hidden="true" className="block overflow-hidden pb-[0.08em]">
             <span data-qh-word className="block">
               No formamos.
             </span>
           </span>
-          <span aria-hidden="true" className="block overflow-hidden pb-[0.06em]">
-            <span data-qh-word className="text-verde-concepto block">
-              Transformamos.
+          <span aria-hidden="true" className="block overflow-hidden pb-[0.14em]">
+            <span data-qh-word className="block">
+              {/* Marcador verde de la marca, en versión subrayado (ref Ink):
+                  se dibuja de izquierda a derecha en la entrada. La palabra
+                  va en azul-claro — el celeste de la paleta (§1). */}
+              <span className="text-azul-claro relative inline-block">
+                Transformamos.
+                <span
+                  data-qh-underline
+                  className="bg-verde-concepto absolute right-[0.04em] -bottom-[0.04em] left-[0.02em] h-[0.045em] origin-left rounded-full"
+                />
+              </span>
             </span>
           </span>
         </h1>
 
         <p
           data-qh-rise
-          className="mt-7 max-w-[56ch] font-sans text-[1.05rem] leading-relaxed text-white/85 md:text-[1.2rem]"
+          className="mt-6 max-w-[56ch] font-sans text-[1.05rem] leading-relaxed text-white/85 md:text-[1.2rem]"
         >
           Generamos escenarios de aprendizaje pensados para cada contexto —
           nunca enlatados — que transforman la relación con la matemática
           escolar.
         </p>
 
-        {/* Portal al recorrido: un click carga el anillo, enciende la luz y
-            viaja suave a la torre. Scrollear sigue funcionando siempre —
-            esto es un atajo, no una puerta. */}
-        <div data-qh-rise className="mt-10 flex flex-col items-center gap-4 md:mt-12">
-          <button
-            ref={holdRef}
-            type="button"
-            aria-label="Entrar al recorrido de lo que hacemos"
-            className="focus-visible:outline-verde-concepto relative flex h-24 w-24 cursor-pointer touch-none items-center justify-center rounded-full outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-4"
-          >
-            <svg viewBox="0 0 80 80" className="absolute inset-0 h-full w-full -rotate-90">
-              <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,0.16)" strokeWidth="2" />
-              <circle
-                ref={ringRef}
-                cx="40"
-                cy="40"
-                r="36"
-                fill="none"
-                stroke="var(--color-verde-concepto)"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeDasharray={ANILLO}
-                strokeDashoffset={ANILLO}
+        {/* Portal al recorrido: click u hold cargan el barrido del pill,
+            encienden la luz y viajan suave a la torre. Scrollear sigue
+            funcionando siempre — esto es un atajo, no una puerta. */}
+        <div data-qh-rise className="mt-10 md:mt-12">
+          <Magnetic strength={0.25}>
+            <button
+              ref={holdRef}
+              type="button"
+              aria-label="Entrar al recorrido de lo que hacemos"
+              className="bg-naranja-accion relative inline-flex cursor-pointer touch-none items-center overflow-hidden rounded-full px-9 py-4 font-sans text-[0.98rem] font-medium text-white outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/80"
+            >
+              {/* Barrido de carga (click/hold): mismo lenguaje que el sweep
+                  hover del CtaButton del nav, acá manejado por GSAP. */}
+              <span
+                ref={fillRef}
+                aria-hidden="true"
+                className="absolute inset-0 origin-left scale-x-0 bg-black/20"
               />
-            </svg>
-            <span className="font-mono text-[0.66rem] tracking-[0.18em] text-white/90 uppercase">
-              Entrar
-            </span>
-          </button>
+              <span className="relative">Entrá al recorrido</span>
+            </button>
+          </Magnetic>
         </div>
       </div>
     </section>
