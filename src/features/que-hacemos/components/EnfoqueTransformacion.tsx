@@ -125,7 +125,7 @@ export function EnfoqueTransformacion() {
   }, [live]);
 
   return (
-    <section id="recorrido" className="relative bg-white" aria-label="Nuestro enfoque">
+    <section className="relative bg-white" aria-label="Nuestro enfoque">
       {/* Contenido real para lectores de pantalla; la escena es decorativa. */}
       <p className="sr-only">
         No hacemos capacitación: hacemos transformación educativa.
