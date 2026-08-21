@@ -356,9 +356,12 @@ export function QueHacemosHero() {
         {/* Horizonte de luz: el faro debajo del horizonte. GSAP solo anima
             autoAlpha (entrada); el transform queda libre para el parallax
             por CSS var — sin pelea de transforms. */}
+        {/* -inset-8 (32px) > desplazamiento máximo del parallax (18px):
+            los bordes de la capa nunca entran al viewport — sin costuras
+            de gradiente en las esquinas. */}
         <span
           data-qh-glow
-          className="absolute inset-0 will-change-transform"
+          className="absolute -inset-8 will-change-transform"
           style={{
             background:
               "radial-gradient(90% 62% at 50% 110%, color-mix(in srgb, var(--color-azul-medio) 52%, transparent) 0%, color-mix(in srgb, var(--color-azul-claro) 16%, transparent) 42%, transparent 72%)",
