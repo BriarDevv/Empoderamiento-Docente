@@ -473,7 +473,7 @@ body:has([data-footer-dock-tint="gris"]) [data-footer-dock] {
 
 /* El haz del faro girando: rotación continua; el translate debe viajar en
    los keyframes (la animación pisa el transform inline). Media vuelta el
-   haz queda bajo el horizonte — así "pasa" cada tanto, como un faro real. */
+   haz queda bajo el horizonte — pasa cada tanto, ancho y tenue. */
 @keyframes qh-faro-gira {
   from {
     transform: translate(-50%, -50%) rotate(0deg);
