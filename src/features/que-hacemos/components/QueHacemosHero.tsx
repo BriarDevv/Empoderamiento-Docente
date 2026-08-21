@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, type CSSProperties } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { PuntosFaro } from "@/components/ui/PuntosFaro";
 import { getLenis } from "@/lib/lenis";
@@ -10,29 +11,78 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 // Circunferencia del anillo de carga (r=36 en viewBox 80).
 const ANILLO = 2 * Math.PI * 36;
 
+// ── Escena ambiente: imágenes que nacen de la luz del horizonte ────────────
+// Misma idea que el hero de Investigación (imágenes evocativas que se acercan
+// y pasan de largo) pero manejada por TIEMPO, no por scroll: loop continuo y
+// lento detrás del titular. Es atmósfera — sin etiquetas, el titular manda.
+const ESCENA = [
+  "/hero/hero-2.webp",
+  "/metodo/acompanamos.webp",
+  "/hero/hero-9.webp",
+  "/metodo/evaluamos.webp",
+  "/hero/hero-11.webp",
+  "/hero/hero-3.webp",
+];
+
+// Carriles: lado (izq/der) y banda vertical de destino — esquivan el centro,
+// donde vive el titular.
+const CARRILES = [
+  { side: -1, y: -0.2 },
+  { side: 1, y: 0.14 },
+  { side: -1, y: 0.18 },
+  { side: 1, y: -0.16 },
+  { side: -1, y: 0.02 },
+  { side: 1, y: 0.2 },
+];
+
+const VIAJE = 14; // segundos que tarda una imagen de nacer a irse
+const CADENCIA = 3.5; // cada cuánto nace una imagen nueva
+
 /**
- * Hero de Qué hacemos — misma base de marca que Biblioteca/Novedades (navy a
- * sangre, <PuntosFaro />, glow contenido, titular con remate verde) con el
- * mensaje diferencial de ED como titular: "No formamos. / Transformamos."
- * (palabras de la clienta: "en ED no formamos, se trata de una transformación
+ * Hero de Qué hacemos — pantalla completa (100svh) a sangre, sin bordes
+ * redondeados, todo centrado en el medio: titular, bajada y el botón portal
+ * (referencia Ink). Fondo atmosférico propio: navy que oscurece hacia
+ * arriba y un HORIZONTE DE LUZ azul abajo — el faro debajo del horizonte,
+ * a punto de encenderse (el click del portal lo enciende en verde encima).
+ * <PuntosFaro /> da la textura de puntos + haz del cursor. Titular con el
+ * mensaje diferencial de ED: "No formamos. / Transformamos." (palabras de
+ * la clienta: "en ED no formamos, se trata de una transformación
  * educativa"). PENDIENTE validar el titular exacto con cliente.
+ *
+ * ESCENA AMBIENTE (idea del hero de Investigación, adaptada): imágenes
+ * evocativas nacen chiquitas en la luz del horizonte, se acercan de a poco
+ * derivando hacia los costados y pasan de largo — loop continuo por TIEMPO
+ * (acá no hay scroll-scrub: el hero es una pantalla). Solo desktop con
+ * puntero fino y motion; en mobile/reduced ni se montan.
  *
  * Entrada: el haz barre encendiendo los puntos y las dos líneas suben desde
  * su máscara cuando la luz cruza el centro (~0.95s, constantes de PuntosFaro).
  * Sin motion: todo visible y quieto.
  *
- * Portal "mantené apretado" (referencia Noomo, click-and-hold): al pie hay un
- * botón circular; mientras se mantiene apretado, un anillo se carga y una luz
- * verde sube desde abajo (el faro encendiéndose con el gesto). Al completar,
- * pulso de luz y viaje suave hasta la torre (#recorrido). NO es una puerta:
- * scrollear de largo sigue funcionando siempre. Con teclado (Enter/Espacio) o
- * prefers-reduced-motion, el botón salta directo sin exigir el hold.
+ * MOUSE-PARALLAX (misma fórmula que el hero del home): un solo RAF con lerp
+ * setea --qhx/--qhy (-1..1 desde el centro del viewport) sobre la section.
+ * Cada capa los multiplica por su profundidad: el contenido sigue LEVEMENTE
+ * al cursor (+), el fondo (glow/bola) se desplaza en contra (-) para dar
+ * profundidad. Amplitudes chicas (≤18px) — acompaña, no marea. Solo con
+ * puntero fino (hover:hover); sin motion no hay parallax.
+ *
+ * Portal al recorrido: botón circular que responde a click Y a hold —
+ * cualquier gesto termina encendiendo. Apretar carga el anillo a ritmo
+ * lento (~1.1s, el gesto Noomo); si soltás antes de completar, cuenta como
+ * click y la carga restante se acelera (~0.4s). Al completar: la luz verde
+ * sube desde abajo (el faro encendiéndose) y viaja suave hasta la torre
+ * (#recorrido). El hover insinúa la carga (anillo al 15%) como affordance.
+ * NO es una puerta: scrollear de largo sigue funcionando siempre. Teclado
+ * (click sintético) carga rápido; con prefers-reduced-motion salta directo.
  */
 export function QueHacemosHero() {
   const rootRef = useRef<HTMLElement | null>(null);
   const holdRef = useRef<HTMLButtonElement | null>(null);
   const ringRef = useRef<SVGCircleElement | null>(null);
   const reduced = useReducedMotion();
+  // La escena de imágenes solo corre en desktop con puntero fino y motion:
+  // en mobile/reduced el hero queda limpio (y ni se cargan las fotos).
+  const [escenaViva, setEscenaViva] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
     const root = rootRef.current;
@@ -41,20 +91,104 @@ export function QueHacemosHero() {
     const ctx = gsap.context(() => {
       gsap.set("[data-qh-word]", { yPercent: 115 });
       gsap.set("[data-qh-glow]", { autoAlpha: 0 });
-      gsap.set("[data-qh-bola]", { x: -170, y: 170 });
       gsap.set("[data-qh-rise]", { autoAlpha: 0, y: 24 });
 
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       tl.to("[data-qh-word]", { yPercent: 0, duration: 1, stagger: 0.12 }, 0.75)
-        .to("[data-qh-glow]", { autoAlpha: 1, duration: 1, ease: "power2.out" }, 1.0)
-        .to("[data-qh-bola]", { x: 0, y: 0, duration: 1 }, 0.9)
+        .to("[data-qh-glow]", { autoAlpha: 1, duration: 1.4, ease: "power2.out" }, 1.0)
         .to("[data-qh-rise]", { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.12 }, 1.45);
     }, root);
 
     return () => ctx.revert();
   }, [reduced]);
 
-  // ── Portal "mantené apretado" ──────────────────────────────────────────
+  // ── Mouse-parallax del hero ────────────────────────────────────────────
+  // RAF único con lerp (EASE bajo = trailing suave). Solo actualiza CSS vars;
+  // las capas mueven vía transform con calc() — GSAP nunca toca esos nodos,
+  // así que no hay pelea de transforms.
+  useIsomorphicLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root || reduced) return;
+    if (!window.matchMedia("(hover: hover)").matches) return;
+
+    let tx = 0;
+    let ty = 0;
+    let cx = 0;
+    let cy = 0;
+    let raf = 0;
+    let started = false;
+    const clamp = (v: number) => (v < -1 ? -1 : v > 1 ? 1 : v);
+    const onMove = (e: MouseEvent) => {
+      tx = clamp((e.clientX / window.innerWidth - 0.5) * 2);
+      ty = clamp((e.clientY / window.innerHeight - 0.5) * 2);
+      started = true;
+    };
+    const EASE = 0.07; // más bajo = más retardo (muy smooth, sin exagerar)
+    const tick = () => {
+      cx += (tx - cx) * EASE;
+      cy += (ty - cy) * EASE;
+      if (started) {
+        root.style.setProperty("--qhx", cx.toFixed(4));
+        root.style.setProperty("--qhy", cy.toFixed(4));
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(raf);
+    };
+  }, [reduced]);
+
+  // ── Escena ambiente: encender solo donde corresponde ───────────────────
+  useIsomorphicLayoutEffect(() => {
+    if (reduced) return;
+    if (!window.matchMedia("(hover: hover) and (min-width: 768px)").matches) return;
+    setEscenaViva(true);
+  }, [reduced]);
+
+  // ── Escena ambiente: el loop (corre recién cuando las figuras montaron) ──
+  useIsomorphicLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root || !escenaViva) return;
+
+    const ctx = gsap.context(() => {
+      const cards = gsap.utils.toArray<HTMLElement>("[data-qh-img]");
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      // Ciclo total por tarjeta = CADENCIA * n; el resto del viaje es espera.
+      const espera = Math.max(0, CADENCIA * cards.length - VIAJE);
+
+      cards.forEach((card, i) => {
+        const { side, y } = CARRILES[i % CARRILES.length];
+        gsap.set(card, { xPercent: -50, yPercent: -50, autoAlpha: 0 });
+
+        const tl = gsap.timeline({
+          repeat: -1,
+          repeatDelay: espera,
+          delay: 2.2 + i * CADENCIA, // arranca cuando la entrada ya pasó
+        });
+        // Nace chiquita en la luz del horizonte…
+        tl.set(card, { x: 0, y: H * 0.3, scale: 0.08, autoAlpha: 0 })
+          // …aparece de a poco…
+          .to(card, { autoAlpha: 0.85, duration: 2.4, ease: "power1.in" }, 0)
+          // …se acerca derivando hacia su carril…
+          .to(card, { x: side * W * 0.36, y: y * H, scale: 0.95, duration: VIAJE - 4, ease: "power1.out" }, 0)
+          // …y pasa de largo, agrandándose mientras se va.
+          .to(
+            card,
+            { x: side * W * 0.56, y: y * H - H * 0.14, scale: 1.5, autoAlpha: 0, duration: 4, ease: "power1.in" },
+            VIAJE - 4,
+          );
+      });
+    }, root);
+
+    return () => ctx.revert();
+  }, [escenaViva]);
+
+  // ── Portal al recorrido (un click) ─────────────────────────────────────
   useIsomorphicLayoutEffect(() => {
     const btn = holdRef.current;
     const ring = ringRef.current;
@@ -77,8 +211,9 @@ export function QueHacemosHero() {
 
     const holdGlow = root.querySelector<HTMLElement>("[data-qh-holdglow]");
     const prog = { v: 0 };
-    let holdTween: gsap.core.Tween | null = null;
-    let disparado = false;
+    let tween: gsap.core.Tween | null = null;
+    // idle → cargando (dedo abajo o click acelerando) → viajando → idle.
+    let fase: "idle" | "cargando" | "viajando" = "idle";
 
     ring.style.strokeDasharray = String(ANILLO);
     const pintar = () => {
@@ -87,9 +222,11 @@ export function QueHacemosHero() {
     };
     pintar();
 
-    const encender = () => {
-      disparado = true;
-      // Flash de luz y viaje; el anillo se descarga mientras viajamos.
+    // Carga completa: flash de luz y viaje; el anillo se descarga mientras
+    // viajamos.
+    const fuego = () => {
+      fase = "viajando";
+      viajar();
       if (holdGlow) {
         gsap.fromTo(
           holdGlow,
@@ -97,73 +234,128 @@ export function QueHacemosHero() {
           { opacity: 0, duration: 1.4, ease: "power2.out", delay: 0.15 },
         );
       }
-      viajar();
-      gsap.to(btn, { scale: 1, duration: 0.3 });
+      gsap.to(btn, { scale: 1, duration: 0.45, ease: "power2.out" });
       gsap.to(prog, {
         v: 0,
         duration: 0.8,
         delay: 0.5,
         ease: "power2.out",
-        onUpdate: () => ring.style.strokeDashoffset = String(ANILLO * (1 - prog.v)),
+        onUpdate: () => (ring.style.strokeDashoffset = String(ANILLO * (1 - prog.v))),
         onComplete: () => {
-          disparado = false;
+          fase = "idle";
         },
       });
     };
 
-    const abajo = (e: PointerEvent) => {
-      if (disparado) return;
-      btn.setPointerCapture?.(e.pointerId);
-      holdTween?.kill();
-      holdTween = gsap.to(prog, { v: 1, duration: 1.1, ease: "none", onUpdate: pintar, onComplete: encender });
-      gsap.to(btn, { scale: 0.94, duration: 0.25, ease: "power2.out" });
+    // Carga el resto del anillo en `dur` (escalado por lo que falta) y fuego.
+    const cargar = (dur: number, ease: string) => {
+      tween?.kill();
+      tween = gsap.to(prog, {
+        v: 1,
+        duration: dur * (1 - prog.v),
+        ease,
+        onUpdate: pintar,
+        onComplete: fuego,
+      });
     };
-    const soltar = () => {
-      if (disparado) return;
-      holdTween?.kill();
-      holdTween = gsap.to(prog, { v: 0, duration: 0.35, ease: "power2.out", onUpdate: pintar });
+
+    // Dedo abajo: carga lenta (el gesto de "encender manteniendo").
+    const abajo = (e: PointerEvent) => {
+      if (fase !== "idle") return;
+      fase = "cargando";
+      // Capturar el puntero mantiene el hold vivo aunque el dedo derive un
+      // poco; si el navegador lo rechaza (puntero ya soltado), da igual.
+      try {
+        btn.setPointerCapture?.(e.pointerId);
+      } catch {
+        /* noop */
+      }
+      gsap.to(btn, { scale: 0.94, duration: 0.25, ease: "power2.out" });
+      cargar(1.1, "none");
+    };
+    // Soltó antes de completar: fue un click — la carga restante se acelera.
+    const arriba = () => {
+      if (fase !== "cargando") return;
+      cargar(0.4, "power2.in");
+    };
+    // Cancelación real del puntero (no un release): descarga.
+    const cancelar = () => {
+      if (fase !== "cargando") return;
+      fase = "idle";
+      tween?.kill();
+      tween = gsap.to(prog, { v: 0, duration: 0.35, ease: "power2.out", onUpdate: pintar });
       gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
     };
-    // Con teclado el click llega con detail 0: no hay hold posible, va directo.
+    // Teclado: el click llega con detail 0, sin pointerdown previo.
     const teclado = (e: MouseEvent) => {
-      if (e.detail === 0 && !disparado) viajar();
+      if (e.detail === 0 && fase === "idle") {
+        fase = "cargando";
+        cargar(0.5, "power2.in");
+      }
+    };
+
+    // Hover: insinúa la carga (affordance de "esto se enciende").
+    const entrar = () => {
+      if (fase !== "idle") return;
+      tween?.kill();
+      tween = gsap.to(prog, { v: 0.15, duration: 0.35, ease: "power2.out", onUpdate: pintar });
+      gsap.to(btn, { scale: 1.05, duration: 0.3, ease: "power2.out" });
+    };
+    const salir = () => {
+      if (fase !== "idle") return;
+      tween?.kill();
+      tween = gsap.to(prog, { v: 0, duration: 0.4, ease: "power2.out", onUpdate: pintar });
+      gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
     };
 
     btn.addEventListener("pointerdown", abajo);
-    btn.addEventListener("pointerup", soltar);
-    btn.addEventListener("pointercancel", soltar);
-    btn.addEventListener("pointerleave", soltar);
+    btn.addEventListener("pointerup", arriba);
+    btn.addEventListener("pointercancel", cancelar);
     btn.addEventListener("click", teclado);
+    btn.addEventListener("pointerenter", entrar);
+    btn.addEventListener("pointerleave", salir);
     return () => {
-      holdTween?.kill();
+      tween?.kill();
       btn.removeEventListener("pointerdown", abajo);
-      btn.removeEventListener("pointerup", soltar);
-      btn.removeEventListener("pointercancel", soltar);
-      btn.removeEventListener("pointerleave", soltar);
+      btn.removeEventListener("pointerup", arriba);
+      btn.removeEventListener("pointercancel", cancelar);
       btn.removeEventListener("click", teclado);
+      btn.removeEventListener("pointerenter", entrar);
+      btn.removeEventListener("pointerleave", salir);
     };
   }, [reduced]);
 
   return (
     <section
       ref={rootRef}
-      className="bg-azul-principal relative isolate flex min-h-[86svh] flex-col justify-between overflow-hidden rounded-b-[2rem] pt-28 pb-10 text-white md:rounded-b-[2.75rem] md:pt-32"
+      className="relative isolate flex min-h-svh flex-col justify-center overflow-hidden pt-24 pb-12 text-white"
       aria-label="Qué hacemos"
+      style={
+        {
+          "--qhx": "0",
+          "--qhy": "0",
+          // Navy que oscurece hacia arriba: profundidad de cielo nocturno
+          // sin salir de la paleta (azul-principal mezclado con negro).
+          background:
+            "linear-gradient(180deg, color-mix(in srgb, var(--color-azul-principal) 52%, #04060c) 0%, color-mix(in srgb, var(--color-azul-principal) 78%, #04060c) 55%, var(--color-azul-principal) 100%)",
+        } as CSSProperties
+      }
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        {/* Horizonte de luz: el faro debajo del horizonte. GSAP solo anima
+            autoAlpha (entrada); el transform queda libre para el parallax
+            por CSS var — sin pelea de transforms. */}
         <span
           data-qh-glow
-          className="absolute inset-0"
+          className="absolute inset-0 will-change-transform"
           style={{
             background:
-              "radial-gradient(55% 42% at 50% 0%, color-mix(in srgb, var(--color-azul-claro) 24%, transparent), transparent 70%)",
+              "radial-gradient(90% 62% at 50% 110%, color-mix(in srgb, var(--color-azul-medio) 52%, transparent) 0%, color-mix(in srgb, var(--color-azul-claro) 16%, transparent) 42%, transparent 72%)",
+            transform:
+              "translate3d(calc(var(--qhx, 0) * -18px), calc(var(--qhy, 0) * -10px), 0)",
           }}
         />
-        <span
-          data-qh-bola
-          className="bg-azul-medio/25 absolute -bottom-44 -left-36 h-[26rem] w-[26rem] rounded-full"
-        />
-        {/* Luz que se "carga" con el hold: sube desde el botón, abajo. */}
+        {/* Luz que se "carga" con el click: sube desde el botón, abajo. */}
         <span
           data-qh-holdglow
           className="absolute inset-0 opacity-0"
@@ -175,9 +367,41 @@ export function QueHacemosHero() {
         <PuntosFaro />
       </div>
 
-      <div className="mx-auto my-auto flex w-full max-w-screen-xl flex-col items-center px-5 text-center md:px-10">
+      {/* Escena ambiente: imágenes que nacen de la luz del horizonte, se
+          acercan de a poco y pasan de largo. Detrás del contenido (z-0 vs
+          z-10); parallax leve EN CONTRA del mouse (son "lejos"). */}
+      {escenaViva && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 will-change-transform"
+          style={{
+            transform:
+              "translate3d(calc(var(--qhx, 0) * -12px), calc(var(--qhy, 0) * -8px), 0)",
+          }}
+        >
+          {ESCENA.map((src) => (
+            <figure
+              key={src}
+              data-qh-img
+              className="absolute top-1/2 left-1/2 w-[clamp(170px,17vw,280px)] opacity-0 will-change-transform"
+            >
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] ring-1 ring-white/10">
+                <Image src={src} alt="" fill sizes="280px" className="object-cover" />
+                <span className="bg-azul-principal/25 absolute inset-0" />
+              </div>
+            </figure>
+          ))}
+        </div>
+      )}
+
+      <div
+        className="relative z-10 mx-auto flex w-full max-w-screen-xl flex-col items-center px-5 text-center will-change-transform md:px-10"
+        style={{
+          transform: "translate3d(calc(var(--qhx, 0) * 10px), calc(var(--qhy, 0) * 8px), 0)",
+        }}
+      >
         <h1
-          className="font-display font-extrabold tracking-[-0.03em] text-white"
+          className="font-display font-extrabold tracking-[-0.03em] text-white [text-shadow:0_2px_30px_rgb(15_21_40/0.55)]"
           style={{ fontSize: "clamp(2.75rem, 1.1rem + 7vw, 6.25rem)", lineHeight: 1 }}
         >
           <span className="sr-only">No formamos. Transformamos.</span>
@@ -201,43 +425,37 @@ export function QueHacemosHero() {
           nunca enlatados — que transforman la relación con la matemática
           escolar.
         </p>
-      </div>
 
-      {/* Portal al recorrido: mantener apretado carga el anillo y enciende
-          la luz; al completar, viaje suave a la torre. Scrollear sigue
-          funcionando siempre — esto es un gesto, no una puerta. */}
-      <div
-        data-qh-rise
-        className="mx-auto flex w-full max-w-screen-xl flex-col items-center gap-4 px-5 text-center md:px-10"
-      >
-        <button
-          ref={holdRef}
-          type="button"
-          aria-label="Entrar al recorrido de lo que hacemos"
-          className="focus-visible:outline-verde-concepto relative flex h-24 w-24 touch-none items-center justify-center rounded-full outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-4"
-        >
-          <svg viewBox="0 0 80 80" className="absolute inset-0 h-full w-full -rotate-90">
-            <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,0.16)" strokeWidth="2" />
-            <circle
-              ref={ringRef}
-              cx="40"
-              cy="40"
-              r="36"
-              fill="none"
-              stroke="var(--color-verde-concepto)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeDasharray={ANILLO}
-              strokeDashoffset={ANILLO}
-            />
-          </svg>
-          <span className="font-mono text-[0.66rem] tracking-[0.18em] text-white/90 uppercase">
-            Entrar
-          </span>
-        </button>
-        <span className="font-mono text-[0.7rem] tracking-[0.2em] text-white/45 uppercase">
-          Mantené apretado para encender el recorrido
-        </span>
+        {/* Portal al recorrido: un click carga el anillo, enciende la luz y
+            viaja suave a la torre. Scrollear sigue funcionando siempre —
+            esto es un atajo, no una puerta. */}
+        <div data-qh-rise className="mt-10 flex flex-col items-center gap-4 md:mt-12">
+          <button
+            ref={holdRef}
+            type="button"
+            aria-label="Entrar al recorrido de lo que hacemos"
+            className="focus-visible:outline-verde-concepto relative flex h-24 w-24 cursor-pointer touch-none items-center justify-center rounded-full outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            <svg viewBox="0 0 80 80" className="absolute inset-0 h-full w-full -rotate-90">
+              <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,0.16)" strokeWidth="2" />
+              <circle
+                ref={ringRef}
+                cx="40"
+                cy="40"
+                r="36"
+                fill="none"
+                stroke="var(--color-verde-concepto)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray={ANILLO}
+                strokeDashoffset={ANILLO}
+              />
+            </svg>
+            <span className="font-mono text-[0.66rem] tracking-[0.18em] text-white/90 uppercase">
+              Entrar
+            </span>
+          </button>
+        </div>
       </div>
     </section>
   );
