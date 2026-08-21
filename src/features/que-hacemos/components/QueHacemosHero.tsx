@@ -58,9 +58,9 @@ const ESTRELLAS = (() => {
  * que oscurece hacia arriba, HORIZONTE DE LUZ azul abajo (el faro debajo
  * del horizonte, a punto de encenderse — el click del portal lo enciende
  * en verde encima), CIELO ESTRELLADO disperso (constelación determinista,
- * algunas titilan) y EL HAZ DEL FARO GIRANDO: un barrido cónico de luz
- * cruza el cielo cada ~9.5s y desaparece bajo el horizonte, como un faro
- * real. Titular con el mensaje diferencial de ED: "No formamos. /
+ * algunas titilan) y EL HAZ DEL FARO GIRANDO: un cono ancho (~48°)
+ * y muy tenue (pico 6%) da la vuelta cada 18s — no se ve un rayo, la
+ * zona del cielo que toca respira un poco más de luz. Titular con el mensaje diferencial de ED: "No formamos. /
  * Transformamos." (palabras de la clienta: "en ED no formamos, se trata
  * de una transformación educativa"). PENDIENTE validar titular exacto.
  *
@@ -473,16 +473,16 @@ export function QueHacemosHero() {
             />
           ))}
         </span>
-        {/* El haz del faro girando: nace bajo el horizonte (50%, 105%) y da
-            la vuelta completa (~9.5s) — media vuelta pasa por el cielo,
-            media queda oculta abajo, como un faro real. Sin motion no se
-            monta (un haz estático clavado quedaría raro). */}
+        {/* El haz del faro girando — versión amplia y tenue: cono de ~48°
+            con bordes bien difusos y pico al 6%, vuelta completa en 18s.
+            No se "ve pasar" un rayo: la zona del cielo que toca respira un
+            poco más de luz. Sin motion no se monta. */}
         <span
-          className="absolute top-[105%] left-1/2 hidden h-[170vmax] w-[170vmax] motion-safe:block motion-safe:animate-[qh-faro-gira_9.5s_linear_infinite]"
+          className="absolute top-[105%] left-1/2 hidden h-[190vmax] w-[190vmax] motion-safe:block motion-safe:animate-[qh-faro-gira_18s_linear_infinite]"
           style={{
             transform: "translate(-50%, -50%)",
             background:
-              "conic-gradient(from 0deg at 50% 50%, transparent 0deg, color-mix(in srgb, var(--color-azul-claro) 9%, transparent) 4deg, color-mix(in srgb, var(--color-azul-claro) 15%, transparent) 7deg, color-mix(in srgb, var(--color-azul-claro) 9%, transparent) 10deg, transparent 14deg)",
+              "conic-gradient(from 0deg at 50% 50%, transparent 0deg, color-mix(in srgb, var(--color-azul-claro) 2%, transparent) 10deg, color-mix(in srgb, var(--color-azul-claro) 4%, transparent) 18deg, color-mix(in srgb, var(--color-azul-claro) 6%, transparent) 24deg, color-mix(in srgb, var(--color-azul-claro) 4%, transparent) 30deg, color-mix(in srgb, var(--color-azul-claro) 2%, transparent) 38deg, transparent 48deg)",
           }}
         />
       </div>
