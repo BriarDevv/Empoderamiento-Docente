@@ -3,7 +3,6 @@
 import { useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import gsap from "gsap";
-import { PuntosFaro } from "@/components/ui/PuntosFaro";
 import { getLenis } from "@/lib/lenis";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
@@ -35,16 +34,35 @@ const CARRILES = [
 const VIAJE = 14; // segundos que tarda una imagen de nacer a irse
 const CADENCIA = 3.5; // cada cuánto nace una imagen nueva
 
+// ── Cielo estrellado ───────────────────────────────────────────────────────
+// Estrellas dispersas con LCG determinista: misma constelación en server y
+// client (Math.random rompería la hidratación). Algunas titilan.
+const ESTRELLAS = (() => {
+  let s = 20260821;
+  const rnd = () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296);
+  return Array.from({ length: 90 }, () => ({
+    x: rnd() * 100,
+    y: rnd() * 100,
+    r: 0.9 + rnd() * 1.6,
+    o: 0.12 + rnd() * 0.5,
+    titila: rnd() < 0.13,
+    delay: rnd() * 6,
+  }));
+})();
+
 /**
  * Hero de Qué hacemos — pantalla completa (100svh) a sangre, sin bordes
  * redondeados, todo centrado en el medio: titular, bajada y el botón portal
- * (referencia Ink). Fondo atmosférico propio: navy que oscurece hacia
- * arriba y un HORIZONTE DE LUZ azul abajo — el faro debajo del horizonte,
- * a punto de encenderse (el click del portal lo enciende en verde encima).
- * <PuntosFaro /> da la textura de puntos + haz del cursor. Titular con el
- * mensaje diferencial de ED: "No formamos. / Transformamos." (palabras de
- * la clienta: "en ED no formamos, se trata de una transformación
- * educativa"). PENDIENTE validar el titular exacto con cliente.
+ * (referencia Ink). Fondo atmosférico propio, "NOCHE DE FARO" — distinto
+ * de Biblioteca/Novedades (que comparten la grilla de PuntosFaro): navy
+ * que oscurece hacia arriba, HORIZONTE DE LUZ azul abajo (el faro debajo
+ * del horizonte, a punto de encenderse — el click del portal lo enciende
+ * en verde encima), CIELO ESTRELLADO disperso (constelación determinista,
+ * algunas titilan) y EL HAZ DEL FARO GIRANDO: un barrido cónico de luz
+ * cruza el cielo cada ~9.5s y desaparece bajo el horizonte, como un faro
+ * real. Titular con el mensaje diferencial de ED: "No formamos. /
+ * Transformamos." (palabras de la clienta: "en ED no formamos, se trata
+ * de una transformación educativa"). PENDIENTE validar titular exacto.
  *
  * ESCENA AMBIENTE (idea del hero de Investigación, adaptada): imágenes
  * evocativas nacen chiquitas en la luz del horizonte, se acercan de a poco
@@ -432,7 +450,41 @@ export function QueHacemosHero() {
               "radial-gradient(60% 55% at 50% 100%, color-mix(in srgb, var(--color-verde-concepto) 26%, transparent), transparent 72%)",
           }}
         />
-        <PuntosFaro />
+        {/* Cielo estrellado — en lugar de la grilla de puntos que comparten
+            Biblioteca/Novedades: constelación dispersa, algunas titilan. */}
+        <span className="absolute inset-0 overflow-hidden">
+          {ESTRELLAS.map((e, i) => (
+            <span
+              key={i}
+              className={
+                "absolute rounded-full bg-white" +
+                (e.titila
+                  ? " motion-safe:animate-[qh-estrella_5s_ease-in-out_infinite]"
+                  : "")
+              }
+              style={{
+                left: `${e.x}%`,
+                top: `${e.y}%`,
+                width: e.r,
+                height: e.r,
+                opacity: e.o,
+                animationDelay: e.titila ? `${e.delay}s` : undefined,
+              }}
+            />
+          ))}
+        </span>
+        {/* El haz del faro girando: nace bajo el horizonte (50%, 105%) y da
+            la vuelta completa (~9.5s) — media vuelta pasa por el cielo,
+            media queda oculta abajo, como un faro real. Sin motion no se
+            monta (un haz estático clavado quedaría raro). */}
+        <span
+          className="absolute top-[105%] left-1/2 hidden h-[170vmax] w-[170vmax] motion-safe:block motion-safe:animate-[qh-faro-gira_9.5s_linear_infinite]"
+          style={{
+            transform: "translate(-50%, -50%)",
+            background:
+              "conic-gradient(from 0deg at 50% 50%, transparent 0deg, color-mix(in srgb, var(--color-azul-claro) 9%, transparent) 4deg, color-mix(in srgb, var(--color-azul-claro) 15%, transparent) 7deg, color-mix(in srgb, var(--color-azul-claro) 9%, transparent) 10deg, transparent 14deg)",
+          }}
+        />
       </div>
 
       {/* Escena ambiente: imágenes que nacen de la luz del horizonte, se

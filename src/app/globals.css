@@ -458,6 +458,31 @@ body:has([data-footer-dock-tint="gris"]) [data-footer-dock] {
   background-color: var(--color-gris-fondo);
 }
 
+/* === Qué hacemos — noche de faro ========================================== */
+
+/* Titileo de algunas estrellas del hero (opacity: compositor). */
+@keyframes qh-estrella {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* El haz del faro girando: rotación continua; el translate debe viajar en
+   los keyframes (la animación pisa el transform inline). Media vuelta el
+   haz queda bajo el horizonte — así "pasa" cada tanto, como un faro real. */
+@keyframes qh-faro-gira {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 /* === Portal de Qué hacemos — halo que respira ============================= */
 
 /* Respiración lenta del halo de la cápsula de luz (opacity: compositor).
