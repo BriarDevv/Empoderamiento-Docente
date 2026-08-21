@@ -282,6 +282,7 @@ export function TorreLineas() {
 
   return (
     <section
+      id="recorrido"
       className="bg-gris-fondo relative"
       aria-label="Líneas de acción"
     >
