@@ -3,7 +3,6 @@
 import { useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import gsap from "gsap";
-import { Magnetic } from "@/components/ui/Magnetic";
 import { PuntosFaro } from "@/components/ui/PuntosFaro";
 import { getLenis } from "@/lib/lenis";
 import { useIsomorphicLayoutEffect } from "@/lib/hooks/useIsomorphicLayoutEffect";
@@ -64,23 +63,29 @@ const CADENCIA = 3.5; // cada cuánto nace una imagen nueva
  * profundidad. Amplitudes chicas (≤18px) — acompaña, no marea. Solo con
  * puntero fino (hover:hover); sin motion no hay parallax.
  *
- * ESTRUCTURA (referencia Ink): eyebrow → titular blanco con subrayado verde
- * bajo la palabra clave (el marcador de concepto de la marca, en versión
- * subrayado) → bajada → botón pill naranja (CTA de acción, §7 del manual).
+ * ESTRUCTURA (referencia Ink): titular blanco con "Transformamos." teñido
+ * de celeste y subrayado verde (el marcador de concepto en versión
+ * subrayado) → bajada → CÁPSULA DE LUZ VERDE (el portal).
  *
- * Portal al recorrido: el pill responde a click Y a hold — cualquier gesto
- * termina encendiendo. Apretar carga el botón a ritmo lento (~1.1s, un
- * barrido oscuro lo va llenando); si soltás antes de completar, cuenta como
- * click y la carga restante se acelera (~0.4s). Al completar: la luz verde
- * sube desde abajo (el faro encendiéndose) y viaja suave hasta la torre
- * (#recorrido). El hover insinúa la carga (barrido al 15%) como affordance.
- * NO es una puerta: scrollear de largo sigue funcionando siempre. Teclado
- * (click sintético) carga rápido; con prefers-reduced-motion salta directo.
+ * Portal al recorrido — cápsula de luz: vidrio verde con halo que respira,
+ * deliberadamente distinta del CTA naranja del sitio (esto no es un CTA de
+ * conversión: es el interactivo del hero). Juguetona: magnetismo fuerte
+ * desde un radio amplio con retorno elástico, parallax interno del texto,
+ * olita de letras y flecha en hover. Click Y hold encienden: apretar
+ * hincha el cuerpo (squash gomoso) mientras la luz interna crece con la
+ * carga (~1.1s); soltar antes = click, la carga restante se acelera
+ * (~0.4s). Al completar: pop elástico, la luz verde del faro inunda desde
+ * abajo y viaja suave hasta la torre (#recorrido). El hover aviva la
+ * brasita (carga al 15%) como affordance. NO es una puerta: scrollear de
+ * largo sigue funcionando siempre. Teclado (click sintético) carga rápido;
+ * con prefers-reduced-motion la cápsula queda quieta y el click salta
+ * directo.
  */
 export function QueHacemosHero() {
   const rootRef = useRef<HTMLElement | null>(null);
   const holdRef = useRef<HTMLButtonElement | null>(null);
-  const fillRef = useRef<HTMLSpanElement | null>(null);
+  const campoRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLSpanElement | null>(null);
   const reduced = useReducedMotion();
   // La escena de imágenes solo corre en desktop con puntero fino y motion:
   // en mobile/reduced el hero queda limpio (y ni se cargan las fotos).
@@ -199,12 +204,54 @@ export function QueHacemosHero() {
     return () => ctx.revert();
   }, [escenaViva]);
 
-  // ── Portal al recorrido (click / hold sobre el pill) ───────────────────
+  // ── Cápsula: magnetismo fuerte + olita de letras ───────────────────────
+  // El wrapper (campo) tiene padding invisible: ese padding ES el radio
+  // amplio desde el que el botón te siente. Capas de transform separadas:
+  // x/y del campo, scale del botón (carga), x/y del inner (parallax
+  // interno) — nadie pisa a nadie.
+  useIsomorphicLayoutEffect(() => {
+    const campo = campoRef.current;
+    const inner = innerRef.current;
+    const btn = holdRef.current;
+    if (!campo || !inner || !btn || reduced) return;
+    if (!window.matchMedia("(hover: hover)").matches) return;
+
+    const mover = (e: MouseEvent) => {
+      const r = campo.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      gsap.to(campo, { x: dx * 0.35, y: dy * 0.35, duration: 0.5, ease: "power2.out" });
+      // El interior se mueve un poco más que la cáscara → peso.
+      gsap.to(inner, { x: dx * 0.12, y: dy * 0.12, duration: 0.5, ease: "power2.out" });
+    };
+    const volver = () => {
+      gsap.to([campo, inner], { x: 0, y: 0, duration: 0.8, ease: "elastic.out(1,0.35)" });
+    };
+    // Olita: cada letra sube y baja en secuencia, una pasada por entrada.
+    const olita = () => {
+      gsap.fromTo(
+        "[data-qh-letra]",
+        { y: 0 },
+        { y: -5, duration: 0.16, ease: "power2.out", stagger: 0.022, yoyo: true, repeat: 1, overwrite: true },
+      );
+    };
+
+    campo.addEventListener("mousemove", mover);
+    campo.addEventListener("mouseleave", volver);
+    btn.addEventListener("pointerenter", olita);
+    return () => {
+      campo.removeEventListener("mousemove", mover);
+      campo.removeEventListener("mouseleave", volver);
+      btn.removeEventListener("pointerenter", olita);
+      gsap.killTweensOf([campo, inner]);
+    };
+  }, [reduced]);
+
+  // ── Portal al recorrido (click / hold sobre la cápsula) ────────────────
   useIsomorphicLayoutEffect(() => {
     const btn = holdRef.current;
-    const fill = fillRef.current;
     const root = rootRef.current;
-    if (!btn || !fill || !root) return;
+    if (!btn || !root) return;
 
     const viajar = () => {
       const destino = document.getElementById("recorrido");
@@ -226,15 +273,19 @@ export function QueHacemosHero() {
     // idle → cargando (dedo abajo o click acelerando) → viajando → idle.
     let fase: "idle" | "cargando" | "viajando" = "idle";
 
-    // El barrido oscuro del pill marca el progreso de la carga.
+    // La carga vive en --carga (glow interno, borde y halo la leen desde
+    // CSS) y en la hinchazón del cuerpo (squash: más ancho que alto).
     const pintar = () => {
-      fill.style.transform = `scaleX(${prog.v})`;
+      btn.style.setProperty("--carga", prog.v.toFixed(4));
+      if (fase === "cargando") {
+        gsap.set(btn, { scaleX: 1 + prog.v * 0.14, scaleY: 1 + prog.v * 0.1 });
+      }
       if (holdGlow) holdGlow.style.opacity = String(prog.v * 0.9);
     };
     pintar();
 
-    // Carga completa: flash de luz y viaje; el barrido se descarga mientras
-    // viajamos.
+    // Carga completa: pop físico, flash de luz y viaje; la cápsula se
+    // descarga mientras viajamos.
     const fuego = () => {
       fase = "viajando";
       viajar();
@@ -245,20 +296,24 @@ export function QueHacemosHero() {
           { opacity: 0, duration: 1.4, ease: "power2.out", delay: 0.15 },
         );
       }
-      gsap.to(btn, { scale: 1, duration: 0.45, ease: "power2.out" });
+      // Pop: se pasa un pelo y vuelve con rebote gomoso.
+      gsap
+        .timeline()
+        .to(btn, { scaleX: 1.18, scaleY: 1.14, duration: 0.16, ease: "power2.out" })
+        .to(btn, { scaleX: 1, scaleY: 1, duration: 0.9, ease: "elastic.out(1,0.4)" });
       gsap.to(prog, {
         v: 0,
         duration: 0.8,
         delay: 0.5,
         ease: "power2.out",
-        onUpdate: () => (fill.style.transform = `scaleX(${prog.v})`),
+        onUpdate: () => btn.style.setProperty("--carga", prog.v.toFixed(4)),
         onComplete: () => {
           fase = "idle";
         },
       });
     };
 
-    // Carga el resto del barrido en `dur` (escalado por lo que falta) y fuego.
+    // Carga el resto en `dur` (escalado por lo que falta) y fuego.
     const cargar = (dur: number, ease: string) => {
       tween?.kill();
       tween = gsap.to(prog, {
@@ -270,7 +325,8 @@ export function QueHacemosHero() {
       });
     };
 
-    // Dedo abajo: carga lenta (el gesto de "encender manteniendo").
+    // Dedo abajo: carga lenta (el gesto de "encender manteniendo"); la
+    // hinchazón progresiva la maneja pintar() con la misma prog.v.
     const abajo = (e: PointerEvent) => {
       if (fase !== "idle") return;
       fase = "cargando";
@@ -281,7 +337,6 @@ export function QueHacemosHero() {
       } catch {
         /* noop */
       }
-      gsap.to(btn, { scale: 0.94, duration: 0.25, ease: "power2.out" });
       cargar(1.1, "none");
     };
     // Soltó antes de completar: fue un click — la carga restante se acelera.
@@ -289,13 +344,13 @@ export function QueHacemosHero() {
       if (fase !== "cargando") return;
       cargar(0.4, "power2.in");
     };
-    // Cancelación real del puntero (no un release): descarga.
+    // Cancelación real del puntero (no un release): se desinfla suave.
     const cancelar = () => {
       if (fase !== "cargando") return;
       fase = "idle";
       tween?.kill();
       tween = gsap.to(prog, { v: 0, duration: 0.35, ease: "power2.out", onUpdate: pintar });
-      gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
+      gsap.to(btn, { scaleX: 1, scaleY: 1, duration: 0.4, ease: "power2.out" });
     };
     // Teclado: el click llega con detail 0, sin pointerdown previo.
     const teclado = (e: MouseEvent) => {
@@ -305,18 +360,17 @@ export function QueHacemosHero() {
       }
     };
 
-    // Hover: insinúa la carga (affordance de "esto se enciende").
+    // Hover: la brasita se aviva apenas (affordance de "esto se enciende");
+    // el movimiento en hover lo ponen el magnetismo y la olita.
     const entrar = () => {
       if (fase !== "idle") return;
       tween?.kill();
       tween = gsap.to(prog, { v: 0.15, duration: 0.35, ease: "power2.out", onUpdate: pintar });
-      gsap.to(btn, { scale: 1.05, duration: 0.3, ease: "power2.out" });
     };
     const salir = () => {
       if (fase !== "idle") return;
       tween?.kill();
       tween = gsap.to(prog, { v: 0, duration: 0.4, ease: "power2.out", onUpdate: pintar });
-      gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out" });
     };
 
     btn.addEventListener("pointerdown", abajo);
@@ -459,27 +513,69 @@ export function QueHacemosHero() {
           escolar.
         </p>
 
-        {/* Portal al recorrido: click u hold cargan el barrido del pill,
-            encienden la luz y viajan suave a la torre. Scrollear sigue
-            funcionando siempre — esto es un atajo, no una puerta. */}
+        {/* Portal al recorrido: CÁPSULA DE LUZ VERDE — vidrio con halo que
+            respira. Click u hold la cargan: el cuerpo se hincha y la luz
+            interna crece (--carga alimenta glow/borde/halo desde CSS); al
+            completar, pop gomoso + flood verde + viaje a la torre.
+            Scrollear sigue funcionando siempre — atajo, no puerta. */}
         <div data-qh-rise className="mt-10 md:mt-12">
-          <Magnetic strength={0.25}>
+          {/* Campo magnético: el padding invisible es el radio de sensado. */}
+          <div ref={campoRef} className="-m-10 inline-block p-10">
             <button
               ref={holdRef}
               type="button"
               aria-label="Entrar al recorrido de lo que hacemos"
-              className="bg-naranja-accion relative inline-flex cursor-pointer touch-none items-center overflow-hidden rounded-full px-9 py-4 font-sans text-[0.98rem] font-medium text-white outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white/80"
+              className="group border-verde-concepto/45 bg-verde-concepto/12 focus-visible:outline-verde-concepto relative inline-flex cursor-pointer touch-none items-center justify-center rounded-full border px-10 py-[1.15rem] font-sans text-[1rem] font-medium text-white outline-none backdrop-blur-sm select-none focus-visible:outline-2 focus-visible:outline-offset-4"
+              style={{ "--carga": 0 } as CSSProperties}
             >
-              {/* Barrido de carga (click/hold): mismo lenguaje que el sweep
-                  hover del CtaButton del nav, acá manejado por GSAP. */}
+              {/* Halo exterior que respira (CSS puro, compositor). */}
               <span
-                ref={fillRef}
                 aria-hidden="true"
-                className="absolute inset-0 origin-left scale-x-0 bg-black/20"
+                className="absolute -inset-px rounded-full motion-safe:animate-[qh-halo-respira_3.4s_ease-in-out_infinite]"
+                style={{
+                  boxShadow:
+                    "0 0 24px 2px color-mix(in srgb, var(--color-verde-concepto) 50%, transparent)",
+                }}
               />
-              <span className="relative">Entrá al recorrido</span>
+              {/* Halo + borde encendidos por la carga. */}
+              <span
+                aria-hidden="true"
+                className="border-verde-concepto absolute -inset-px rounded-full border"
+                style={{
+                  opacity: "var(--carga, 0)",
+                  boxShadow:
+                    "0 0 46px 12px color-mix(in srgb, var(--color-verde-concepto) 65%, transparent), inset 0 0 34px color-mix(in srgb, var(--color-verde-concepto) 40%, transparent)",
+                }}
+              />
+              {/* Glow interno: brasita en reposo, llena la cápsula al cargar. */}
+              <span aria-hidden="true" className="absolute inset-0 overflow-hidden rounded-full">
+                <span
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(85% 95% at 50% 108%, color-mix(in srgb, var(--color-verde-concepto) 55%, transparent), transparent 75%)",
+                    opacity: "calc(0.35 + var(--carga, 0) * 0.65)",
+                  }}
+                />
+                <span
+                  className="bg-verde-concepto/45 absolute inset-0"
+                  style={{ opacity: "var(--carga, 0)" }}
+                />
+              </span>
+              {/* Contenido: letras sueltas para la olita + flecha que aparece
+                  en hover. El aria-label del botón lee por todos. */}
+              <span ref={innerRef} aria-hidden="true" className="relative flex items-center">
+                {"Entrá al recorrido".split("").map((ch, i) => (
+                  <span key={i} data-qh-letra className="inline-block whitespace-pre">
+                    {ch}
+                  </span>
+                ))}
+                <span className="inline-block w-0 -translate-x-1 opacity-0 transition-all duration-300 ease-out group-hover:w-[1.1em] group-hover:translate-x-1 group-hover:opacity-100">
+                  ↓
+                </span>
+              </span>
             </button>
-          </Magnetic>
+          </div>
         </div>
       </div>
     </section>

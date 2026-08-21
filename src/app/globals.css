@@ -458,6 +458,20 @@ body:has([data-footer-dock-tint="gris"]) [data-footer-dock] {
   background-color: var(--color-gris-fondo);
 }
 
+/* === Portal de Qué hacemos — halo que respira ============================= */
+
+/* Respiración lenta del halo de la cápsula de luz (opacity: compositor).
+   Se aplica con motion-safe:animate-[...] — sin motion no respira. */
+@keyframes qh-halo-respira {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
 /* === Transición del faro (novedades) — destello que respira =============== */
 
 /* El pulso del destello corre por CSS (compositor): en dev el main thread se
